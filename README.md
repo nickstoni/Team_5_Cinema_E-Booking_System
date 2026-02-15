@@ -80,6 +80,12 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
+On Windows:
+
+```bash
+mvnw.cmd spring-boot:run
+```
+
 The backend server will start at: `http://localhost:8080`
 
 ### Frontend (React)
@@ -113,13 +119,4 @@ spring.jpa.show-sql=true
 # Server Configuration
 server.port=8080
 ```
-
-### Frontend Configuration
-
-Create a `.env` file in the `frontend` directory:
-
-```
-REACT_APP_API_URL=http://localhost:8080/api
-```
-
 ---
