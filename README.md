@@ -17,6 +17,17 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 
 ---
 
+## Current Tasks
+
+#### Please refer to the [Deliverable](https://uga.view.usg.edu/d2l/lms/dropbox/user/folder_submit_files.d2l?db=4147468&grpid=3873414&isprv=0&bp=0&ou=3859721) for **requirements**
+
+- Nick -> Home Page with movies from the Movie database table
+- Thai -> Movie Details (poster, title, rating, description, trailer, showtimes, ...)
+- Asad -> Search movies by title
+- Asad -> Filter movies by genre or show date
+- Nick -> Booking Page (UI Only) to show selected movie and showtime
+- Jamie -> Database with at least 10 movies (movies have to include multiple genres, and both states of Coming Soon and Currently Running)
+
 ## Project Features
 
 - User Authentication & Authorization (login/sign-up, account management)
