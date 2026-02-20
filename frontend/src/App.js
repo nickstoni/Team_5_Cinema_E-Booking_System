@@ -1,31 +1,32 @@
-import logo from './logo.svg';
 import './App.css';
-import { useEffect } from 'react';
+import Navbar from './components/Navbar';
+import HeroSection from './components/HeroSection';
+import MoviesSection from './components/MoviesSection';
+import Footer from './components/Footer';
 
 function App() {
-  // I am using this just to test if the backend and frontend are running.
-  useEffect(() => {
-    fetch('http://localhost:8080/api/hello')
-      .then(res => res.text())
-      .then(data => console.log(data));
-  }, []);
+  // Mock data for movies (will be replaced with database data later)
+  const nowPlaying = [
+    {id: 1, title: "Movie 1"},
+    {id: 2, title: "Movie 2"},
+    {id: 3, title: "Movie 3"},
+    {id: 4, title: "Movie 4"}
+  ]; 
+
+  const upcoming = [
+    {id: 5, title: "Upcoming Movie 1"}, 
+    {id: 6, title: "Upcoming Movie 2"},
+    {id: 7, title: "Upcoming Movie 3"},
+    {id: 8, title: "Upcoming Movie 4"},
+  ];
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar />
+      <HeroSection movies={nowPlaying} />
+      <MoviesSection title="Now Playing" movies={nowPlaying} type="nowPlaying" />
+      <MoviesSection title="Coming Soon" movies={upcoming} type="upcoming" />
+      <Footer />
     </div>
   );
 }
