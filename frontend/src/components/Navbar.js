@@ -3,7 +3,10 @@
 // - Route the pages properly (Maybe using the Link component)
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import '../styles/Navbar.css';
+
 
 // Component for a clean navbar
 function Navbar() {
@@ -37,11 +40,13 @@ function Navbar() {
           </button>
         </form>
 
-        {/* Later need to implement proper routing to different pages */}
+        {/* Later need to implement proper routing to different pages 
+            Added links, showtimes temporarily links to Home amd details moved to Movies for testing
+        */}
         <ul className="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#movies">Movies</a></li>
-          <li><a href="#showtimes">Showtimes</a></li>
+          <li><Link to="/">Home</Link>{""}</li>
+          <li> <Link to="/details">Movies</Link>{""}</li>
+          <li><Link to="/">Showtimes</Link></li>
         </ul>
 
         {/* Later need to implement proper routing to different pages */}
