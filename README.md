@@ -1,4 +1,4 @@
-# Team 5 Cinema E-Booking_System
+# Team 5 Cinema E-Booking System
 
 ##  Overview
 
