@@ -27,10 +27,48 @@ function App() {
 
     loadMovies();
   }, []);
+  const handleSearch = async (query) => {
+    try {
+      const url = query && query.trim()
+        ? `http://localhost:8080/api/movies?search=${encodeURIComponent(query.trim())}`
+        : "http://localhost:8080/api/movies";
+  
+      const res = await fetch(url);
+      const data = await res.json();
+  
+      const current = data.filter(m => (m.showAvailability || "").toLowerCase() === "current");
+      const coming = data.filter(m => (m.showAvailability || "").toLowerCase() === "upcoming");
+  
+      setNowPlaying(current);
+      setUpcoming(coming);
+    } catch (err) {
+      console.error("Search failed:", err);
+    }
+  };
+  const handleGenreChange = async (genre) => {
+    try {
+      const url = genre && genre.trim()
+        ? `http://localhost:8080/api/movies/by-genre?genre=${encodeURIComponent(genre.trim())}`
+        : "http://localhost:8080/api/movies";
+  
+      const res = await fetch(url);
+      const data = await res.json();
+  
+      const current = data.filter(m => (m.showAvailability || "").toLowerCase() === "current");
+      const coming = data.filter(m => (m.showAvailability || "").toLowerCase() === "upcoming");
+  
+      setNowPlaying(current);
+      setUpcoming(coming);
+    } catch (err) {
+      console.error("Genre filter failed:", err);
+    }
+  };
 
   return (
     <div className="App">
-      <Navbar />
+      <Navbar onSearch={handleSearch} />
+      <Navbar onSearch={handleSearch} onGenreChange={handleGenreChange} />
+    
       <HeroSection movies={nowPlaying} />
       <MoviesSection title="Now Playing" movies={nowPlaying} type="nowPlaying" />
       <MoviesSection title="Coming Soon" movies={upcoming} type="upcoming" />

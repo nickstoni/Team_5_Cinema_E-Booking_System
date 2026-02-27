@@ -117,3 +117,18 @@
   background-color: #c40812;
   transform: scale(1.05);
 }
+
+.genre-select {
+  height: 42px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: white;
+  margin-left: 10px;
+  outline: none;
+}
+
+.genre-select option {
+  color: black;
+}
