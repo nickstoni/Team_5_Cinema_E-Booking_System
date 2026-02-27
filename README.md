@@ -1,4 +1,4 @@
-# Team_5_Cinema_E-Booking_System
+# Team 5 Cinema E-Booking_System
 
 ##  Overview
 
@@ -44,26 +44,57 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 
 ```
 /backend
+  cinema_ddl.sql → Database schema (DDL)
+  cinema_data.sql → Sample movie data
   /src/main/java/com/cinema/booking
     CinemaBookingApplication.java → Spring Boot main application
-    /controller → REST API controllers
+    /controller
+      MovieController.java → Movie API endpoints (search, genre filter)
       TestController.java → Test endpoint
-    /model → Entity classes (User, Movie, Booking, etc.)
-    /repository → Database repositories
-    /service → Business logic layer
+    /model
+      Movie.java → Movie entity class
+    /repository
+      MovieRepository.java → Movie database repository
+      MovieQueryRepository.java → Custom movie queries
   /src/main/resources
     application.properties → Spring Boot configuration
-  pom.xml → Maven dependencies
+
 /frontend
-  /public → Static assets
+  /public
     index.html → Main HTML file
+    /images → Movie posters and assets
   /src
-    App.js → Main React component
+    App.js → Main React component with routing
+    App.css → Global styles
     index.js → Entry point
-    /components → React components
-    /pages → Page components
-    /services → API service layer
-  package.json → npm dependencies
+    index.css → Base styles
+    /components
+      /filters
+        GenreFilter.js → Genre dropdown filter component
+      /layout
+        Navbar.js → Navigation bar with search
+        Footer.js → Page footer
+      /movies
+        HeroSection.js → Rotating hero slider
+        MovieCard.js → Individual movie card
+        MoviesSection.js → Movie grid section (Now Playing/Coming Soon)
+      /pages
+        HomePage.js → Main landing page
+        MovieDetails.js → Movie detail page with trailer
+        BookingPage.js → Ticket booking UI (prototype)
+        NotFoundPage.js → 404 page
+    /styles → CSS modules for each component
+      BookingPage.css
+      Footer.css
+      HeroSection.css
+      MovieCard.css
+      MovieDetails.css
+      MoviesSection.css
+      Navbar.css
+      NotFoundPage.css
+
+/public
+  /images → Shared image assets
 ```
 
 ---
@@ -81,6 +112,19 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 ---
 
 ## Running the Application
+
+### Database Setup (MySQL)
+
+1. Create the database and tables:
+```bash
+cd backend
+mysql -u root -p < cinema_ddl.sql
+```
+
+2. Load sample movie data:
+```bash
+mysql -u root -p < cinema_data.sql
+```
 
 ### Backend (Spring Boot)
 
@@ -119,9 +163,9 @@ Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 # Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/cinema_booking
-spring.datasource.username=your_db_username
-spring.datasource.password=your_db_password
+spring.datasource.url=jdbc:mysql://localhost:3306/cinema_ebooking_platform
+spring.datasource.username=root
+spring.datasource.password=your_password
 
 # JPA Configuration
 spring.jpa.hibernate.ddl-auto=update
@@ -130,4 +174,13 @@ spring.jpa.show-sql=true
 # Server Configuration
 server.port=8080
 ```
+
+### Database Schema
+
+The database includes the following tables:
+- **movies** - Movie information (title, rating, description, poster, trailer URL, show_availability)
+- **genres** - Genre categories
+- **movie_genres** - Many-to-many relationship between movies and genres
+- **showtimes** - Upcoming movie showtimes (to be implemented)
+
 ---
