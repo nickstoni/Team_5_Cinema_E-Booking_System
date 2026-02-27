@@ -3,7 +3,7 @@ import MovieCard from './MovieCard';
 import '../../styles/MoviesSection.css';
 
 // Component for each movie section (Now Playing and Coming Soon)
-function MoviesSection({title, movies, type}) {
+function MoviesSection({title, movies, type, searchQuery, selectedGenre}) {
   const [startIndex, setStartIndex] = useState(0);
   // Number of movies to show at a time (Can be changed later).
   const moviesPerPage = 8;
@@ -18,6 +18,11 @@ function MoviesSection({title, movies, type}) {
       setStartIndex(startIndex - moviesPerPage);
     }
   };
+
+  // Don't render section if no movies and user has filtered/searched
+  if (movies.length === 0 && (searchQuery || selectedGenre)) {
+    return null;
+  }
 
   return (
     // If Section type == 'upcoming' then the CSS applied is 'movies-section upcoming-section', otherwise it is just 'movies-section'
