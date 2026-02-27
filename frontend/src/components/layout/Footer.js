@@ -1,7 +1,5 @@
-// TO DO:
-// - Maybe add more content in the Footer (I am out of ideas lol)
-
-import '../styles/Footer.css';
+import { Link } from 'react-router-dom';
+import '../../styles/Footer.css';
 
 // Component for a clean and simple footer
 function Footer() {
@@ -15,8 +13,8 @@ function Footer() {
         <div className="footer-section">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#movies">Movies</a></li>
-            <li><a href="#showtimes">Showtimes</a></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/showtimes">Showtimes</Link></li>
           </ul>
         </div>
       </div>

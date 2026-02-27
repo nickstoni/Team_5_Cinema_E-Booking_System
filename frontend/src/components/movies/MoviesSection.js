@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import MovieCard from './MovieCard';
-import '../styles/MoviesSection.css';
+import '../../styles/MoviesSection.css';
 
 // Component for each movie section (Now Playing and Coming Soon)
 function MoviesSection({title, movies, type}) {
   const [startIndex, setStartIndex] = useState(0);
   // Number of movies to show at a time (Can be changed later).
-  const moviesPerPage = 4;
+  const moviesPerPage = 8;
 
   const nextMovies = () => {
     if (startIndex + moviesPerPage < movies.length) {

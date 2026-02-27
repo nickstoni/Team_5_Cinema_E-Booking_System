@@ -1,9 +1,6 @@
-// TO DO:
-// - Implement Search Function
-// - Route the pages properly (Maybe using the Link component)
-
 import { useState } from 'react';
-import '../styles/Navbar.css';
+import { Link } from 'react-router-dom';
+import '../../styles/Navbar.css';
 
 // Component for a clean navbar
 function Navbar({ onSearch, onGenreChange }) {
@@ -14,22 +11,16 @@ function Navbar({ onSearch, onGenreChange }) {
     e.preventDefault();
     onSearch(searchQuery); 
   };
-/*function Navbar() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // NEED TO IMPLEMENT SEARCH
-    console.log('Searching for:', searchQuery);
-  };*/
 
   return (
     <nav className="navbar">
       <div className="nav-container">
-        <div className="logo">
-          <span className="logo-icon">🎬</span>
-          <span className="logo-text">Absolute Cinema</span>
-        </div>
+        <Link to="/" className="logo-link">
+          <div className="logo">
+            <span className="logo-icon">🎬</span>
+            <span className="logo-text">Absolute Cinema</span>
+          </div>
+        </Link>
         
         {/* Form for the Search bar */}
         <form className="search-bar" onSubmit={handleSearch}>
@@ -67,15 +58,14 @@ function Navbar({ onSearch, onGenreChange }) {
           </button>
         </form>
 
-        {/* Later need to implement proper routing to different pages */}
         <ul className="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#movies">Movies</a></li>
-          <li><a href="#showtimes">Showtimes</a></li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/showtimes">Showtimes</Link></li>
         </ul>
 
-        {/* Later need to implement proper routing to different pages */}
-        <button className="signin-btn">Sign In</button>
+        <Link to="/login" className="signin-link">
+          <button className="signin-btn">Sign In</button>
+        </Link>
       </div>
     </nav>
   );
