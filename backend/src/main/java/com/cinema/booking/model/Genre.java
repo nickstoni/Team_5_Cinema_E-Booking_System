@@ -1,5 +1,6 @@
 package com.cinema.booking.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,18 +13,18 @@ public class Genre {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int genreId;
+    private Integer genreId;
 
     @ManyToMany(mappedBy = "genres")
-    
+
     @JsonIgnore
-    private Set<Movie> movies;
+    private Set<Movie> movies = new HashSet<>();
 
     private String genreName;
 
     public Genre() {}
 
-    public int getGenreId() {
+    public Integer getGenreId() {
         return genreId;
     }
 

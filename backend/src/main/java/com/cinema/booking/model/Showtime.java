@@ -1,8 +1,7 @@
 package com.cinema.booking.model;
 
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.*;
 
@@ -13,30 +12,40 @@ public class Showtime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int showtimeId;
+    private Integer showtimeId;
 
-    private String showtime;
+    private LocalTime showtime;
+    private LocalDate showdate;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id")
-
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
     public Showtime() {}
 
-    public int getShowtimeId() {
+    public Integer getShowtimeId() {
         return showtimeId;
     }
     
-    public String getShowtime() {
+    public LocalTime getShowtime() {
         return showtime;
     }
-    public void setShowtime(String showtime) {
+    public void setShowtime(LocalTime showtime) {
         this.showtime = showtime;
+    }
+
+    public LocalDate getShowdate() {
+        return showdate;
+    }
+    public void setShowdate(LocalDate showdate) {
+        this.showdate = showdate;
     }
 
     public Movie getMovie() {
         return movie;
+    }
+    public void setMovie(Movie movie) {
+        this.movie = movie;
     }
 
 }
