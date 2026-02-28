@@ -21,9 +21,6 @@ public class Movie {
         joinColumns = @JoinColumn(name = "movie_id"),
         inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-
-    @OneToMany(mappedBy = "movie")
-
     private Set<Genre> genresSet = new HashSet<>();
 
     private String title;

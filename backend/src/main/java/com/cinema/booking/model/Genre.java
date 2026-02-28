@@ -15,7 +15,7 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer genreId;
 
-    @ManyToMany(mappedBy = "genres")
+    @ManyToMany(mappedBy = "genresSet")
 
     @JsonIgnore
     private Set<Movie> movies = new HashSet<>();
