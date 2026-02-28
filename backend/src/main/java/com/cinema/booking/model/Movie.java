@@ -1,5 +1,10 @@
 package com.cinema.booking.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -9,6 +14,14 @@ public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer movieId;
+
+    @ManyToMany
+    @JoinTable(
+        name = "movie_genres",
+        joinColumns = @JoinColumn(name = "movie_id"),
+        inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genresSet = new HashSet<>();
 
     private String title;
     private Integer rating;
@@ -23,7 +36,6 @@ public class Movie {
     public Movie() {}
 
     public Integer getMovieId() { return movieId; }
-    public void setMovieId(Integer movieId) { this.movieId = movieId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -42,4 +54,7 @@ public class Movie {
 
     public String getShowAvailability() { return showAvailability; }
     public void setShowAvailability(String showAvailability) { this.showAvailability = showAvailability; }
+
+    public Set<Genre> getGenres() { return genresSet; }
+    public void addGenre(Genre genre) { genresSet.add(genre); }
 }
