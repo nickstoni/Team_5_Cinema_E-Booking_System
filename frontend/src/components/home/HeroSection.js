@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../styles/HeroSection.css';
+import '../../styles/home/HeroSection.css';
 import { Link } from 'react-router-dom';
 
 function HeroSection({ movies }) {

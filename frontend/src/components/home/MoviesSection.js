@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import MovieCard from './MovieCard';
-import '../../styles/MoviesSection.css';
+import '../../styles/home/MoviesSection.css';
 
 // Component for each movie section (Now Playing and Coming Soon)
 function MoviesSection({title, movies, type, searchQuery, selectedGenre}) {

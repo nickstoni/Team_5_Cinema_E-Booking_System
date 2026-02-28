@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../../styles/Navbar.css';
+import '../../styles/layout/Navbar.css';
 
 // Component for a clean navbar
 function Navbar({ onSearch, onGenreChange }) {

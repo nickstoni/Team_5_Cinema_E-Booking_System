@@ -1,26 +1,38 @@
-// TO DO:
-// - Implement the fetching of Genre
-// - Implement the fetching of Showtimes
-
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
-import '../../styles/MovieDetails.css';
+import ShowtimeCard from './ShowtimeCard';
+import '../../styles/moviedetails/MovieDetails.css';
 
 function MovieDetails() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [showtimes, setShowtimes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the movie's details
+  // Fetch the movie's details and showtimes
   useEffect(() => {
     async function fetchMovieDetails() {
       try {
-        const res = await fetch(`http://localhost:8080/api/movies`);
-        const data = await res.json();
-        const foundMovie = data.find(m => m.movieId === parseInt(id));
+        // Fetch movie details
+        const movieRes = await fetch(`http://localhost:8080/api/movies`);
+        const movieData = await movieRes.json();
+        const foundMovie = movieData.find(m => m.movieId === parseInt(id));
         setMovie(foundMovie);
+
+        // Fetch showtimes for this movie
+        if (foundMovie) {
+          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes`);
+          const showtimesData = await showtimesRes.json();
+          
+          // Filter showtimes for this specific movie
+          const movieShowtimes = showtimesData.filter(
+            showtime => showtime.movie.movieId === foundMovie.movieId
+          );
+          setShowtimes(movieShowtimes);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error("Failed to load movie details:", err);
@@ -51,11 +63,24 @@ function MovieDetails() {
     return null;
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div>
+        <Navbar />
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <h2>Loading movie details...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Show not found if movie doesn't exist after loading
   if (!movie) {
     return (
       <div>
         <Navbar />
-        <div>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
           <h2>Movie not found</h2>
         </div>
       </div>
@@ -105,10 +130,14 @@ function MovieDetails() {
               ⭐ <span className="rating-number">{movie.rating}/100</span>
             </div>
 
-            {/* Genres (NEED TO IMPLEMENT) */}
+            {/* Genres */}
             <div className="movie-genres">
               <span className="genre-label">Genres: </span>
-              <span className="genre-list">Action, Drama, Thriller</span>
+              <span className="genre-list">
+                {movie.genres && movie.genres.length > 0 
+                  ? movie.genres.map(g => g.genreName).join(', ')
+                  : 'Not specified'}
+              </span>
             </div>
 
             {/* Information */}
@@ -129,11 +158,19 @@ function MovieDetails() {
               </p>
             </div>
 
-            {/* Showtimes Section (NEED TO IMPLEMENT) */}
+            {/* Showtimes Section */}
             {movie.showAvailability === 'current' && (
               <div className="showtimes-section">
                 <h2 className="section-title">Available Showtimes</h2>
-                <p className="showtimes-placeholder">Showtimes will be displayed here.</p>
+                {showtimes.length > 0 ? (
+                  <div className="showtimes-grid">
+                    {showtimes.map((showtime) => (
+                      <ShowtimeCard key={showtime.showtimeId} showtime={showtime} movieId={movie.movieId} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="showtimes-placeholder">No showtimes available for this movie.</p>
+                )}
               </div>
             )}
           </div>

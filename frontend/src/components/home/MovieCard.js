@@ -1,4 +1,4 @@
-import '../../styles/MovieCard.css';
+import '../../styles/home/MovieCard.css';
 import { Link } from 'react-router-dom';
 
 // Component for creating each movie card

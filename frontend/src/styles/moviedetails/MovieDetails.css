@@ -158,7 +158,51 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.showtimes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .showtimes-placeholder {
   color: rgba(255, 255, 255, 0.6);
   font-style: italic;
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .movie-info-container {
+    grid-template-columns: 1fr;
+  }
+
+  .movie-poster-section {
+    position: relative;
+    top: 0;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+
+  .movie-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .movie-details-container {
+    padding: 80px 1rem 1rem;
+  }
+
+  .movie-title {
+    font-size: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .showtimes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

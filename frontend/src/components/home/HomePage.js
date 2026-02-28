@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../layout/Navbar';
-import HeroSection from '../movies/HeroSection';
-import MoviesSection from '../movies/MoviesSection';
+import HeroSection from './HeroSection';
+import MoviesSection from './MoviesSection';
 import Footer from '../layout/Footer';
 
 function HomePage() {
