@@ -45,17 +45,23 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 ```
 /backend
   cinema_ddl.sql → Database schema (DDL)
-  cinema_data.sql → Sample movie data
+  cinema_data.sql → Sample movie data (10 movies with genres and showtimes)
   /src/main/java/com/cinema/booking
     CinemaBookingApplication.java → Spring Boot main application
     /controller
       MovieController.java → Movie API endpoints (search, genre filter)
+      ShowtimeController.java → Showtime API endpoints
+      GenreController.java → Genre API endpoints
       TestController.java → Test endpoint
     /model
       Movie.java → Movie entity class
+      Showtime.java → Showtime entity class
+      Genre.java → Genre entity class
     /repository
       MovieRepository.java → Movie database repository
       MovieQueryRepository.java → Custom movie queries
+      ShowtimeRepository.java → Showtime database repository
+      GenreRepository.java → Genre database repository
   /src/main/resources
     application.properties → Spring Boot configuration
 
@@ -68,33 +74,37 @@ Cinema E-Booking System is a web application that allows users to browse movies,
     App.css → Global styles
     index.js → Entry point
     index.css → Base styles
-    /components
-      /filters
-        GenreFilter.js → Genre dropdown filter component
-      /layout
-        Navbar.js → Navigation bar with search
-        Footer.js → Page footer
-      /movies
-        HeroSection.js → Rotating hero slider
-        MovieCard.js → Individual movie card
+    /components → Organized by page/feature
+      /booking
+        BookingPage.js → Ticket booking page (UI prototype)
+        SeatSelection.js → Interactive seat selection component
+        TicketPrices.js → Ticket quantity and pricing component
+      /home
+        HomePage.js → Main landing page with search/filter
+        HeroSection.js → Rotating hero slider for featured movies
         MoviesSection.js → Movie grid section (Now Playing/Coming Soon)
-      /pages
-        HomePage.js → Main landing page
-        MovieDetails.js → Movie detail page with trailer
-        BookingPage.js → Ticket booking UI (prototype)
-        NotFoundPage.js → 404 page
-    /styles → CSS modules for each component
-      BookingPage.css
-      Footer.css
-      HeroSection.css
-      MovieCard.css
-      MovieDetails.css
-      MoviesSection.css
-      Navbar.css
-      NotFoundPage.css
-
-/public
-  /images → Shared image assets
+        MovieCard.js → Individual movie card component
+      /moviedetails
+        MovieDetails.js → Movie detail page with trailer and showtimes
+        ShowtimeCard.js → Showtime card with booking navigation
+      /notfound
+        NotFoundPage.js → 404 error page
+      /layout
+        Navbar.js → Navigation bar with search and genre filter
+        Footer.js → Page footer component
+      /filters
+        GenreFilter.js → Genre dropdown filter component (for future use)
+    /styles → Organized by page/feature
+      /booking
+        BookingPage.css, SeatSelection.css, TicketPrices.css
+      /home
+        HeroSection.css, MoviesSection.css, MovieCard.css
+      /moviedetails
+        MovieDetails.css, ShowtimeCard.css
+      /notfound
+        NotFoundPage.css
+      /layout
+        Navbar.css, Footer.css
 ```
 
 ---
@@ -174,13 +184,3 @@ spring.jpa.show-sql=true
 # Server Configuration
 server.port=8080
 ```
-
-### Database Schema
-
-The database includes the following tables:
-- **movies** - Movie information (title, rating, description, poster, trailer URL, show_availability)
-- **genres** - Genre categories
-- **movie_genres** - Many-to-many relationship between movies and genres
-- **showtimes** - Upcoming movie showtimes (to be implemented)
-
----
