@@ -21,7 +21,7 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 
 #### Please refer to the [Deliverable](https://uga.view.usg.edu/d2l/lms/dropbox/user/folder_submit_files.d2l?db=4147473&grpid=3873414&isprv=0&bp=0&ou=3859721) for **requirements**
 
-<mark>Please remember about Usability and Security Requirements!</mark>
+<ins>Please remember about Usability and Security Requirements!</ins>
 
 - Registration
 - Login / Logout
