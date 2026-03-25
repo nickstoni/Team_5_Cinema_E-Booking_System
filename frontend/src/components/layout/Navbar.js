@@ -9,7 +9,9 @@ function Navbar({ onSearch, onGenreChange }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    onSearch(searchQuery); 
+    if (onSearch) {
+      onSearch(searchQuery);
+    }
   };
 
   return (
@@ -63,9 +65,14 @@ function Navbar({ onSearch, onGenreChange }) {
           <li><Link to="/showtimes">Showtimes</Link></li>
         </ul>
 
-        <Link to="/login" className="signin-link">
-          <button className="signin-btn">Sign In</button>
-        </Link>
+        <div className="auth-buttons">
+          <Link to="/login" className="signin-link">
+            <button className="login-btn">Log In</button>
+          </Link>
+          <Link to="/signup" className="signin-link">
+            <button className="signin-btn">Sign Up</button>
+          </Link>
+        </div>
       </div>
     </nav>
   );
