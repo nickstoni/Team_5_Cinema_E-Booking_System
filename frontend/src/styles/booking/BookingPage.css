@@ -1,0 +1,133 @@
+.booking-page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #fff;
+}
+
+.booking-container {
+  max-width: 1200px;
+  margin: 100px auto 40px;
+  padding: 0 20px;
+}
+
+.back-link {
+  display: inline-block;
+  color: #999;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: #e50914;
+}
+
+.booking-title {
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #e50914, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 30px;
+}
+
+.movie-booking-info {
+  display: flex;
+  gap: 30px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 40px;
+}
+
+.booking-poster {
+  width: 150px;
+  height: 225px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.booking-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.booking-movie-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.section-heading {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.order-summary {
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.summary-row.total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  padding-top: 15px;
+  border-top: 2px solid rgba(229, 9, 20, 0.5);
+  border-bottom: none;
+  margin-top: 10px;
+}
+
+.total-price {
+  background: linear-gradient(135deg, #e50914, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 24px;
+}
+
+.proceed-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #e50914, #ff6b6b);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.proceed-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.proceed-btn:disabled {
+  background: rgba(100, 100, 100, 0.5);
+  cursor: not-allowed;
+}

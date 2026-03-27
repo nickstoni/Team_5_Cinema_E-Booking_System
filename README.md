@@ -1,4 +1,4 @@
-# Team_5_Cinema_E-Booking_System
+# Team 5 Cinema E-Booking System
 
 ##  Overview
 
@@ -19,14 +19,14 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 
 ## Current Tasks
 
-#### Please refer to the [Deliverable](https://uga.view.usg.edu/d2l/lms/dropbox/user/folder_submit_files.d2l?db=4147468&grpid=3873414&isprv=0&bp=0&ou=3859721) for **requirements**
+#### Please refer to the [Deliverable](https://uga.view.usg.edu/d2l/lms/dropbox/user/folder_submit_files.d2l?db=4147473&grpid=3873414&isprv=0&bp=0&ou=3859721) for **requirements**
 
-- Nick -> Home Page with movies from the Movie database table
-- Thai -> Movie Details (poster, title, rating, description, trailer, showtimes, ...)
-- Asad -> Search movies by title
-- Asad -> Filter movies by genre or show date
-- Nick -> Booking Page (UI Only) to show selected movie and showtime
-- Jamie -> Database with at least 10 movies (movies have to include multiple genres, and both states of Coming Soon and Currently Running)
+<ins>Please remember about Usability and Security Requirements!</ins>
+
+- Registration
+- Login / Logout
+- Edit Profile
+- Customers/Admins (and other) database tables
 
 ## Project Features
 
@@ -44,26 +44,67 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 
 ```
 /backend
+  cinema_ddl.sql → Database schema (DDL)
+  cinema_data.sql → Sample movie data (10 movies with genres and showtimes)
   /src/main/java/com/cinema/booking
     CinemaBookingApplication.java → Spring Boot main application
-    /controller → REST API controllers
+    /controller
+      MovieController.java → Movie API endpoints (search, genre filter)
+      ShowtimeController.java → Showtime API endpoints
+      GenreController.java → Genre API endpoints
       TestController.java → Test endpoint
-    /model → Entity classes (User, Movie, Booking, etc.)
-    /repository → Database repositories
-    /service → Business logic layer
+    /model
+      Movie.java → Movie entity class
+      Showtime.java → Showtime entity class
+      Genre.java → Genre entity class
+    /repository
+      MovieRepository.java → Movie database repository
+      MovieQueryRepository.java → Custom movie queries
+      ShowtimeRepository.java → Showtime database repository
+      GenreRepository.java → Genre database repository
   /src/main/resources
     application.properties → Spring Boot configuration
-  pom.xml → Maven dependencies
+
 /frontend
-  /public → Static assets
+  /public
     index.html → Main HTML file
+    /images → Movie posters and assets
   /src
-    App.js → Main React component
+    App.js → Main React component with routing
+    App.css → Global styles
     index.js → Entry point
-    /components → React components
-    /pages → Page components
-    /services → API service layer
-  package.json → npm dependencies
+    index.css → Base styles
+    /components → Organized by page/feature
+      /booking
+        BookingPage.js → Ticket booking page (UI prototype)
+        SeatSelection.js → Interactive seat selection component
+        TicketPrices.js → Ticket quantity and pricing component
+      /home
+        HomePage.js → Main landing page with search/filter
+        HeroSection.js → Rotating hero slider for featured movies
+        MoviesSection.js → Movie grid section (Now Playing/Coming Soon)
+        MovieCard.js → Individual movie card component
+      /moviedetails
+        MovieDetails.js → Movie detail page with trailer and showtimes
+        ShowtimeCard.js → Showtime card with booking navigation
+      /notfound
+        NotFoundPage.js → 404 error page
+      /layout
+        Navbar.js → Navigation bar with search and genre filter
+        Footer.js → Page footer component
+      /filters
+        GenreFilter.js → Genre dropdown filter component (for future use)
+    /styles → Organized by page/feature
+      /booking
+        BookingPage.css, SeatSelection.css, TicketPrices.css
+      /home
+        HeroSection.css, MoviesSection.css, MovieCard.css
+      /moviedetails
+        MovieDetails.css, ShowtimeCard.css
+      /notfound
+        NotFoundPage.css
+      /layout
+        Navbar.css, Footer.css
 ```
 
 ---
@@ -81,6 +122,19 @@ Cinema E-Booking System is a web application that allows users to browse movies,
 ---
 
 ## Running the Application
+
+### Database Setup (MySQL)
+
+1. Create the database and tables:
+```bash
+cd backend
+mysql -u root -p < cinema_ddl.sql
+```
+
+2. Load sample movie data:
+```bash
+mysql -u root -p < cinema_data.sql
+```
 
 ### Backend (Spring Boot)
 
@@ -119,9 +173,9 @@ Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 # Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/cinema_booking
-spring.datasource.username=your_db_username
-spring.datasource.password=your_db_password
+spring.datasource.url=jdbc:mysql://localhost:3306/cinema_ebooking_platform
+spring.datasource.username=root
+spring.datasource.password=your_password
 
 # JPA Configuration
 spring.jpa.hibernate.ddl-auto=update
@@ -130,4 +184,3 @@ spring.jpa.show-sql=true
 # Server Configuration
 server.port=8080
 ```
----

@@ -30,9 +30,9 @@ create table if not exists movie_genres (
 
 create table if not exists showtimes (
     showtime_id int auto_increment,
-    movie_id int,
+    movie_id int not null,
     showtime time not null,
-    showdate date,
+    showdate date not null,
     primary key (showtime_id),
     foreign key (movie_id) references movies(movie_id)
 );
