@@ -3,7 +3,7 @@ function LoginSection({formData, onInputChange}) {
     <div className="login-section">
       <h2>Enter Login Details</h2>
       <label className="form-row full-span">
-          <span className="form-label">Email Address*</span>
+          <span className="form-label">Email Address</span>
           <input
             type="email"
             className="form-input"
