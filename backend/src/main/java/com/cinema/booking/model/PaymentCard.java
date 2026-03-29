@@ -21,6 +21,9 @@ public class PaymentCard {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Integer userId;
+
     @Column(name = "card_type", nullable = false)
     private String cardType;
 
@@ -35,6 +38,12 @@ public class PaymentCard {
 
     @Column(name = "expiry_year", nullable = false)
     private Integer expiryYear;
+
+    @Column(name = "cvv")
+    private String cvv;
+
+    @Column(name = "last_four")
+    private String lastFour;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

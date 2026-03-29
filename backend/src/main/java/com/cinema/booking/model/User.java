@@ -56,6 +56,9 @@ public class User {
     @Column(name = "email_verification_token")
     private String emailVerificationToken;
 
+    @Column(name = "promotions_enabled", nullable = false)
+    private Boolean promotionsEnabled = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
