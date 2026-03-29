@@ -1,0 +1,147 @@
+package com.cinema.booking.controller;
+
+import com.cinema.booking.dto.RegistrationRequest;
+import com.cinema.booking.dto.RegistrationResponse;
+import com.cinema.booking.model.PaymentCard;
+import com.cinema.booking.model.User;
+import com.cinema.booking.repository.UserRepository;
+import com.cinema.booking.service.EmailService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000")
+public class AuthController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/register")
+    public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest request) {
+        try {
+            // Validate password confirmation
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new RegistrationResponse(false, "Passwords do not match"));
+            }
+
+            // Check if user already exists
+            Optional<User> existingUser = userRepository.findByEmail(request.getEmail().toLowerCase().trim());
+            if (existingUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new RegistrationResponse(false, "Email already registered"));
+            }
+
+            // Create new user
+            User user = new User();
+            user.setFullName(request.getFullName().trim());
+            user.setEmail(request.getEmail().toLowerCase().trim());
+            user.setPhoneNumber(request.getPhoneNumber().trim());
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+            user.setStatus("INACTIVE");
+            user.setEmailVerified(false);
+            
+            // Generate verification token
+            String verificationToken = UUID.randomUUID().toString();
+            user.setEmailVerificationToken(verificationToken);
+
+            // Set address fields if provided
+            if (request.getAddress() != null) {
+                user.setAddressLine1(request.getAddress().getAddressLine1());
+                user.setAddressLine2(request.getAddress().getAddressLine2());
+                user.setCity(request.getAddress().getCity());
+                user.setState(request.getAddress().getState());
+                user.setPostalCode(request.getAddress().getPostalCode());
+                user.setCountry(request.getAddress().getCountry());
+            }
+
+            // Save user (status: INACTIVE until email is verified)
+            User savedUser = userRepository.save(user);
+
+            // Save payment cards if provided
+            if (request.getPaymentCards() != null && !request.getPaymentCards().isEmpty()) {
+                List<PaymentCard> cards = request.getPaymentCards().stream()
+                    .map(cardRequest -> {
+                        PaymentCard card = new PaymentCard();
+                        card.setUser(savedUser);
+                        card.setCardType(cardRequest.getCardType());
+                        card.setCardNumber(cardRequest.getCardNumber());
+                        card.setCardHolderName(cardRequest.getCardHolderName());
+                        card.setExpiryMonth(cardRequest.getExpiryMonth());
+                        card.setExpiryYear(cardRequest.getExpiryYear());
+                        return card;
+                    })
+                    .collect(Collectors.toList());
+            }
+
+            // Send verification email
+            try {
+                emailService.sendVerificationEmail(
+                    savedUser.getEmail(),
+                    savedUser.getFullName(),
+                    verificationToken
+                );
+            } catch (Exception e) {
+                // Log email sending error but don't fail the registration
+                System.err.println("Email sending failed: " + e.getMessage());
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new RegistrationResponse(true, 
+                    "Registration successful. Please check your email to verify your account."));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new RegistrationResponse(false, "Registration failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<RegistrationResponse> verifyEmail(@RequestParam String token) {
+        try {
+            Optional<User> userOptional = userRepository.findByEmailVerificationToken(token);
+            
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RegistrationResponse(false, "Invalid or expired verification token"));
+            }
+
+            User user = userOptional.get();
+            user.setEmailVerified(true);
+            user.setStatus("ACTIVE");
+            user.setEmailVerificationToken(null);
+            
+            userRepository.save(user);
+
+            // Send welcome email
+            try {
+                emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+            } catch (Exception e) {
+                System.err.println("Welcome email sending failed: " + e.getMessage());
+            }
+
+            return ResponseEntity.ok(new RegistrationResponse(true, 
+                "Email verified successfully. Your account is now active."));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new RegistrationResponse(false, "Email verification failed: " + e.getMessage()));
+        }
+    }
+}
