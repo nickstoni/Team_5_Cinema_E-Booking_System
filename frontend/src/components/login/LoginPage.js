@@ -27,6 +27,9 @@ function LoginPage() {
                 <LoginSection formData={formData} onInputChange={handleInputChange} />
             </main>
             <div className="submit-section">
+                <button type="button" className="forgot-password-btn">
+                    Forgot Password?
+                </button>
                 <button type="submit" className="submit-button" disabled={isLoading}>
                     {isLoading ? 'Logging In...' : 'Login'}
                 </button>
