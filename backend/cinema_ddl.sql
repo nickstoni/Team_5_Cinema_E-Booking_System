@@ -77,7 +77,7 @@ create table if not exists bookings (
     foreign key (show_id) references shows (show_id)
 );
 
-create table if not exists ticket (
+create table if not exists tickets (
     ticket_id int auto_increment,
     ticket_number varchar(50),
     ticket_type enum('adult', 'senior', 'child'),
@@ -87,7 +87,7 @@ create table if not exists ticket (
     foreign key (booking_id) references bookings (booking_id) on delete cascade
 );
 
-create table if not exists promotion (
+create table if not exists promotions (
     promo_id int auto_increment,
     promo_code varchar(50),
     discount_percent decimal(5,2),
@@ -117,7 +117,7 @@ create table if not exists customers (
     foreign key (cust_id) references users (user_id)
 );
 
-create table if not exists admin (
+create table if not exists admins (
     admin_id int,
     primary key (admin_id),
     foreign key (admin_id) references users (user_id)
@@ -156,7 +156,7 @@ create table if not exists reviews (
     foreign key (user_id) references users(user_id)
 );
 
-create table if not exists address (
+create table if not exists addresses (
     address_id int auto_increment,
     street varchar(50),
     city varchar(30),
