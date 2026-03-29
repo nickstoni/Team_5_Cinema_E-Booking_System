@@ -67,7 +67,7 @@ function Navbar({ onSearch, onGenreChange }) {
         </ul>
         {loggedIn ? (
           <div className="auth-buttons">
-            <Link to="*" className="signin-link">
+            <Link to="/profile" className="signin-link">
               <button className="login-btn">Profile</button>
             </Link>
             <button className="signin-btn">Log Out</button>

@@ -1,4 +1,11 @@
-function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, maxCards, expiryYears }) {
+function PaymentCardsSection({
+  cards = [],
+  onAddCard,
+  onRemoveCard,
+  onCardChange,
+  maxCards = 3,
+  expiryYears = []
+}) {
   return (
     <section className="signup-section">
       <div className="section-header-row">
@@ -13,6 +20,10 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
         </button>
       </div>
 
+      {cards.length >= maxCards && (
+        <p className="muted-text">You cannot store more than {maxCards} payment cards.</p>
+      )}
+
       {cards.length === 0 ? (
         <p className="muted-text">No cards added yet.</p>
       ) : (
@@ -20,7 +31,11 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
           <div key={`card-${index}`} className="card-box">
             <div className="section-header-row compact">
               <h3>Card {index + 1}</h3>
-              <button type="button" className="danger-link" onClick={() => onRemoveCard(index)}>
+              <button
+                type="button"
+                className="danger-link"
+                onClick={() => onRemoveCard(index)}
+              >
                 Remove
               </button>
             </div>
@@ -30,14 +45,14 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <span className="form-label">Card Type</span>
                 <select
                   className="form-input"
-                  value={card.cardType}
-                  onChange={(event) => onCardChange(index, 'cardType', event.target.value)}
+                  value={card.cardType || ""}
+                  onChange={(event) => onCardChange(index, "cardType", event.target.value)}
                 >
                   <option value="">Select Card Type</option>
-                  <option value="VISA">Visa</option>
-                  <option value="MASTERCARD">Mastercard</option>
-                  <option value="AMEX">American Express</option>
-                  <option value="DISCOVER">Discover</option>
+                  <option value="Visa">Visa</option>
+                  <option value="MasterCard">Mastercard</option>
+                  <option value="Amex">American Express</option>
+                  <option value="Discover">Discover</option>
                 </select>
               </label>
 
@@ -46,8 +61,8 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <input
                   type="text"
                   className="form-input"
-                  value={card.cardNumber}
-                  onChange={(event) => onCardChange(index, 'cardNumber', event.target.value)}
+                  value={card.cardNumber || ""}
+                  onChange={(event) => onCardChange(index, "cardNumber", event.target.value)}
                   inputMode="numeric"
                   placeholder="1234123412341234"
                 />
@@ -58,8 +73,8 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <input
                   type="text"
                   className="form-input"
-                  value={card.cardHolderName}
-                  onChange={(event) => onCardChange(index, 'cardHolderName', event.target.value)}
+                  value={card.cardHolderName || ""}
+                  onChange={(event) => onCardChange(index, "cardHolderName", event.target.value)}
                   placeholder="Your Name"
                 />
               </label>
@@ -68,8 +83,8 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <span className="form-label">Expiry Month</span>
                 <select
                   className="form-input"
-                  value={card.expiryMonth}
-                  onChange={(event) => onCardChange(index, 'expiryMonth', event.target.value)}
+                  value={card.expiryMonth || ""}
+                  onChange={(event) => onCardChange(index, "expiryMonth", event.target.value)}
                 >
                   <option value="">MM</option>
                   <option value="01">01</option>
@@ -91,8 +106,8 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <span className="form-label">Expiry Year</span>
                 <select
                   className="form-input"
-                  value={card.expiryYear}
-                  onChange={(event) => onCardChange(index, 'expiryYear', event.target.value)}
+                  value={card.expiryYear || ""}
+                  onChange={(event) => onCardChange(index, "expiryYear", event.target.value)}
                 >
                   <option value="">YYYY</option>
                   {expiryYears.map((year) => (
@@ -108,8 +123,8 @@ function PaymentCardsSection({ cards, onAddCard, onRemoveCard, onCardChange, max
                 <input
                   type="password"
                   className="form-input"
-                  value={card.cvv}
-                  onChange={(event) => onCardChange(index, 'cvv', event.target.value)}
+                  value={card.cvv || ""}
+                  onChange={(event) => onCardChange(index, "cvv", event.target.value)}
                   inputMode="numeric"
                   maxLength={4}
                   placeholder="123"
