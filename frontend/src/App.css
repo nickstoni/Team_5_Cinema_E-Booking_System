@@ -49,3 +49,41 @@ body {
   color: white;
   font-size: 16px;
 }
+
+.movie-poster-wrapper {
+  position: relative;
+}
+
+.favorite-icon-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.favorite-icon-btn:hover {
+  transform: scale(1.08);
+}
+
+.favorite-icon-btn.active {
+  background: rgba(255, 0, 0, 0.95);
+  color: white;
+}
+
+.favorite-message {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #4da6ff;
+}

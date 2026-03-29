@@ -5,6 +5,7 @@ import MovieDetails from './components/moviedetails/MovieDetails';
 import BookingPage from './components/booking/BookingPage';
 import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
+import EditProfilePage from "./components/profile/EditProfilePage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           {/* Properly route the login page later */}
           <Route path="/login" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/profile" element={<EditProfilePage />} />
         </Routes>
       </div>
     </BrowserRouter>
