@@ -7,7 +7,7 @@ import {useState} from 'react';
 
 function LoginPage() {
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
-    //const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     //const [error, setError] = useState('');
     //const navigate = useNavigate();
 
@@ -26,9 +26,11 @@ function LoginPage() {
                 <h1>Login</h1>
                 <LoginSection formData={formData} onInputChange={handleInputChange} />
             </main>
-            <button type="submit" className="primary-btn full-width">
-                Login
-            </button>
+            <div className="submit-section">
+                <button type="submit" className="submit-button" disabled={isLoading}>
+                    {isLoading ? 'Logging In...' : 'Login'}
+                </button>
+            </div>
             <Footer />
         </div>
     )

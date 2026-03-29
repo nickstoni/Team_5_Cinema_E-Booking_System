@@ -6,6 +6,7 @@ import '../../styles/layout/Navbar.css';
 function Navbar({ onSearch, onGenreChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState("");
+  const [loggedIn, setLoggedIn] = useState(true); // Placeholder for auth state
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -64,15 +65,23 @@ function Navbar({ onSearch, onGenreChange }) {
           <li><Link to="/">Home</Link></li>
           <li><Link to="/showtimes">Showtimes</Link></li>
         </ul>
-
-        <div className="auth-buttons">
-          <Link to="/login" className="signin-link">
-            <button className="login-btn">Log In</button>
-          </Link>
-          <Link to="/signup" className="signin-link">
-            <button className="signin-btn">Sign Up</button>
-          </Link>
-        </div>
+        {loggedIn ? (
+          <div className="auth-buttons">
+            <Link to="*" className="signin-link">
+              <button className="login-btn">Profile</button>
+            </Link>
+            <button className="signin-btn">Log Out</button>
+          </div>
+        ) : (
+          <div className="auth-buttons">
+            <Link to="/login" className="signin-link">
+              <button className="login-btn">Log In</button>
+            </Link>
+            <Link to="/signup" className="signin-link">
+              <button className="signin-btn">Sign Up</button>
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
