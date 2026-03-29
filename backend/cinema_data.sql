@@ -77,3 +77,27 @@ insert into showtimes (movie_id, showtime, showdate) values (9, '16:30:00', '202
 insert into showtimes (movie_id, showtime, showdate) values (9, '17:00:00', '2026-02-27');
 insert into showtimes (movie_id, showtime, showdate) values (10, '18:00:00', '2026-02-28');
 insert into showtimes (movie_id, showtime, showdate) values (10, '21:30:00', '2026-02-28');
+
+-- USERS
+insert into users (full_name, email, phone_number, password, promotions_enabled, status)
+values
+('John Doe', 'john@gmail.com', '1234567890', 'password123', true, 'Active'),
+('Jane Smith', 'jane@gmail.com', '0987654321', 'password123', true, 'Active');
+
+-- ADDRESSES (only one per user)
+insert into addresses (user_id, address_line1, address_line2, city, state, postal_code, country)
+values
+(1, '123 Main St', '', 'Athens', 'GA', '30602', 'USA'),
+(2, '456 Oak Ave', '', 'Athens', 'GA', '30605', 'USA');
+
+-- PAYMENT CARDS (user 2 has 3 cards)
+insert into payment_cards (user_id, card_type, card_number, card_holder_name, expiry_month, expiry_year, cvv, last_four)
+values
+(2, 'Visa', '4111111111111111', 'Jane Smith', '01', '2028', '123', '1111'),
+(2, 'MasterCard', '5555555555554444', 'Jane Smith', '02', '2029', '456', '4444'),
+(2, 'Amex', '378282246310005', 'Jane Smith', '03', '2030', '789', '0005');
+
+-- FAVORITES (user 1 has 1 favorite movie)
+insert into favorite_movies (user_id, movie_id)
+values
+(1, 1);

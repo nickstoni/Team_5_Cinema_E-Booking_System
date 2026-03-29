@@ -6,6 +6,7 @@ import BookingPage from './components/booking/BookingPage';
 import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
 import LoginPage from './components/login/LoginPage';
+import EditProfilePage from "./components/profile/EditProfilePage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/profile" element={<EditProfilePage />} />
         </Routes>
       </div>
     </BrowserRouter>
