@@ -6,7 +6,7 @@ import '../../styles/layout/Navbar.css';
 function Navbar({ onSearch, onGenreChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState("");
-  const [loggedIn, setLoggedIn] = useState(true); // Placeholder for auth state
+  const [loggedIn, setLoggedIn] = useState(false); // Placeholder for auth state
 
   const handleSearch = (e) => {
     e.preventDefault();
