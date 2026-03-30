@@ -7,6 +7,7 @@ import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
 import LoginPage from './components/login/LoginPage';
 import EmailVerificationPage from './components/signup/EmailVerificationPage';
+import ForgotPasswordPage from './components/login/ForgotPasswordPage';
 
 function App() {
   return (
@@ -20,9 +21,8 @@ function App() {
           <Route path="/showtimes" element={<NotFoundPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
-          {/* Properly route the login page later */}
-          <Route path="/login" element={<NotFoundPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

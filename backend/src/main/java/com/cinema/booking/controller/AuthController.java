@@ -1,5 +1,7 @@
 package com.cinema.booking.controller;
 
+import com.cinema.booking.dto.LoginRequest;
+import com.cinema.booking.dto.LoginResponse;
 import com.cinema.booking.dto.RegistrationRequest;
 import com.cinema.booking.dto.RegistrationResponse;
 import com.cinema.booking.model.PaymentCard;
@@ -109,6 +111,39 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new RegistrationResponse(false, "Registration failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            Optional<User> userOptional = userRepository.findByEmail(request.getEmail().toLowerCase().trim());
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponse(false, "Invalid email or password", null, null, null));
+            }
+
+            User user = userOptional.get();
+            if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponse(false, "Invalid email or password", null, null, null));
+            }
+
+            if (user.getEmailVerified() == null || !user.getEmailVerified()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new LoginResponse(false, "Email not verified. Please verify your account before logging in.", null, null, null));
+            }
+
+            return ResponseEntity.ok(new LoginResponse(
+                    true,
+                    "Login successful",
+                    user.getUserId(),
+                    user.getFullName(),
+                    user.getEmail()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new LoginResponse(false, "Login failed: " + e.getMessage(), null, null, null));
         }
     }
 
