@@ -3,7 +3,7 @@ import MovieCard from './MovieCard';
 import '../../styles/home/MoviesSection.css';
 
 // Component for each movie section (Now Playing and Coming Soon)
-function MoviesSection({title, movies, type, searchQuery, selectedGenre}) {
+function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favoriteMovies, refreshFavorites }) {
   const [startIndex, setStartIndex] = useState(0);
   // Number of movies to show at a time (Can be changed later).
   const moviesPerPage = 8;
@@ -49,7 +49,12 @@ function MoviesSection({title, movies, type, searchQuery, selectedGenre}) {
 
       <div className="movies-grid">
         {movies.slice(startIndex, startIndex + moviesPerPage).map((movie) => (
-          <MovieCard key={movie.id} movie={movie} type={type}/>
+          <MovieCard
+          movie={movie}
+          type={type}
+          favoriteMovies={favoriteMovies}
+          refreshFavorites={refreshFavorites}
+        />
         ))}
       </div>
     </section>

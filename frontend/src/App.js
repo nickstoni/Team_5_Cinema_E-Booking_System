@@ -5,6 +5,8 @@ import MovieDetails from './components/moviedetails/MovieDetails';
 import BookingPage from './components/booking/BookingPage';
 import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
+import LoginPage from './components/login/LoginPage';
+import EditProfilePage from "./components/profile/EditProfilePage";
 
 function App() {
   return (
@@ -17,9 +19,9 @@ function App() {
           {/* Properly route the showtimes page later */}
           <Route path="/showtimes" element={<NotFoundPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-          {/* Properly route the login page later */}
-          <Route path="/login" element={<NotFoundPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/profile" element={<EditProfilePage />} />
         </Routes>
       </div>
     </BrowserRouter>

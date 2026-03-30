@@ -1,4 +1,10 @@
-function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onRemoveAddress }) {
+function AddressSection({
+  formData = {},
+  onInputChange,
+  hasAddress,
+  onAddAddress,
+  onRemoveAddress
+}) {
   return (
     <section className="signup-section">
       <div className="section-header-row">
@@ -9,9 +15,13 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
           onClick={onAddAddress}
           disabled={hasAddress}
         >
-          Add Address {hasAddress ? '1/1' : '0/1'}
+          Add Address {hasAddress ? "1/1" : "0/1"}
         </button>
       </div>
+
+      {hasAddress && (
+        <p className="muted-text">Only one address can be stored.</p>
+      )}
 
       {!hasAddress ? (
         <p className="muted-text">No address added yet.</p>
@@ -19,7 +29,11 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
         <div className="card-box">
           <div className="section-header-row compact">
             <h3>Address 1</h3>
-            <button type="button" className="danger-link" onClick={onRemoveAddress}>
+            <button
+              type="button"
+              className="danger-link"
+              onClick={onRemoveAddress}
+            >
               Remove
             </button>
           </div>
@@ -31,7 +45,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
                 type="text"
                 className="form-input"
                 name="addressLine1"
-                value={formData.addressLine1}
+                value={formData.addressLine1 || ""}
                 onChange={onInputChange}
                 autoComplete="address-line1"
                 placeholder="Street address"
@@ -44,7 +58,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
                 type="text"
                 className="form-input"
                 name="addressLine2"
-                value={formData.addressLine2}
+                value={formData.addressLine2 || ""}
                 onChange={onInputChange}
                 autoComplete="address-line2"
                 placeholder="Apartment, suite, etc."
@@ -57,7 +71,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
                 type="text"
                 className="form-input"
                 name="city"
-                value={formData.city}
+                value={formData.city || ""}
                 onChange={onInputChange}
                 autoComplete="address-level2"
                 placeholder="Your City"
@@ -69,7 +83,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
               <select
                 className="form-input"
                 name="state"
-                value={formData.state}
+                value={formData.state || ""}
                 onChange={onInputChange}
                 autoComplete="address-level1"
               >
@@ -95,7 +109,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
                 type="text"
                 className="form-input"
                 name="postalCode"
-                value={formData.postalCode}
+                value={formData.postalCode || ""}
                 onChange={onInputChange}
                 autoComplete="postal-code"
                 placeholder="32801"
@@ -107,7 +121,7 @@ function AddressSection({ formData, onInputChange, hasAddress, onAddAddress, onR
               <select
                 className="form-input"
                 name="country"
-                value={formData.country}
+                value={formData.country || ""}
                 onChange={onInputChange}
                 autoComplete="country-name"
               >

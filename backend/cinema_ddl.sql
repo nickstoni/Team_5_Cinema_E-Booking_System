@@ -101,11 +101,11 @@ create table if not exists users (
     user_id int auto_increment,
     first_name varchar(50) not null,
     last_name varchar(50) not null,
-    email varchar(100) unique,
-    password varchar(150) not null,
-    phone_number varchar(15),
+    email varchar(100) not null unique,
+    password varchar(255) not null,
+    phone_number varchar(20) not null,
     is_verified boolean,
-    promo_subscribed boolean,
+    promo_subscribed booleand default false,
     primary key (user_id)
 );
 
@@ -124,11 +124,13 @@ create table if not exists admins (
 );
 
 create table if not exists favorite_movies (
-    cust_id int,
-    movie_id int,
-    primary key (cust_id, movie_id),
+    favorite_id int auto_increment,
+    cust_id int not null,
+    movie_id int not null,
+    primary key (favorite_id),
     foreign key (cust_id) references customers(cust_id) on delete cascade,
-    foreign key (movie_id) references movies(movie_id)
+    foreign key (movie_id) references movies(movie_id) on delete cascade,
+    unique (user_id, movie_id)
 );
 
 create table if not exists actors (
@@ -154,25 +156,34 @@ create table if not exists reviews (
     primary key (review_id),
     foreign key (movie_id) references movies(movie_id),
     foreign key (user_id) references users(user_id)
-);
+
+
 
 create table if not exists addresses (
     address_id int auto_increment,
-    street varchar(50),
-    city varchar(30),
-    state varchar(20),
-    zip_code varchar(10),
-    country varchar(50),
-    primary key (address_id)
+    cust_id int not null unique,
+    address_line1 varchar(100) not null,
+    address_line2 varchar(100),
+    city varchar(50) not null,
+    state varchar(30) not null,
+    postal_code varchar(20) not null,
+    country varchar(50) not null,
+    primary key (address_id),
+    foreign key (cust_id) references customers(cust_id) on delete cascade
 );
 
-create table if not exists payment_card (
+create table if not exists payment_cards (
     card_id int auto_increment,
-    card_number varchar(100) not null unique,
-    exp_date date not null,
-    address_id int not null,
     cust_id int not null,
+    card_type varchar(20) not null,
+    card_number varchar(255) not null unique,
+    card_holder_name varchar(100) not null,
+    expiry_month varchar(2) not null,
+    expiry_year varchar(4) not null,
+    cvv varchar(255) not null,
+    last_four varchar(4) not null,
     primary key (card_id),
-    foreign key (address_id) references address(address_id),
-    foreign key (cust_id) references customers (cust_id) on delete cascade
+    foreign key (cust_id) references customers(cust_id) on delete cascade
 );
+
+
