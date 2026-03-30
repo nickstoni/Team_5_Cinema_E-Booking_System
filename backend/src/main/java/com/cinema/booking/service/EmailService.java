@@ -80,4 +80,34 @@ public class EmailService {
             logger.error("Failed to send welcome email to: {}", recipientEmail, e);
         }
     }
+
+    public void sendPasswordResetEmail(String recipientEmail, String fullName, String resetToken) {
+        try {
+            String resetLink = baseUrl + "/reset-password?token=" + resetToken;
+            String emailBody = String.format(
+                "Hello %s,\n\n" +
+                "We received a request to reset your Absolute Cinema password. " +
+                "Please click the link below to set a new password:\n\n" +
+                "%s\n\n" +
+                "This link will expire in 24 hours.\n\n" +
+                "If you did not request a password reset, please ignore this email.\n\n" +
+                "Best regards,\n" +
+                "Absolute Cinema Team",
+                fullName,
+                resetLink
+            );
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(recipientEmail);
+            message.setSubject("Absolute Cinema Password Reset Request");
+            message.setText(emailBody);
+
+            mailSender.send(message);
+            logger.info("Password reset email sent successfully to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send password reset email to: {}", recipientEmail, e);
+            throw new RuntimeException("Failed to send password reset email: " + e.getMessage());
+        }
+    }
 }

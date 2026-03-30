@@ -56,6 +56,12 @@ public class User {
     @Column(name = "email_verification_token")
     private String emailVerificationToken;
 
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expiry")
+    private LocalDateTime passwordResetTokenExpiry;
+
     @Column(name = "promotions_enabled", nullable = false)
     private Boolean promotionsEnabled = false;
 

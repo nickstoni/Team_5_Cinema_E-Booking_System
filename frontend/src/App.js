@@ -8,6 +8,7 @@ import SignUpPage from './components/signup/SignUpPage';
 import LoginPage from './components/login/LoginPage';
 import EmailVerificationPage from './components/signup/EmailVerificationPage';
 import ForgotPasswordPage from './components/login/ForgotPasswordPage';
+import ResetPasswordPage from './components/login/ResetPasswordPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -1,9 +1,11 @@
 package com.cinema.booking.controller;
 
+import com.cinema.booking.dto.ForgotPasswordRequest;
 import com.cinema.booking.dto.LoginRequest;
 import com.cinema.booking.dto.LoginResponse;
 import com.cinema.booking.dto.RegistrationRequest;
 import com.cinema.booking.dto.RegistrationResponse;
+import com.cinema.booking.dto.ResetPasswordRequest;
 import com.cinema.booking.model.PaymentCard;
 import com.cinema.booking.model.User;
 import com.cinema.booking.repository.UserRepository;
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,6 +37,19 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private static final String RESET_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int RESET_TOKEN_LENGTH = 32;
+    private static final SecureRandom RESET_TOKEN_GENERATOR = new SecureRandom();
+
+    private String generateResetToken() {
+        StringBuilder builder = new StringBuilder(RESET_TOKEN_LENGTH);
+        for (int i = 0; i < RESET_TOKEN_LENGTH; i++) {
+            int index = RESET_TOKEN_GENERATOR.nextInt(RESET_TOKEN_CHARS.length());
+            builder.append(RESET_TOKEN_CHARS.charAt(index));
+        }
+        return builder.toString();
+    }
 
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest request) {
@@ -144,6 +161,63 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new LoginResponse(false, "Login failed: " + e.getMessage(), null, null, null));
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<RegistrationResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            String normalizedEmail = request.getEmail().toLowerCase().trim();
+            Optional<User> userOptional = userRepository.findByEmail(normalizedEmail);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                String resetToken = generateResetToken();
+                user.setPasswordResetToken(resetToken);
+                user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(24));
+                userRepository.save(user);
+
+                emailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), resetToken);
+            }
+
+            return ResponseEntity.ok(new RegistrationResponse(true,
+                    "If that email is registered with us, a password reset link has been sent."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new RegistrationResponse(false, "Password recovery failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<RegistrationResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new RegistrationResponse(false, "Passwords do not match"));
+            }
+
+            Optional<User> userOptional = userRepository.findByPasswordResetToken(request.getToken());
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new RegistrationResponse(false, "Invalid or expired reset token"));
+            }
+
+            User user = userOptional.get();
+            if (user.getPasswordResetTokenExpiry() == null || user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new RegistrationResponse(false, "Reset token has expired"));
+            }
+
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+            user.setPasswordResetToken(null);
+            user.setPasswordResetTokenExpiry(null);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(new RegistrationResponse(true,
+                    "Password has been reset successfully. You may now log in."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new RegistrationResponse(false, "Reset password failed: " + e.getMessage()));
         }
     }
 
