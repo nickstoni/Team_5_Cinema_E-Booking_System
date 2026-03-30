@@ -85,18 +85,38 @@ function SignUpPage() {
     try {
       setIsLoading(true);
 
+      const cardsToSubmit = cards
+        .filter((card) => (
+          card.cardType ||
+          card.cardNumber ||
+          card.cardHolderName ||
+          card.expiryMonth ||
+          card.expiryYear ||
+          card.cvv
+        ))
+        .map((card) => ({
+          cardType: card.cardType,
+          cardNumber: card.cardNumber.replace(/\s/g, ''),
+          cardHolderName: card.cardHolderName.trim(),
+          expiryMonth: card.expiryMonth,
+          expiryYear: card.expiryYear,
+          cvv: card.cvv
+        }));
+
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          fullName: formData.fullName.trim(),
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
           email: formData.email.trim().toLowerCase(),
           phoneNumber: formData.phoneNumber.trim(),
           password: formData.password,
           confirmPassword: formData.confirmPassword,
-          address: hasAddress && isAddressProvided
+          promotionsEnabled: formData.promotionsEnabled,
+          address: isAddressProvided
             ? {
                 addressLine1: formData.addressLine1.trim(),
                 addressLine2: formData.addressLine2.trim(),
@@ -106,14 +126,7 @@ function SignUpPage() {
                 country: formData.country
               }
             : null,
-          paymentCards: cards.map((card) => ({
-            cardType: card.cardType,
-            cardNumber: card.cardNumber.replace(/\s/g, ''),
-            cardHolderName: card.cardHolderName.trim(),
-            expiryMonth: card.expiryMonth,
-            expiryYear: card.expiryYear,
-            cvv: card.cvv
-          }))
+          paymentCards: cardsToSubmit
         })
       });
 

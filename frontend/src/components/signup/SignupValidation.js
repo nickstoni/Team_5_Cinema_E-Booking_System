@@ -10,8 +10,12 @@ export function hasAnyAddressValue(formData) {
 }
 
 export function validateSignupForm(formData, cards) {
-  if (!formData.fullName.trim()) {
-    return 'Full name is required.';
+  if (!formData.firstName || !formData.firstName.trim()) {
+    return 'First name is required.';
+  }
+
+  if (!formData.lastName || !formData.lastName.trim()) {
+    return 'Last name is required.';
   }
 
   if (!formData.email.trim()) {

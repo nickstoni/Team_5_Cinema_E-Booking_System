@@ -1,18 +1,42 @@
 function RequiredInfoSection({ formData, onInputChange, isEditMode = false }) {
+  const handlePromotionsChange = (e) => {
+    const event = {
+      target: {
+        name: 'promotionsEnabled',
+        value: e.target.checked
+      }
+    };
+    onInputChange(event);
+  };
+
   return (
     <section className="signup-section">
       <h2>Required Information</h2>
       <div className="signup-grid two-columns">
         <label className="form-row">
-          <span className="form-label">Full Name*</span>
+          <span className="form-label">First Name*</span>
           <input
             type="text"
             className="form-input"
-            name="fullName"
-            value={formData.fullName || ""}
+            name="firstName"
+            value={formData.firstName || ""}
             onChange={onInputChange}
-            autoComplete="name"
-            placeholder="Your Name"
+            autoComplete="given-name"
+            placeholder="First Name"
+            required
+          />
+        </label>
+
+        <label className="form-row">
+          <span className="form-label">Last Name*</span>
+          <input
+            type="text"
+            className="form-input"
+            name="lastName"
+            value={formData.lastName || ""}
+            onChange={onInputChange}
+            autoComplete="family-name"
+            placeholder="Last Name"
             required
           />
         </label>
@@ -29,6 +53,7 @@ function RequiredInfoSection({ formData, onInputChange, isEditMode = false }) {
             placeholder="you@example.com"
             required
             disabled={isEditMode}
+            readOnly={isEditMode}
           />
         </label>
 
@@ -77,6 +102,17 @@ function RequiredInfoSection({ formData, onInputChange, isEditMode = false }) {
             </label>
           </>
         )}
+
+        <label className="form-row full-span checkbox-label">
+          <input
+            type="checkbox"
+            className="form-checkbox"
+            name="promotionsEnabled"
+            checked={formData.promotionsEnabled || false}
+            onChange={handlePromotionsChange}
+          />
+          <span className="checkbox-text">I would like to receive promotional emails</span>
+        </label>
       </div>
     </section>
   );

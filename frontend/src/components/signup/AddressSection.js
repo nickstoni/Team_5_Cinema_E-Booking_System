@@ -15,7 +15,7 @@ function AddressSection({
           onClick={onAddAddress}
           disabled={hasAddress}
         >
-          Add Address {hasAddress ? "1/1" : "0/1"}
+          Add Address ({hasAddress ? '1/1' : '0/1'})
         </button>
       </div>
 

@@ -1,12 +1,31 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/layout/Navbar.css';
 
 // Component for a clean navbar
 function Navbar({ onSearch, onGenreChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false); // Placeholder for auth state
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const authData = localStorage.getItem('cinemaAuth');
+    const role = localStorage.getItem('userRole');
+    setLoggedIn(Boolean(authData));
+    setUserRole(role);
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('cinemaAuth');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
+    setLoggedIn(false);
+    setUserRole(null);
+    navigate('/');
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -67,10 +86,15 @@ function Navbar({ onSearch, onGenreChange }) {
         </ul>
         {loggedIn ? (
           <div className="auth-buttons">
-            <Link to="*" className="signin-link">
+            {userRole === 'ADMIN' && (
+              <Link to="/admin" className="signin-link">
+                <button className="admin-btn">Admin Dashboard</button>
+              </Link>
+            )}
+            <Link to="/profile" className="signin-link">
               <button className="login-btn">Profile</button>
             </Link>
-            <button className="signin-btn">Log Out</button>
+            <button className="signin-btn" onClick={handleSignOut}>Log Out</button>
           </div>
         ) : (
           <div className="auth-buttons">

@@ -5,10 +5,12 @@ import MovieDetails from './components/moviedetails/MovieDetails';
 import BookingPage from './components/booking/BookingPage';
 import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
-
-import EditProfilePage from "./components/profile/EditProfilePage";
-
 import LoginPage from './components/login/LoginPage';
+import EditProfilePage from './components/profile/EditProfilePage';
+import EmailVerificationPage from './components/signup/EmailVerificationPage';
+import ForgotPasswordPage from './components/login/ForgotPasswordPage';
+import ResetPasswordPage from './components/login/ResetPasswordPage';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 function App() {
   return (
@@ -22,8 +24,12 @@ function App() {
           <Route path="/showtimes" element={<NotFoundPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/profile" element={<EditProfilePage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </BrowserRouter>
