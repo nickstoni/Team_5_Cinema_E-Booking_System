@@ -342,12 +342,9 @@ WHERE user_id = (SELECT user_id FROM users WHERE email = 'cards@cinema.com');
 -- cvv: Should be encrypted (not readable)
 ```
 
-**Alternative - Check Specific User by ID:**
-```sql
-SELECT card_holder_name, card_number, last_four, cvv FROM payment_cards 
-WHERE user_id = 1;
--- Replace 1 with the actual user_id
--- Same expectations: card_number and cvv encrypted, last_four readable
+**Check Payment Card Encryption MAC:**
+``` 
+mysql -u root -e "SELECT u.user_id, u.first_name, u.last_name, u.email, pc.card_id, pc.card_type, pc.card_number, pc.last_four, pc.cvv FROM cinema_ebooking_platform.users u LEFT JOIN cinema_ebooking_platform.payment_cards pc ON u.user_id = pc.user_id ORDER BY u.user_id, pc.card_id \G"
 ```
 
 **Expected Result:**
@@ -357,80 +354,3 @@ WHERE user_id = 1;
 - ✅ No sensitive data is readable
 
 ---
-
-## Demo Readiness Checklist
-
-Before presenting, verify:
-
-- [ ] Backend running on port 8080
-- [ ] Frontend running on port 3000
-- [ ] Database running with `cinema_ebooking_platform` schema
-- [ ] Demo user accounts created and verified (or ready to create)
-- [ ] Admin account created and role set to ADMIN
-- [ ] Email service configured (logs show emails being sent)
-- [ ] All endpoints responding correctly
-- [ ] Browser console has no errors
-
----
-
-## Troubleshooting
-
-### Email Verification Not Working
-- **Solution:** Check application.properties for email configuration
-- Alternatively: Use database UPDATE to set `email_verified = true`
-
-### Admin Dashboard Not Loading
-- **Verify steps:**
-  1. Check user role in database: `SELECT role FROM users WHERE email = 'admin@cinema.com';`
-  2. Confirm role is set to 'ADMIN' (case-sensitive)
-  3. Clear browser localStorage and re-login
-
-### Payment Card 3-Limit Not Enforcing
-- **Expected:** 4th card shows error "Users cannot store more than 3 payment cards."
-- **Check:** Verify ProfileController has: `if (cardCount >= 3) { return badRequest... }`
-
-### Can't Login After TC1
-- **Reason:** Account unverified (expected for TC2)
-- **Solution:** Use SQL UPDATE to verify or call verify-email endpoint
-
----
-
-## Demo Flow Summary
-
-```
-TC1: Sign Up → TC2: Reject Unverified → TC3: Verify Email
-  ↓
-TC4: Login Success → TC7: Edit 3 Cards → TC8: Add Favorites → TC9: Persist
-  ↓
-TC6: Admin Login → TC10: Security Check (DB inspection)
-  ↓
-TC5: Invalid Password (anytime)
-```
-
-**Total Demo Time:** ~20-25 minutes with smooth execution
-
----
-
-## Completed Backend Implementation
-
-✅ **Model Updates:**
-- User model: Added `role` field (USER or ADMIN)
-- Database schema: Updated users table with role column
-
-✅ **Controller Updates:**
-- AdminController: Full admin endpoints (users, movies, dashboard)
-- AuthController: Updated login to return role
-
-✅ **Frontend Updates:**
-- AdminDashboard component: Complete admin interface
-- App.js: Added /admin route
-- Navbar: Added admin button for admin users
-- LoginPage: Navigate admin users to /admin after login
-
-✅ **Database Updates:**
-- Updated DDL with role column
-- Added demo data instructions in cinema_data.sql
-
----
-
-**Status:** Ready for Demo! 🎬

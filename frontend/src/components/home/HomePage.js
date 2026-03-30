@@ -10,10 +10,11 @@ function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
 
-  const userId = 1;
+  const userId = localStorage.getItem("userId");
   const [favoriteMovies, setFavoriteMovies] = useState([]);
 
   const loadFavorites = async () => {
+    if (!userId) return;
     try {
       const res = await fetch(`http://localhost:8080/api/profile/${userId}/favorites`);
       const data = await res.json();
@@ -39,9 +40,14 @@ function HomePage() {
       }
     }
 
+    // Clear favorites if user is logged out
+    if (!userId) {
+      setFavoriteMovies([]);
+    }
+
     loadMovies();
     loadFavorites();
-  }, []);
+  }, [userId]);
 
   const handleSearch = async (query) => {
     try {
