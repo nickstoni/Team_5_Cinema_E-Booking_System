@@ -342,6 +342,14 @@ WHERE user_id = (SELECT user_id FROM users WHERE email = 'cards@cinema.com');
 -- cvv: Should be encrypted (not readable)
 ```
 
+**Alternative - Check Specific User by ID:**
+```sql
+SELECT card_holder_name, card_number, last_four, cvv FROM payment_cards 
+WHERE user_id = 1;
+-- Replace 1 with the actual user_id
+-- Same expectations: card_number and cvv encrypted, last_four readable
+```
+
 **Expected Result:**
 - ✅ Passwords are hashed using BCrypt (format: $2a$10$...)
 - ✅ Payment card data is encrypted
