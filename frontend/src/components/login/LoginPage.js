@@ -38,6 +38,11 @@ function LoginPage() {
 
             const data = await response.json();
             if (response.ok && data.success) {
+                localStorage.setItem('cinemaAuth', JSON.stringify({
+                    userId: data.userId,
+                    fullName: data.fullName,
+                    email: data.email
+                }));
                 navigate('/');
             } else {
                 setError(data.message || 'Login failed. Please check your credentials.');
