@@ -71,7 +71,8 @@ public class ProfileController {
         User incomingUser = request.getUser();
 
         if (incomingUser != null) {
-            existingUser.setFullName(incomingUser.getFullName());
+            existingUser.setFirstName(incomingUser.getFirstName());
+            existingUser.setLastName(incomingUser.getLastName());
             existingUser.setPhoneNumber(incomingUser.getPhoneNumber());
             existingUser.setPromotionsEnabled(incomingUser.getPromotionsEnabled());
             // Email is intentionally NOT updated
@@ -99,7 +100,8 @@ public class ProfileController {
 
     @PostMapping("/{userId}/cards")
     public ResponseEntity<?> addCard(@PathVariable Integer userId, @RequestBody PaymentCard card) {
-        if (!userRepository.existsById(userId)) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
@@ -108,7 +110,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body("Users cannot store more than 3 payment cards.");
         }
 
-        card.setUserId(userId);
+        card.setUser(userOpt.get());
 
         String rawCardNumber = card.getCardNumber();
         String rawCvv = card.getCvv();

@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import Navbar from "../layout/Navbar";
+import Footer from "../layout/Footer";
 import RequiredInfoSection from "../signup/RequiredInfoSection";
 import AddressSection from "../signup/AddressSection";
 import PaymentCardsSection from "../signup/PaymentCardsSection";
+import MovieCard from "../home/MovieCard";
+import "../../styles/profile/EditProfilePage.css";
 
 function EditProfilePage() {
-  const userId = 2;
+  const userId = localStorage.getItem("userId");
 
   const currentYear = new Date().getFullYear();
   const expiryYears = Array.from({ length: 10 }, (_, i) => String(currentYear + i));
@@ -29,7 +33,8 @@ function EditProfilePage() {
 
   const [profile, setProfile] = useState({
     user: {
-      fullName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phoneNumber: "",
       promotionsEnabled: false
@@ -40,6 +45,7 @@ function EditProfilePage() {
   });
 
   const [message, setMessage] = useState("");
+  const [addressFormOpen, setAddressFormOpen] = useState(false);
 
   const loadProfile = () => {
     fetch(`http://localhost:8080/api/profile/${userId}`)
@@ -47,7 +53,8 @@ function EditProfilePage() {
       .then((data) => {
         setProfile({
           user: data.user || {
-            fullName: "",
+            firstName: "",
+            lastName: "",
             email: "",
             phoneNumber: "",
             promotionsEnabled: false
@@ -56,6 +63,17 @@ function EditProfilePage() {
           cards: data.cards || [],
           favoriteMovies: data.favoriteMovies || []
         });
+        // If there's an address from the server, keep the form open
+        setAddressFormOpen(Boolean(
+          data.address && (
+            data.address.addressLine1 ||
+            data.address.addressLine2 ||
+            data.address.city ||
+            data.address.state ||
+            data.address.postalCode ||
+            data.address.country
+          )
+        ));
       })
       .catch((err) => {
         console.error("Error loading profile:", err);
@@ -65,16 +83,29 @@ function EditProfilePage() {
 
   useEffect(() => {
     loadProfile();
+
+    // Refresh favorites when page becomes visible (user returns from other pages)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadProfile();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleUserInputChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
+    const inputValue = type === 'checkbox' ? checked : value;
 
     setProfile((prev) => ({
       ...prev,
       user: {
         ...prev.user,
-        [name]: value
+        [name]: inputValue
       }
     }));
   };
@@ -93,12 +124,22 @@ function EditProfilePage() {
 
   const handleSave = async () => {
     try {
+      // Only include address if it has data
+      const addressToSave = (
+        profile.address.addressLine1 ||
+        profile.address.addressLine2 ||
+        profile.address.city ||
+        profile.address.state ||
+        profile.address.postalCode ||
+        profile.address.country
+      ) ? profile.address : emptyAddress;
+
       const res = await fetch(`http://localhost:8080/api/profile/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user: profile.user,
-          address: profile.address
+          address: addressToSave
         })
       });
 
@@ -116,6 +157,7 @@ function EditProfilePage() {
       ...prev,
       address: emptyAddress
     }));
+    setAddressFormOpen(true);
   };
 
   const handleRemoveAddress = () => {
@@ -123,6 +165,7 @@ function EditProfilePage() {
       ...prev,
       address: emptyAddress
     }));
+    setAddressFormOpen(false);
   };
 
   const handleAddCard = () => {
@@ -204,7 +247,7 @@ function EditProfilePage() {
     }
   };
 
-  const hasAddress = Boolean(
+  const hasAddress = addressFormOpen || Boolean(
     profile.address &&
       (
         profile.address.addressLine1 ||
@@ -217,50 +260,73 @@ function EditProfilePage() {
   );
 
   return (
-    <div style={{ padding: "20px", color: "white", background: "black", minHeight: "100vh" }}>
-      <h1>Edit Profile</h1>
+    <div className="profile-page">
+      <Navbar />
+      
+      <div className="profile-main">
+        <div className="profile-header">
+          <h1>My Profile</h1>
+          <div className="user-info-summary">
+            <div className="user-greeting">
+              <p>Welcome, <span className="user-name">{profile.user.firstName} {profile.user.lastName}</span></p>
+              <p className="user-email">{profile.user.email}</p>
+            </div>
+          </div>
+        </div>
 
-      {message && <p>{message}</p>}
+        {message && <div className="alert alert-success">{message}</div>}
 
-      <RequiredInfoSection
-        formData={profile.user}
-        onInputChange={handleUserInputChange}
-        isEditMode={true}
-      />
+        <RequiredInfoSection
+          formData={profile.user}
+          onInputChange={handleUserInputChange}
+          isEditMode={true}
+        />
 
-      <AddressSection
-        formData={profile.address}
-        onInputChange={handleAddressInputChange}
-        hasAddress={hasAddress}
-        onAddAddress={handleAddAddress}
-        onRemoveAddress={handleRemoveAddress}
-      />
+        <AddressSection
+          formData={profile.address}
+          onInputChange={handleAddressInputChange}
+          hasAddress={hasAddress}
+          onAddAddress={handleAddAddress}
+          onRemoveAddress={handleRemoveAddress}
+        />
 
-      <PaymentCardsSection
-        cards={profile.cards}
-        onAddCard={handleAddCard}
-        onRemoveCard={handleRemoveCard}
-        onCardChange={handleCardChange}
-        maxCards={3}
-        expiryYears={expiryYears}
-      />
+        <PaymentCardsSection
+          cards={profile.cards}
+          onAddCard={handleAddCard}
+          onRemoveCard={handleRemoveCard}
+          onCardChange={handleCardChange}
+          maxCards={3}
+          expiryYears={expiryYears}
+        />
 
-      <div style={{ marginTop: "12px", marginBottom: "24px" }}>
-        <button onClick={handleSaveNewCards}>Save Cards</button>
+        <div className="save-cards-section">
+          <button className="btn-secondary" onClick={handleSaveNewCards}>Save Cards</button>
+        </div>
+
+        <section className="favorites-section">
+          <h2>Favorite Movies</h2>
+          {profile.favoriteMovies && profile.favoriteMovies.length > 0 ? (
+            <div className="favorites-grid">
+              {profile.favoriteMovies.map((movie) => (
+                <MovieCard
+                  key={movie.movieId}
+                  movie={movie}
+                  favoriteMovies={profile.favoriteMovies}
+                  refreshFavorites={loadProfile}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="no-favorites">No favorite movies yet.</p>
+          )}
+        </section>
+
+        <div className="save-section">
+          <button className="btn-primary" onClick={handleSave}>Save Changes</button>
+        </div>
       </div>
 
-      <h2>Favorite Movies</h2>
-      {profile.favoriteMovies && profile.favoriteMovies.length > 0 ? (
-        profile.favoriteMovies.map((movie) => (
-          <div key={movie.movieId} style={{ marginBottom: "10px" }}>
-            <p>{movie.title}</p>
-          </div>
-        ))
-      ) : (
-        <p>No favorite movies yet.</p>
-      )}
-
-      <button onClick={handleSave}>Save Changes</button>
+      <Footer />
     </div>
   );
 }

@@ -50,11 +50,12 @@ function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favori
       <div className="movies-grid">
         {movies.slice(startIndex, startIndex + moviesPerPage).map((movie) => (
           <MovieCard
-          movie={movie}
-          type={type}
-          favoriteMovies={favoriteMovies}
-          refreshFavorites={refreshFavorites}
-        />
+            key={movie.movieId}
+            movie={movie}
+            type={type}
+            favoriteMovies={favoriteMovies}
+            refreshFavorites={refreshFavorites}
+          />
         ))}
       </div>
     </section>

@@ -77,3 +77,43 @@ insert into shows (movie_id, start_time, show_date) values (9, '15:00:00', '2026
 insert into shows (movie_id, start_time, show_date) values (9, '18:00:00', '2026-03-02');
 insert into shows (movie_id, start_time, show_date) values (10, '21:00:00', '2026-02-26');
 insert into shows (movie_id, start_time, show_date) values (10, '09:00:00', '2026-02-28');
+
+-- ===== DEMO USER SEED DATA =====
+-- The following demo accounts should be created for testing.
+-- Users can be created via POST /api/auth/register endpoint, but for efficiency,
+-- use the below credentials during demo:
+
+-- ADMIN ACCOUNT:
+-- Email: admin@cinema.com
+-- Password: AdminPass!123
+-- First Name: Admin
+-- Last Name: User
+-- Phone: 555-0000
+-- Status: ACTIVE (manually verify after creation)
+-- Role: ADMIN (set via database UPDATE)
+
+-- VERIFIED USER (for TC9 - Favorites):
+-- Email: verified@cinema.com
+-- Password: VerifiedPass!123
+-- First Name: John
+-- Last Name: Verified
+-- Phone: 555-0001
+-- Status: ACTIVE
+-- Role: USER
+-- Favorite Movie: Movie ID 1 (The Shawshank Redemption)
+
+-- VERIFIED USER WITH 3 PAYMENT CARDS (for TC7 - Edit Profile):
+-- Email: cards@cinema.com
+-- Password: CardsPass!123
+-- First Name: Jane
+-- Last Name: Cards
+-- Phone: 555-0002
+-- Status: ACTIVE
+-- Role: USER
+-- 3 Payment Cards: Add via CreateDemoDataEndpoint or use UI after signup
+
+-- NOTE: To create these demo users, run the following steps:
+-- 1. Start the backend application (./mvnw spring-boot:run)
+-- 2. Call POST /api/auth/register with the above credentials for each account
+-- 3. Manually verify email for each user via /api/auth/verify-email endpoint (extract token from email or database)
+-- 4. Update admin user's role to ADMIN via database: UPDATE users SET role = 'ADMIN' WHERE email = 'admin@cinema.com';

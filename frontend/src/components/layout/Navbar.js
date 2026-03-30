@@ -7,16 +7,23 @@ function Navbar({ onSearch, onGenreChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const authData = localStorage.getItem('cinemaAuth');
+    const role = localStorage.getItem('userRole');
     setLoggedIn(Boolean(authData));
+    setUserRole(role);
   }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem('cinemaAuth');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
     setLoggedIn(false);
+    setUserRole(null);
     navigate('/');
   };
 
@@ -79,6 +86,11 @@ function Navbar({ onSearch, onGenreChange }) {
         </ul>
         {loggedIn ? (
           <div className="auth-buttons">
+            {userRole === 'ADMIN' && (
+              <Link to="/admin" className="signin-link">
+                <button className="admin-btn">Admin Dashboard</button>
+              </Link>
+            )}
             <Link to="/profile" className="signin-link">
               <button className="login-btn">Profile</button>
             </Link>

@@ -2,7 +2,10 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(229, 9, 20, 0.2), transparent 35%),
+    radial-gradient(circle at 90% 90%, rgba(255, 107, 107, 0.15), transparent 30%),
+    #080808;
 }
 
 .verification-main {
@@ -10,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .verification-container {
@@ -19,21 +22,22 @@
 }
 
 .verification-card {
-  background: white;
-  border-radius: 8px;
-  padding: 40px 30px;
+  background: rgba(16, 16, 16, 0.88);
+  border-radius: 14px;
+  padding: 3rem 2rem;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.42);
 }
 
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #e50914;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 30px;
+  margin: 0 auto 2rem;
 }
 
 @keyframes spin {
@@ -47,18 +51,18 @@
 
 .success-icon,
 .error-icon {
-  font-size: 60px;
+  font-size: 3.75rem;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
   animation: slideDown 0.5s ease-out;
 }
 
 .success-icon {
-  color: #4caf50;
+  color: #a8e6a1;
 }
 
 .error-icon {
-  color: #f44336;
+  color: #f8a0a0;
 }
 
 @keyframes slideDown {
@@ -73,28 +77,31 @@
 }
 
 .verification-card h1 {
-  font-size: 28px;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 1.75rem;
+  color: #ffe8e8;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .verification-card p {
-  color: #666;
-  font-size: 16px;
-  margin-bottom: 10px;
-  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
 }
 
 .redirect-message {
-  color: #667eea;
+  color: #ffbcbc;
   font-style: italic;
-  margin-top: 20px;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 1rem;
+  margin-top: 2rem;
   flex-direction: column;
 }
 
@@ -106,30 +113,90 @@
 
 .primary-btn,
 .secondary-btn {
-  padding: 12px 20px;
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   flex: 1;
 }
 
 .primary-btn {
-  background: #667eea;
+  background: linear-gradient(120deg, #e50914, #ff6b6b);
   color: white;
 }
 
 .primary-btn:hover {
-  background: #5568d3;
+  background: linear-gradient(120deg, #ff6b6b, #e50914);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
 }
 
 .secondary-btn {
-  background: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffbcbc;
+  border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .secondary-btn:hover {
-  background: #f0f0f0;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 107, 107, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(229, 9, 20, 0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .verification-main {
+    padding: 1rem;
+  }
+
+  .verification-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .verification-card h1 {
+    font-size: 1.5rem;
+  }
+
+  .success-icon,
+  .error-icon {
+    font-size: 3rem;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .verification-main {
+    padding: 0.75rem;
+  }
+
+  .verification-card {
+    padding: 1.5rem 1rem;
+    border-radius: 10px;
+  }
+
+  .verification-card h1 {
+    font-size: 1.3rem;
+  }
+
+  .verification-card p {
+    font-size: 0.9rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
 }

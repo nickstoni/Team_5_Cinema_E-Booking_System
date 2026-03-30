@@ -10,6 +10,7 @@ import EditProfilePage from './components/profile/EditProfilePage';
 import EmailVerificationPage from './components/signup/EmailVerificationPage';
 import ForgotPasswordPage from './components/login/ForgotPasswordPage';
 import ResetPasswordPage from './components/login/ResetPasswordPage';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/profile" element={<EditProfilePage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

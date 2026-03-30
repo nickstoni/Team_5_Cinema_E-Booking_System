@@ -43,7 +43,16 @@ function LoginPage() {
                     fullName: data.fullName,
                     email: data.email
                 }));
-                navigate('/');
+                localStorage.setItem('userId', data.userId);
+                localStorage.setItem('userEmail', data.email);
+                localStorage.setItem('userRole', data.role);
+                
+                // Navigate based on user role
+                if (data.role === 'ADMIN') {
+                    navigate('/admin');
+                } else {
+                    navigate('/');
+                }
             } else {
                 setError(data.message || 'Login failed. Please check your credentials.');
             }

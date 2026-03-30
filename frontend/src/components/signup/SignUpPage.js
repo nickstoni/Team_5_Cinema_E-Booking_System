@@ -109,11 +109,13 @@ function SignUpPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          fullName: formData.fullName.trim(),
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
           email: formData.email.trim().toLowerCase(),
           phoneNumber: formData.phoneNumber.trim(),
           password: formData.password,
           confirmPassword: formData.confirmPassword,
+          promotionsEnabled: formData.promotionsEnabled,
           address: isAddressProvided
             ? {
                 addressLine1: formData.addressLine1.trim(),

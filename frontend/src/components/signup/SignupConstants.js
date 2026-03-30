@@ -2,11 +2,13 @@ export const API_BASE_URL = 'http://localhost:8080';
 export const MAX_PAYMENT_CARDS = 3;
 
 export const EMPTY_FORM_DATA = {
-  fullName: '',
+  firstName: '',
+  lastName: '',
   email: '',
   phoneNumber: '',
   password: '',
   confirmPassword: '',
+  promotionsEnabled: false,
   addressLine1: '',
   addressLine2: '',
   city: '',

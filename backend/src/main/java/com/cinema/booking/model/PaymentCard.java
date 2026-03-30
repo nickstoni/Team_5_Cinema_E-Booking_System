@@ -34,10 +34,10 @@ public class PaymentCard {
     private String cardHolderName;
 
     @Column(name = "expiry_month", nullable = false)
-    private Integer expiryMonth;
+    private String expiryMonth;
 
     @Column(name = "expiry_year", nullable = false)
-    private Integer expiryYear;
+    private String expiryYear;
 
     @Column(name = "cvv")
     private String cvv;

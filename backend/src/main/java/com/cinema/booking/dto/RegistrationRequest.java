@@ -12,8 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class RegistrationRequest {
 
-    @NotBlank(message = "Full name is required")
-    private String fullName;
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    private String lastName;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
@@ -32,6 +35,8 @@ public class RegistrationRequest {
     private AddressRequest address;
 
     private List<PaymentCardRequest> paymentCards;
+
+    private Boolean promotionsEnabled = false;
 
     @Data
     @NoArgsConstructor

@@ -17,8 +17,11 @@ public class User {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -28,6 +31,9 @@ public class User {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @Column(name = "role", nullable = false)
+    private String role = "USER"; // USER or ADMIN
 
     @Column(name = "status", nullable = false)
     private String status; // ACTIVE or INACTIVE

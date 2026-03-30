@@ -69,12 +69,15 @@ public class AuthController {
 
             // Create new user
             User user = new User();
-            user.setFullName(request.getFullName().trim());
+            user.setFirstName(request.getFirstName().trim());
+            user.setLastName(request.getLastName().trim());
             user.setEmail(request.getEmail().toLowerCase().trim());
             user.setPhoneNumber(request.getPhoneNumber().trim());
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+            user.setRole("USER");
             user.setStatus("INACTIVE");
             user.setEmailVerified(false);
+            user.setPromotionsEnabled(request.getPromotionsEnabled() != null && request.getPromotionsEnabled());
             
             // Generate verification token
             String verificationToken = UUID.randomUUID().toString();
@@ -102,8 +105,8 @@ public class AuthController {
                         card.setCardType(cardRequest.getCardType());
                         card.setCardNumber(cardRequest.getCardNumber());
                         card.setCardHolderName(cardRequest.getCardHolderName());
-                        card.setExpiryMonth(cardRequest.getExpiryMonth());
-                        card.setExpiryYear(cardRequest.getExpiryYear());
+                        card.setExpiryMonth(String.valueOf(cardRequest.getExpiryMonth()));
+                        card.setExpiryYear(String.valueOf(cardRequest.getExpiryYear()));
                         return card;
                     })
                     .collect(Collectors.toList());
@@ -111,9 +114,10 @@ public class AuthController {
 
             // Send verification email
             try {
+                String fullName = savedUser.getFirstName() + " " + savedUser.getLastName();
                 emailService.sendVerificationEmail(
                     savedUser.getEmail(),
-                    savedUser.getFullName(),
+                    fullName,
                     verificationToken
                 );
             } catch (Exception e) {
@@ -137,30 +141,31 @@ public class AuthController {
             Optional<User> userOptional = userRepository.findByEmail(request.getEmail().toLowerCase().trim());
             if (userOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new LoginResponse(false, "Invalid email or password", null, null, null));
+                    .body(new LoginResponse(false, "Invalid email or password", null, null, null, null));
             }
 
             User user = userOptional.get();
             if (user.getPasswordHash() == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new LoginResponse(false, "Invalid email or password", null, null, null));
+                    .body(new LoginResponse(false, "Invalid email or password", null, null, null, null));
             }
 
             if (user.getEmailVerified() == null || !user.getEmailVerified()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new LoginResponse(false, "Email not verified. Please verify your account before logging in.", null, null, null));
+                    .body(new LoginResponse(false, "Email not verified. Please verify your account before logging in.", null, null, null, null));
             }
 
             return ResponseEntity.ok(new LoginResponse(
                     true,
                     "Login successful",
                     user.getUserId(),
-                    user.getFullName(),
-                    user.getEmail()
+                    user.getFirstName() + " " + user.getLastName(),
+                    user.getEmail(),
+                    user.getRole()
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new LoginResponse(false, "Login failed: " + e.getMessage(), null, null, null));
+                .body(new LoginResponse(false, "Login failed: " + e.getMessage(), null, null, null, null));
         }
     }
 
@@ -177,7 +182,7 @@ public class AuthController {
                 user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(24));
                 userRepository.save(user);
 
-                emailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), resetToken);
+                emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName() + " " + user.getLastName(), resetToken);
             }
 
             return ResponseEntity.ok(new RegistrationResponse(true,
@@ -240,7 +245,7 @@ public class AuthController {
 
             // Send welcome email
             try {
-                emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+                emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName() + " " + user.getLastName());
             } catch (Exception e) {
                 System.err.println("Welcome email sending failed: " + e.getMessage());
             }

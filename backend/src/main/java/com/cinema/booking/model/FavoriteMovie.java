@@ -6,12 +6,15 @@ import jakarta.persistence.*;
 @Table(name = "favorite_movies")
 public class FavoriteMovie {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "favorite_id")
-private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "favorite_id")
+    private Integer id;
 
+    @Column(name = "user_id", nullable = false)
     private Integer userId;
+
+    @Column(name = "movie_id", nullable = false)
     private Integer movieId;
 
     // Getters and Setters
