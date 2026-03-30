@@ -11,6 +11,8 @@ function AdminDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [users, setUsers] = useState([]);
   const [movies, setMovies] = useState([]);
+  const [promotions, setPromotions] = useState([]);
+  const [showtimes, setShowtimes] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [message, setMessage] = useState('');
 
@@ -50,6 +52,24 @@ function AdminDashboard() {
       if (moviesRes.ok) {
         const moviesData = await moviesRes.json();
         setMovies(moviesData);
+      }
+
+      // Load promotions
+      const promotionsRes = await fetch('http://localhost:8080/api/admin/promotions');
+      if (promotionsRes.ok) {
+        const promotionsData = await promotionsRes.json();
+        setPromotions(promotionsData);
+      } else {
+        setPromotions([]);
+      }
+
+      // Load showtimes
+      const showtimesRes = await fetch('http://localhost:8080/api/admin/showtimes');
+      if (showtimesRes.ok) {
+        const showtimesData = await showtimesRes.json();
+        setShowtimes(showtimesData);
+      } else {
+        setShowtimes([]);
       }
     } catch (error) {
       console.error('Error loading admin data:', error);
@@ -119,16 +139,28 @@ function AdminDashboard() {
               Dashboard
             </button>
             <button
+              className={`tab-btn ${activeTab === 'movies' ? 'active' : ''}`}
+              onClick={() => setActiveTab('movies')}
+            >
+              Manage Movies ({movies.length})
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'promotions' ? 'active' : ''}`}
+              onClick={() => setActiveTab('promotions')}
+            >
+              Promotions ({promotions.length})
+            </button>
+            <button
               className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
               onClick={() => setActiveTab('users')}
             >
               Users ({users.length})
             </button>
             <button
-              className={`tab-btn ${activeTab === 'movies' ? 'active' : ''}`}
-              onClick={() => setActiveTab('movies')}
+              className={`tab-btn ${activeTab === 'showtimes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('showtimes')}
             >
-              Movies ({movies.length})
+              Showtimes ({showtimes.length})
             </button>
           </div>
 
@@ -244,6 +276,98 @@ function AdminDashboard() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'promotions' && (
+            <div className="promotions-section">
+              <h2>Promotions Management</h2>
+              {promotions.length === 0 ? (
+                <div className="empty-state">
+                  <p>No active promotions</p>
+                  <button className="primary-btn">Create New Promotion</button>
+                </div>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Code</th>
+                      <th>Description</th>
+                      <th>Discount</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {promotions.map((promo) => (
+                      <tr key={promo.id}>
+                        <td>{promo.id}</td>
+                        <td>{promo.code}</td>
+                        <td>{promo.description}</td>
+                        <td>{promo.discountPercentage}%</td>
+                        <td>{promo.startDate}</td>
+                        <td>{promo.endDate}</td>
+                        <td>
+                          <span className={`status-badge ${promo.active ? 'active' : 'inactive'}`}>
+                            {promo.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <button className="action-btn edit">Edit</button>
+                          <button className="action-btn delete">Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'showtimes' && (
+            <div className="showtimes-section">
+              <h2>Showtimes Management</h2>
+              {showtimes.length === 0 ? (
+                <div className="empty-state">
+                  <p>No showtimes scheduled</p>
+                  <button className="primary-btn">Add Showtime</button>
+                </div>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Movie</th>
+                      <th>Theatre</th>
+                      <th>Date</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Available Seats</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {showtimes.map((showtime) => (
+                      <tr key={showtime.id}>
+                        <td>{showtime.id}</td>
+                        <td>{showtime.movieTitle}</td>
+                        <td>{showtime.theatreName}</td>
+                        <td>{showtime.date}</td>
+                        <td>{showtime.startTime}</td>
+                        <td>{showtime.endTime}</td>
+                        <td>{showtime.availableSeats}</td>
+                        <td>
+                          <button className="action-btn edit">Edit</button>
+                          <button className="action-btn delete">Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
             </div>
           )}

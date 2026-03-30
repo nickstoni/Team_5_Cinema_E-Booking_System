@@ -4,6 +4,7 @@ import Footer from "../layout/Footer";
 import RequiredInfoSection from "../signup/RequiredInfoSection";
 import AddressSection from "../signup/AddressSection";
 import PaymentCardsSection from "../signup/PaymentCardsSection";
+import ChangePasswordSection from "./ChangePasswordSection";
 import MovieCard from "../home/MovieCard";
 import "../../styles/profile/EditProfilePage.css";
 
@@ -302,6 +303,8 @@ function EditProfilePage() {
         <div className="save-cards-section">
           <button className="btn-secondary" onClick={handleSaveNewCards}>Save Cards</button>
         </div>
+
+        <ChangePasswordSection userId={userId} onSuccess={() => setMessage("Password changed successfully!")} />
 
         <section className="favorites-section">
           <h2>Favorite Movies</h2>

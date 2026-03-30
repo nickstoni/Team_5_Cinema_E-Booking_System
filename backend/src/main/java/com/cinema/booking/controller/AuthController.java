@@ -1,5 +1,6 @@
 package com.cinema.booking.controller;
 
+import com.cinema.booking.dto.ChangePasswordRequest;
 import com.cinema.booking.dto.ForgotPasswordRequest;
 import com.cinema.booking.dto.LoginRequest;
 import com.cinema.booking.dto.LoginResponse;
@@ -256,6 +257,43 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new RegistrationResponse(false, "Email verification failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/change-password/{userId}")
+    public ResponseEntity<RegistrationResponse> changePassword(
+            @PathVariable Integer userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        try {
+            // Validate new passwords match
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new RegistrationResponse(false, "New passwords do not match"));
+            }
+
+            // Find user
+            Optional<User> userOptional = userRepository.findById(userId);
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new RegistrationResponse(false, "User not found"));
+            }
+
+            User user = userOptional.get();
+
+            // Verify current password
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new RegistrationResponse(false, "Current password is incorrect"));
+            }
+
+            // Update to new password
+            user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseEntity.ok(new RegistrationResponse(true, "Password changed successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new RegistrationResponse(false, "Failed to change password: " + e.getMessage()));
         }
     }
 }

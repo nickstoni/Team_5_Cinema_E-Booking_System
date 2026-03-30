@@ -110,4 +110,36 @@ public class EmailService {
             throw new RuntimeException("Failed to send password reset email: " + e.getMessage());
         }
     }
+
+    public void sendProfileChangeNotification(String recipientEmail, String fullName) {
+        try {
+            String emailBody = String.format(
+                "Hello %s,\n\n" +
+                "We wanted to confirm that your profile information has been successfully updated " +
+                "in your Absolute Cinema account.\n\n" +
+                "If you did not make these changes, please contact our support team immediately.\n\n" +
+                "Changes made:\n" +
+                "- Personal information (Name, Phone)\n" +
+                "- Address information\n" +
+                "- Payment card information\n\n" +
+                "For security reasons, we do not display your payment card details in emails.\n\n" +
+                "Best regards,\n" +
+                "Absolute Cinema Team",
+                fullName
+            );
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(recipientEmail);
+            message.setSubject("Absolute Cinema Profile Update Notification");
+            message.setText(emailBody);
+
+            mailSender.send(message);
+            logger.info("Profile change notification email sent successfully to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send profile change notification to: {}", recipientEmail, e);
+            // Don't throw exception here - non-critical operation
+            logger.warn("Continuing despite email notification failure");
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.cinema.booking.controller;
 import com.cinema.booking.util.EncryptionUtil;
 import com.cinema.booking.model.*;
 import com.cinema.booking.repository.*;
+import com.cinema.booking.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +22,20 @@ public class ProfileController {
     private final PaymentCardRepository paymentCardRepository;
     private final FavoriteMovieRepository favoriteMovieRepository;
     private final MovieRepository movieRepository;
+    private final EmailService emailService;
 
     public ProfileController(UserRepository userRepository,
                              AddressRepository addressRepository,
                              PaymentCardRepository paymentCardRepository,
                              FavoriteMovieRepository favoriteMovieRepository,
-                             MovieRepository movieRepository) {
+                             MovieRepository movieRepository,
+                             EmailService emailService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.paymentCardRepository = paymentCardRepository;
         this.favoriteMovieRepository = favoriteMovieRepository;
         this.movieRepository = movieRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping("/{userId}")
@@ -69,6 +73,7 @@ public class ProfileController {
 
         User existingUser = userOpt.get();
         User incomingUser = request.getUser();
+        boolean profileUpdated = false;
 
         if (incomingUser != null) {
             existingUser.setFirstName(incomingUser.getFirstName());
@@ -77,6 +82,7 @@ public class ProfileController {
             existingUser.setPromotionsEnabled(incomingUser.getPromotionsEnabled());
             // Email is intentionally NOT updated
             userRepository.save(existingUser);
+            profileUpdated = true;
         }
 
         Address incomingAddress = request.getAddress();
@@ -93,6 +99,18 @@ public class ProfileController {
             address.setCountry(incomingAddress.getCountry());
 
             addressRepository.save(address);
+            profileUpdated = true;
+        }
+
+        // Send profile change notification email
+        if (profileUpdated) {
+            try {
+                String fullName = existingUser.getFirstName() + " " + existingUser.getLastName();
+                emailService.sendProfileChangeNotification(existingUser.getEmail(), fullName);
+            } catch (Exception e) {
+                // Log error but don't fail the profile update
+                System.err.println("Failed to send profile change notification: " + e.getMessage());
+            }
         }
 
         return ResponseEntity.ok("Profile updated successfully");
