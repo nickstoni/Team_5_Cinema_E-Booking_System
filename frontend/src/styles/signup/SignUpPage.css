@@ -84,7 +84,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
+  gap: 1rem;
   margin-bottom: 0.85rem;
 }
 
@@ -142,39 +142,67 @@ select.form-input {
   border: none;
   border-radius: 9px;
   height: 44px;
-  padding: 0 1rem;
-  background: linear-gradient(120deg, #e50914, #ff6b6b);
+  padding: 0 2rem;
+  background: #e50914;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
 
 .primary-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .primary-btn:not(:disabled):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.5);
+  background: #ff4444;
+}
+
+.primary-btn:not(:disabled):active {
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
 }
 
 .secondary-btn {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 9px;
-  height: 38px;
-  padding: 0 0.8rem;
-  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 8px;
+  height: 36px;
+  padding: 0 1rem;
+  background: #e50914;
   color: #fff;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+  width: fit-content;
 }
 
 .secondary-btn:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-btn:not(:disabled):hover {
+  background: #ff4444;
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+  transform: translateY(-2px);
+}
+
+.secondary-btn:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.25);
 }
 
 .card-box {

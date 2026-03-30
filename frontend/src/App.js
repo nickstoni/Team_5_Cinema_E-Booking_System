@@ -7,6 +7,9 @@ import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
 import LoginPage from './components/login/LoginPage';
 import EditProfilePage from './components/profile/EditProfilePage';
+import EmailVerificationPage from './components/signup/EmailVerificationPage';
+import ForgotPasswordPage from './components/login/ForgotPasswordPage';
+import ResetPasswordPage from './components/login/ResetPasswordPage';
 
 function App() {
   return (
@@ -20,8 +23,11 @@ function App() {
           <Route path="/showtimes" element={<NotFoundPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/profile" element={<EditProfilePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
     </BrowserRouter>

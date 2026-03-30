@@ -1,48 +1,86 @@
 package com.cinema.booking.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    private String password;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    private Boolean promotionsEnabled;
+    @Column(name = "status", nullable = false)
+    private String status; // ACTIVE or INACTIVE
 
-    private String status;
+    @Column(name = "address_line_1")
+    private String addressLine1;
 
-    // Getters and Setters
+    @Column(name = "address_line_2")
+    private String addressLine2;
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    @Column(name = "city")
+    private String city;
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    @Column(name = "state")
+    private String state;
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    @Column(name = "postal_code")
+    private String postalCode;
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    @Column(name = "country")
+    private String country;
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailVerified = false;
 
-    public Boolean getPromotionsEnabled() { return promotionsEnabled; }
-    public void setPromotionsEnabled(Boolean promotionsEnabled) { this.promotionsEnabled = promotionsEnabled; }
+    @Column(name = "email_verification_token")
+    private String emailVerificationToken;
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expiry")
+    private LocalDateTime passwordResetTokenExpiry;
+
+    @Column(name = "promotions_enabled", nullable = false)
+    private Boolean promotionsEnabled = false;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        status = "INACTIVE";
+        emailVerified = false;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

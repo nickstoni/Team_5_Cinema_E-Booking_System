@@ -1,12 +1,24 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/layout/Navbar.css';
 
 // Component for a clean navbar
 function Navbar({ onSearch, onGenreChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [genre, setGenre] = useState("");
-  const [loggedIn, setLoggedIn] = useState(false); // Placeholder for auth state
+  const [loggedIn, setLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const authData = localStorage.getItem('cinemaAuth');
+    setLoggedIn(Boolean(authData));
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('cinemaAuth');
+    setLoggedIn(false);
+    navigate('/');
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -70,7 +82,7 @@ function Navbar({ onSearch, onGenreChange }) {
             <Link to="/profile" className="signin-link">
               <button className="login-btn">Profile</button>
             </Link>
-            <button className="signin-btn">Log Out</button>
+            <button className="signin-btn" onClick={handleSignOut}>Log Out</button>
           </div>
         ) : (
           <div className="auth-buttons">

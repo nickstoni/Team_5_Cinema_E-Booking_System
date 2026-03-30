@@ -2,7 +2,7 @@ function LoginSection({formData, onInputChange}) {
   return (
     <div className="login-section">
       <h2>Enter Login Details</h2>
-      <label className="form-row full-span">
+      <label className="email-section">
           <span className="form-label">Email Address</span>
           <input
             type="email"
@@ -16,7 +16,7 @@ function LoginSection({formData, onInputChange}) {
           />
         </label>
 
-        <label className="form-row">
+        <label className="password-section">
           <span className="form-label">Password</span>
           <input
             type="password"
