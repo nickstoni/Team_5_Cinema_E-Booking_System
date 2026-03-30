@@ -6,7 +6,7 @@ import BookingPage from './components/booking/BookingPage';
 import NotFoundPage from './components/notfound/NotFoundPage';
 import SignUpPage from './components/signup/SignUpPage';
 import LoginPage from './components/login/LoginPage';
-import EditProfilePage from "./components/profile/EditProfilePage";
+import EditProfilePage from './components/profile/EditProfilePage';
 
 function App() {
   return (
