@@ -219,6 +219,14 @@ public class AuthController {
             user.setPasswordResetTokenExpiry(null);
             userRepository.save(user);
 
+            // Send password change confirmation email
+            try {
+                String fullName = user.getFirstName() + " " + user.getLastName();
+                emailService.sendPasswordChangeNotification(user.getEmail(), fullName);
+            } catch (Exception e) {
+                System.err.println("Failed to send password change notification: " + e.getMessage());
+            }
+
             return ResponseEntity.ok(new RegistrationResponse(true,
                     "Password has been reset successfully. You may now log in."));
         } catch (Exception e) {
@@ -289,6 +297,14 @@ public class AuthController {
             // Update to new password
             user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
             userRepository.save(user);
+
+            // Send password change confirmation email
+            try {
+                String fullName = user.getFirstName() + " " + user.getLastName();
+                emailService.sendPasswordChangeNotification(user.getEmail(), fullName);
+            } catch (Exception e) {
+                System.err.println("Failed to send password change notification: " + e.getMessage());
+            }
 
             return ResponseEntity.ok(new RegistrationResponse(true, "Password changed successfully"));
         } catch (Exception e) {
