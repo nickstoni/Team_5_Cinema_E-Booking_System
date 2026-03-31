@@ -7,8 +7,11 @@ import com.cinema.booking.dto.LoginResponse;
 import com.cinema.booking.dto.RegistrationRequest;
 import com.cinema.booking.dto.RegistrationResponse;
 import com.cinema.booking.dto.ResetPasswordRequest;
+import com.cinema.booking.model.Address;
 import com.cinema.booking.model.PaymentCard;
 import com.cinema.booking.model.User;
+import com.cinema.booking.repository.AddressRepository;
+import com.cinema.booking.repository.PaymentCardRepository;
 import com.cinema.booking.repository.UserRepository;
 import com.cinema.booking.service.EmailService;
 import jakarta.validation.Valid;
@@ -32,6 +35,12 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PaymentCardRepository paymentCardRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private EmailService emailService;
@@ -97,6 +106,19 @@ public class AuthController {
             // Save user (status: INACTIVE until email is verified)
             User savedUser = userRepository.save(user);
 
+            // Create address record in addresses table if address is provided
+            if (request.getAddress() != null) {
+                Address address = new Address();
+                address.setUserId(savedUser.getUserId());
+                address.setAddressLine1(request.getAddress().getAddressLine1());
+                address.setAddressLine2(request.getAddress().getAddressLine2());
+                address.setCity(request.getAddress().getCity());
+                address.setState(request.getAddress().getState());
+                address.setPostalCode(request.getAddress().getPostalCode());
+                address.setCountry(request.getAddress().getCountry());
+                addressRepository.save(address);
+            }
+
             // Save payment cards if provided
             if (request.getPaymentCards() != null && !request.getPaymentCards().isEmpty()) {
                 List<PaymentCard> cards = request.getPaymentCards().stream()
@@ -108,9 +130,16 @@ public class AuthController {
                         card.setCardHolderName(cardRequest.getCardHolderName());
                         card.setExpiryMonth(String.valueOf(cardRequest.getExpiryMonth()));
                         card.setExpiryYear(String.valueOf(cardRequest.getExpiryYear()));
+                        card.setCvv(cardRequest.getCvv());
+                        // Extract last 4 digits from card number
+                        String cardNumber = cardRequest.getCardNumber();
+                        String lastFour = cardNumber.length() >= 4 ? cardNumber.substring(cardNumber.length() - 4) : cardNumber;
+                        card.setLastFour(lastFour);
+                        card.setCreatedAt(LocalDateTime.now());
                         return card;
                     })
                     .collect(Collectors.toList());
+                paymentCardRepository.saveAll(cards);
             }
 
             // Send verification email
