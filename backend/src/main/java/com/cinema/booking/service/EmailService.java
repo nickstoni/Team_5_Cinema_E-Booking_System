@@ -147,10 +147,8 @@ public class EmailService {
         try {
             String emailBody = String.format(
                 "Hello %s,\n\n" +
-                "This is to confirm that your Absolute Cinema account password has been successfully changed.\n\n" +
-                "If you did not make this change, please contact our support team immediately at support@absolute-cinema.com\n" +
-                "and change your password right away.\n\n" +
-                "Your account security is important to us. If you have any concerns, please reach out to our support team.\n\n" +
+                "Your Absolute Cinema account password has been changed.\n\n" +
+                "If you did not make this change, please contact our support team immediately at support@absolute-cinema.com.\n\n" +
                 "Best regards,\n" +
                 "Absolute Cinema Team",
                 fullName
@@ -159,15 +157,15 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(recipientEmail);
-            message.setSubject("Absolute Cinema Password Change Confirmation");
+            message.setSubject("Absolute Cinema Password Change");
             message.setText(emailBody);
 
             mailSender.send(message);
-            logger.info("Password change notification email sent successfully to: {}", recipientEmail);
+            logger.info("Password change email sent successfully to: {}", recipientEmail);
         } catch (Exception e) {
-            logger.error("Failed to send password change notification to: {}", recipientEmail, e);
+            logger.error("Failed to send password change email to: {}", recipientEmail, e);
             // Don't throw exception here - non-critical operation
-            logger.warn("Continuing despite email notification failure");
+            logger.warn("Continuing despite password change email failure");
         }
     }
 }

@@ -68,6 +68,7 @@ function LoginPage() {
             <Navbar />
             <main className="login-main">
                 <h1>Login</h1>
+                <p>Welcome back to Absolute Cinema!</p>
                     <form className="login-form" onSubmit={handleSubmit}>
                         {error ? <div className="login-error">{error}</div> : null}
                         <LoginSection formData={formData} onInputChange={handleInputChange} />
