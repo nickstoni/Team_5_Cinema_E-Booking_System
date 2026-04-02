@@ -83,6 +83,8 @@ function RequiredInfoSection({ formData, onInputChange, isEditMode = false }) {
                 onChange={onInputChange}
                 autoComplete="new-password"
                 placeholder="Enter at least 8 characters"
+                minLength={8}
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                 required
               />
             </label>
@@ -97,6 +99,8 @@ function RequiredInfoSection({ formData, onInputChange, isEditMode = false }) {
                 onChange={onInputChange}
                 autoComplete="new-password"
                 placeholder="Re-enter your password"
+                minLength={8}
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                 required
               />
             </label>

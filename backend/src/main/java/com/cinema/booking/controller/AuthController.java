@@ -14,6 +14,7 @@ import com.cinema.booking.repository.AddressRepository;
 import com.cinema.booking.repository.PaymentCardRepository;
 import com.cinema.booking.repository.UserRepository;
 import com.cinema.booking.service.EmailService;
+import com.cinema.booking.service.EncryptionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,9 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EncryptionService encryptionService;
 
     private static final String RESET_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int RESET_TOKEN_LENGTH = 32;
@@ -126,15 +130,22 @@ public class AuthController {
                         PaymentCard card = new PaymentCard();
                         card.setUser(savedUser);
                         card.setCardType(cardRequest.getCardType());
-                        card.setCardNumber(cardRequest.getCardNumber());
-                        card.setCardHolderName(cardRequest.getCardHolderName());
-                        card.setExpiryMonth(String.valueOf(cardRequest.getExpiryMonth()));
-                        card.setExpiryYear(String.valueOf(cardRequest.getExpiryYear()));
-                        card.setCvv(cardRequest.getCvv());
-                        // Extract last 4 digits from card number
+                        
+                        // Extract last 4 digits BEFORE encryption
                         String cardNumber = cardRequest.getCardNumber();
                         String lastFour = cardNumber.length() >= 4 ? cardNumber.substring(cardNumber.length() - 4) : cardNumber;
                         card.setLastFour(lastFour);
+                        
+                        // Encrypt card number and CVV using the service
+                        String encryptedCardNumber = encryptionService.encrypt(cardNumber);
+                        String encryptedCvv = encryptionService.encrypt(cardRequest.getCvv());
+                        
+                        card.setCardNumber(encryptedCardNumber);
+                        card.setCvv(encryptedCvv);
+                        
+                        card.setCardHolderName(cardRequest.getCardHolderName());
+                        card.setExpiryMonth(String.valueOf(cardRequest.getExpiryMonth()));
+                        card.setExpiryYear(String.valueOf(cardRequest.getExpiryYear()));
                         card.setCreatedAt(LocalDateTime.now());
                         return card;
                     })
