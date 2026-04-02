@@ -3,7 +3,7 @@ function LoginSection({formData, onInputChange}) {
     <div className="login-section">
       <h2>Enter Login Details</h2>
       <label className="email-section">
-          <span className="form-label">Email Address</span>
+          <span className="form-label">Email Address*</span>
           <input
             type="email"
             className="form-input"
@@ -17,7 +17,7 @@ function LoginSection({formData, onInputChange}) {
         </label>
 
         <label className="password-section">
-          <span className="form-label">Password</span>
+          <span className="form-label">Password*</span>
           <input
             type="password"
             className="form-input"
@@ -25,7 +25,7 @@ function LoginSection({formData, onInputChange}) {
             value={formData.password}
             onChange={onInputChange}
             autoComplete="new-password"
-            placeholder="Enter at least 8 characters"
+            placeholder="password1234"
             required
           />
         </label>

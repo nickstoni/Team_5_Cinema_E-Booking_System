@@ -27,10 +27,10 @@ function ForgotPasswordPage() {
 
             const data = await response.json();
             if (response.ok && data.success) {
-                setMessage(data.message || 'If that email is registered, a password reset link has been sent.');
+                setMessage(data.message || 'A password reset link has been sent to your email.');
                 setEmail('');
             } else {
-                setError(data.message || 'Unable to send reset email. Please try again.');
+                setError(data.message || 'Unable to send email. Please try again.');
             }
         } catch (submitError) {
             setError(submitError.message || 'Network error. Please try again.');
@@ -43,8 +43,9 @@ function ForgotPasswordPage() {
         <div className="forgot-password-page">
             <Navbar />
             <main className="forgot-password-main">
+                <h1>Forgot Password</h1>
                 <div className="forgot-password-card">
-                    <h1>Forgot Password</h1>
+                    <h2>Reset your password</h2>
                     <p>Enter your email address to receive a password reset link.</p>
                     {message && <div className="success-message">{message}</div>}
                     {error && <div className="error-message">{error}</div>}
@@ -63,7 +64,7 @@ function ForgotPasswordPage() {
                             />
                         </label>
                         <button type="submit" className="primary-btn" disabled={isLoading}>
-                            {isLoading ? 'Sending...' : 'Send Reset Link'}
+                            {isLoading ? 'Sending...' : 'Send Password Reset Link'}
                         </button>
                     </form>
                 </div>
