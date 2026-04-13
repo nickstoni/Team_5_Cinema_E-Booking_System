@@ -58,7 +58,9 @@ function Navbar({ onSearch, onGenreChange }) {
             onChange={(e) => {
               const val = e.target.value;
               setGenre(val);
-              onGenreChange(val);
+              if (onGenreChange) {
+                onGenreChange(val);
+              }
             }}
             className="genre-select"
           >

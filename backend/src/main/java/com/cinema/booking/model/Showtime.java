@@ -17,7 +17,7 @@ public class Showtime {
 
     @Column(name = "start_time")
     private LocalTime showtime;
-    
+
     @Column(name = "show_date")
     private LocalDate showdate;
 

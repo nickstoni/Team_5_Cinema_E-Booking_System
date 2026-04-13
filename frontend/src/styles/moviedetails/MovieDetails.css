@@ -232,7 +232,6 @@
   font-style: italic;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .movie-info-container {
     grid-template-columns: 1fr;

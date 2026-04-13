@@ -11,6 +11,7 @@ import EmailVerificationPage from './components/signup/EmailVerificationPage';
 import ForgotPasswordPage from './components/login/ForgotPasswordPage';
 import ResetPasswordPage from './components/login/ResetPasswordPage';
 import AdminDashboard from './components/admin/AdminDashboard';
+import ShowtimesPage from './components/showtimes/ShowtimesPage';
 
 function App() {
   return (
@@ -20,8 +21,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/booking/:movieId/:showtimeId" element={<BookingPage />} />
-          {/* Properly route the showtimes page later */}
-          <Route path="/showtimes" element={<NotFoundPage />} />
+          <Route path="/showtimes" element={<ShowtimesPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/forgot-password" element={<ForgotPasswordPage />} />

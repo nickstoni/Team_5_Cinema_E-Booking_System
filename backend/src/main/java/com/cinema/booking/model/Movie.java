@@ -1,8 +1,6 @@
 package com.cinema.booking.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -24,6 +22,8 @@ public class Movie {
     private Set<Genre> genresSet = new HashSet<>();
 
     private String title;
+
+    @Column(name = "user_score")
     private Integer rating;
 
     @Column(length = 1000)
@@ -31,6 +31,8 @@ public class Movie {
 
     private String poster;
     private String trailer;
+
+    @Column(name = "show_availability")
     private String showAvailability;
 
     public Movie() {}

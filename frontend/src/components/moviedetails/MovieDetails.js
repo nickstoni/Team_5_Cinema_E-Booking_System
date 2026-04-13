@@ -200,7 +200,7 @@ function MovieDetails() {
 
             {/* Rating */}
             <div className="movie-rating">
-              ⭐ <span className="rating-number">{movie.rating}/100</span>
+              ⭐ <span className="rating-number">{movie.rating ?? movie.user_score ?? 'N/A'}/100</span>
             </div>
 
             {/* Genres */}
