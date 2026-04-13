@@ -13,14 +13,34 @@ function ShowtimesPage() {
   useEffect(() => {
     async function loadShowtimes() {
       try {
-        const res = await fetch('http://localhost:8080/api/showtimes');
+        // Load movies first, then fetch showtimes visibility (from shows) by movie.
+        const moviesRes = await fetch('http://localhost:8080/api/movies');
 
-        if (!res.ok) {
-          throw new Error('Failed to load showtimes.');
+        if (!moviesRes.ok) {
+          throw new Error('Failed to load movies.');
         }
 
-        const data = await res.json();
-        setShowtimes(Array.isArray(data) ? data : []);
+        const moviesData = await moviesRes.json();
+        const currentMovies = (Array.isArray(moviesData) ? moviesData : []).filter(
+          (movie) => (movie?.showAvailability || '').toLowerCase() === 'current'
+        );
+
+        const showtimesByMovie = await Promise.all(
+          currentMovies.map(async (movie) => {
+            const res = await fetch(`http://localhost:8080/api/showtimes/movie/${movie.movieId}`);
+            if (!res.ok) return [];
+
+            const slots = await res.json();
+            if (!Array.isArray(slots)) return [];
+
+            return slots.map((slot) => ({
+              ...slot,
+              movie
+            }));
+          })
+        );
+
+        setShowtimes(showtimesByMovie.flat());
       } catch (err) {
         setError(err.message || 'Unable to load showtimes.');
       } finally {
@@ -32,11 +52,7 @@ function ShowtimesPage() {
   }, []);
 
   const groupedShowtimes = useMemo(() => {
-    const currentOnly = showtimes.filter(
-      (item) => (item?.movie?.showAvailability || '').toLowerCase() === 'current'
-    );
-
-    const sorted = currentOnly.sort((a, b) => {
+    const sorted = [...showtimes].sort((a, b) => {
       const first = `${a.showdate}T${a.showtime}`;
       const second = `${b.showdate}T${b.showtime}`;
       return first.localeCompare(second);

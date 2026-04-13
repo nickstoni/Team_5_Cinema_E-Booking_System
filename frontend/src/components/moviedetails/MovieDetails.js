@@ -26,9 +26,9 @@ function MovieDetails() {
         const foundMovie = movieData.find(m => m.movieId === parseInt(id));
         setMovie(foundMovie);
 
-        // Fetch showtimes for this movie
+        // Fetch showtimes (from shows table) for this movie
         if (foundMovie) {
-          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes`);
+          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes/movie/${foundMovie.movieId}`);
           
           if (!showtimesRes.ok) {
             console.warn("Showtimes API returned error, continuing without showtimes");
@@ -36,12 +36,9 @@ function MovieDetails() {
           } else {
             const showtimesData = await showtimesRes.json();
             
-            // Safely filter showtimes (handle if response isn't an array)
+            // Safely set showtimes (handle if response isn't an array)
             if (Array.isArray(showtimesData)) {
-              const movieShowtimes = showtimesData.filter(
-                showtime => showtime.movie && showtime.movie.movieId === foundMovie.movieId
-              );
-              setShowtimes(movieShowtimes);
+              setShowtimes(showtimesData);
             } else {
               setShowtimes([]);
             }

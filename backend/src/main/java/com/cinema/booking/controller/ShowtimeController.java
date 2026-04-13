@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cinema.booking.dto.ShowtimeVisibilityResponse;
 import com.cinema.booking.model.Showtime;
 import com.cinema.booking.repository.ShowtimeRepository;
 
@@ -24,5 +26,21 @@ public class ShowtimeController {
     @GetMapping()
     public List<Showtime> getallShowtimes() {
         return showtimeRepository.findAllWithMovie();
+    }
+
+    @GetMapping("/movie/{movieId}")
+    public List<ShowtimeVisibilityResponse> getShowtimesByMovie(@PathVariable Integer movieId) {
+        return showtimeRepository.findVisibilityByMovieId(movieId)
+                .stream()
+                .map(show -> new ShowtimeVisibilityResponse(
+                        show.getShowtimeId(),
+                        show.getShowtime(),
+                        show.getShowdate(),
+                        show.getMovieId(),
+                        show.getShowroomName(),
+                        show.getTotalSeats(),
+                        show.getBookedSeats(),
+                        show.getAvailableSeats()))
+                .toList();
     }
 }

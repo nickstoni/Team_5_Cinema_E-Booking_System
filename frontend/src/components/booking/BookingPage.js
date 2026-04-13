@@ -12,6 +12,28 @@ function BookingPage() {
   const [showtime, setShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [occupiedSeats] = useState([]);
+
+  // Format the time (assuming it comes as HH:MM:SS)
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    
+    // Parse the time string (format: HH:MM:SS or HH:MM)
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours, 10);
+    const minute = minutes || '00';
+    
+    // Convert to 12-hour format
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    
+    return `${hour12}:${minute} ${period}`;
+  };
+
+  const formatRoomNumber = (roomName) => {
+    if (!roomName) return 'TBD';
+    return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
+  };
+
   const [tickets, setTickets] = useState({
     adult: { quantity: 0, price: 0.00 },
     child: { quantity: 0, price: 0.00 },
@@ -25,8 +47,8 @@ function BookingPage() {
       .then(data => setMovie(data.find(m => m.movieId === parseInt(movieId))))
       .catch(err => console.error(err));
 
-    // Retrieve showtime from the movie what we want to book
-    fetch(`http://localhost:8080/api/showtimes`)
+    // Retrieve selected showtime from shows (includes showroom visibility fields)
+    fetch(`http://localhost:8080/api/showtimes/movie/${movieId}`)
       .then(res => res.json())
       .then(data => setShowtime(data.find(s => s.showtimeId === parseInt(showtimeId))))
       .catch(err => console.error(err));
@@ -81,7 +103,8 @@ function BookingPage() {
           <div className="booking-details">
             <h2 className="booking-movie-title">{movie.title}</h2>
             <p><strong>Date:</strong> {new Date(showtime.showdate).toDateString()}</p>
-            <p><strong>Time:</strong> {showtime.showtime}</p>
+            <p><strong>Time:</strong> {formatTime(showtime.showtime)}</p>
+            <p><strong>Room:</strong> {formatRoomNumber(showtime.showroomName)}</p>
           </div>
         </div>
         {/* Ticket Prices component */}

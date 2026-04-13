@@ -30,6 +30,11 @@ function ShowtimeCard({ showtime, movieId }) {
     return `${hour12}:${minute} ${period}`;
   };
 
+  const formatRoomNumber = (roomName) => {
+    if (!roomName) return 'TBD';
+    return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
+  };
+
   return (
     <div className="showtime-card">
       <div className="showtime-card-date">
@@ -38,6 +43,10 @@ function ShowtimeCard({ showtime, movieId }) {
       <div className="showtime-card-divider"></div>
       <div className="showtime-card-time">
         <div className="time-text">{formatTime(showtime.showtime)}</div>
+      </div>
+      <div className="showtime-meta">
+        <div className="meta-text">Room #{formatRoomNumber(showtime.showroomName)}</div>
+        <div className="meta-text">Available Seats: {showtime.availableSeats ?? 0}</div>
       </div>
       <Link to={`/booking/${movieId}/${showtime.showtimeId}`} className="book-button-link">
         <button className="book-button">
