@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
@@ -8,10 +8,13 @@ import '../../styles/booking/BookingPage.css';
 
 function BookingPage() {
   const { movieId, showtimeId } = useParams();
+  const reservationStorageKey = `seat-hold-token:${showtimeId}`;
   const [movie, setMovie] = useState(null);
   const [showtime, setShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [occupiedSeats, setOccupiedSeats] = useState([]);
+  const [seatRows, setSeatRows] = useState([]);
+  const [reservationToken, setReservationToken] = useState('');
   const [seatAvailability, setSeatAvailability] = useState({
     totalSeats: 0,
     bookedSeats: 0,
@@ -38,6 +41,24 @@ function BookingPage() {
     if (!roomName) return 'TBD';
     return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
   };
+
+  const loadSeatMap = useCallback(async (token) => {
+    const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats${token ? `?reservationToken=${encodeURIComponent(token)}` : ''}`);
+    const data = await response.json();
+
+    setSeatRows(data.rows || []);
+    setOccupiedSeats(
+      (data.rows || [])
+        .flatMap(row => row.seats || [])
+        .filter(seat => seat.status === 'occupied' || seat.status === 'reserved')
+        .map(seat => seat.seatLabel)
+    );
+    setSeatAvailability({
+      totalSeats: Number(data.totalSeats ?? 0),
+      bookedSeats: Number(data.bookedSeats ?? 0),
+      availableSeats: Number(data.availableSeats ?? 0)
+    });
+  }, [showtimeId]);
 
   const [tickets, setTickets] = useState({
     adult: { quantity: 0, price: 0.00 },
@@ -69,21 +90,34 @@ function BookingPage() {
       })
       .catch(err => console.error(err));
 
-    fetch(`http://localhost:8080/api/showtimes/${showtimeId}/availability`)
-      .then(res => res.json())
-      .then(data => {
-        const availableSeats = Number(data.availableSeats ?? 0);
-        setSeatAvailability({
-          totalSeats: Number(data.totalSeats ?? 0),
-          bookedSeats: Number(data.bookedSeats ?? 0),
-          availableSeats
-        });
+    const key = reservationStorageKey;
+    let token = localStorage.getItem(key);
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem(key, token);
+    }
+    setReservationToken(token);
 
-        // Seat-level booking is not implemented yet, so expose aggregate sold capacity only.
-        setOccupiedSeats([]);
-      })
-      .catch(err => console.error(err));
-  }, [movieId, showtimeId]);
+    loadSeatMap(token).catch(err => console.error(err));
+
+    const releaseAll = () => {
+      fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve?reservationToken=${encodeURIComponent(token)}`, {
+        method: 'DELETE'
+      }).catch(() => {});
+      localStorage.removeItem(key);
+    };
+
+    window.addEventListener('beforeunload', releaseAll);
+    return () => {
+      window.removeEventListener('beforeunload', releaseAll);
+      releaseAll();
+    };
+  }, [movieId, showtimeId, loadSeatMap, reservationStorageKey]);
+
+  useEffect(() => {
+    if (!reservationToken) return;
+    loadSeatMap(reservationToken).catch(err => console.error(err));
+  }, [reservationToken, loadSeatMap]);
 
   // function to update the tickets on hand
   const handleTicketChange = (type, change) => {
@@ -98,11 +132,47 @@ function BookingPage() {
   };
 
   // function to update selected seats when clicking on them
-  const handleSeatClick = (seatId) => {
-    // if seat is occupied, do nothing
+  const handleSeatClick = async (seatId) => {
     if (occupiedSeats.includes(seatId)) return;
-    // update the selected seats, if it is already selected, remove it from the selected seats, if not selected add it to the array
-    setSelectedSeats(prev => prev.includes(seatId) ? prev.filter(s => s !== seatId) : [...prev, seatId]);
+
+    const alreadySelected = selectedSeats.includes(seatId);
+
+    if (alreadySelected) {
+      const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve/${encodeURIComponent(seatId)}?reservationToken=${encodeURIComponent(reservationToken)}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        alert('Unable to release this seat right now.');
+        return;
+      }
+
+      setSelectedSeats(prev => prev.filter(s => s !== seatId));
+      await loadSeatMap(reservationToken);
+      return;
+    }
+
+    const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reservationToken, seatLabels: [seatId] })
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      alert(message || 'This seat is no longer available.');
+      await loadSeatMap(reservationToken);
+      return;
+    }
+
+    const data = await response.json();
+    if (data.reservationToken && data.reservationToken !== reservationToken) {
+      localStorage.setItem(reservationStorageKey, data.reservationToken);
+      setReservationToken(data.reservationToken);
+    }
+
+    setSelectedSeats(prev => [...prev, seatId]);
+    await loadSeatMap(data.reservationToken || reservationToken);
   };
 
   // compute the total amount of tickets
@@ -148,6 +218,7 @@ function BookingPage() {
         
         {/* Seat selection component */}
         <SeatSelection 
+          seatRows={seatRows}
           selectedSeats={selectedSeats}
           occupiedSeats={occupiedSeats}
           onSeatClick={handleSeatClick}

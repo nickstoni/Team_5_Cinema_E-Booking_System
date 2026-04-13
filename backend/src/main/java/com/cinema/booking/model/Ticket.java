@@ -27,6 +27,9 @@ public class Ticket {
     @Column(name = "base_price")
     private BigDecimal basePrice;
 
+    @Column(name = "seat_id")
+    private Integer seatId;
+
     @Column(name = "booking_id")
     private Integer bookingId;
 
@@ -56,6 +59,14 @@ public class Ticket {
 
     public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
+    }
+
+    public Integer getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(Integer seatId) {
+        this.seatId = seatId;
     }
 
     public Integer getBookingId() {

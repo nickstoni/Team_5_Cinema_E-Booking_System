@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.cinema.booking.dto.ShowtimeAvailabilityView;
+import com.cinema.booking.dto.SeatMapShowtimeView;
 import com.cinema.booking.dto.ShowtimeVisibilityView;
 import com.cinema.booking.model.Showtime;
 
@@ -49,4 +50,21 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
         GROUP BY s.show_id, sr.total_seats
         """, nativeQuery = true)
     ShowtimeAvailabilityView findAvailabilityByShowtimeId(@Param("showtimeId") Integer showtimeId);
+
+    @Query(value = """
+        SELECT
+            s.show_id AS showtimeId,
+            COALESCE(sr.room_id, 0) AS showroomId,
+            COALESCE(sr.room_name, 'TBD') AS showroomName,
+            COALESCE(sr.total_seats, 0) AS totalSeats,
+            COALESCE(COUNT(t.ticket_id), 0) AS bookedSeats,
+            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(COUNT(t.ticket_id), 0), 0) AS availableSeats
+        FROM shows s
+        LEFT JOIN showrooms sr ON sr.room_id = s.showroom_id
+        LEFT JOIN bookings b ON b.show_id = s.show_id
+        LEFT JOIN tickets t ON t.booking_id = b.booking_id
+        WHERE s.show_id = :showtimeId
+        GROUP BY s.show_id, sr.room_id, sr.room_name, sr.total_seats
+        """, nativeQuery = true)
+    SeatMapShowtimeView findSeatMapByShowtimeId(@Param("showtimeId") Integer showtimeId);
 }

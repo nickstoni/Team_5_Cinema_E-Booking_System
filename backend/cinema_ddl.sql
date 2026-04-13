@@ -82,9 +82,24 @@ create table if not exists tickets (
     ticket_number varchar(50),
     ticket_type enum('adult', 'senior', 'child'),
     base_price decimal(15,2),
+    seat_id int,
     booking_id int,
     primary key (ticket_id),
+    foreign key (seat_id) references seats (seat_id),
     foreign key (booking_id) references bookings (booking_id) on delete cascade
+);
+
+create table if not exists seat_reservations (
+    reservation_id int auto_increment,
+    show_id int not null,
+    seat_id int not null,
+    reservation_token varchar(100) not null,
+    expires_at datetime not null,
+    created_at datetime not null,
+    primary key (reservation_id),
+    unique (show_id, seat_id),
+    foreign key (show_id) references shows(show_id) on delete cascade,
+    foreign key (seat_id) references seats(seat_id) on delete cascade
 );
 
 create table if not exists promotions (
