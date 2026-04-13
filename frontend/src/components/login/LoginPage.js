@@ -4,13 +4,14 @@ import LoginSection from './LoginSection';
 import '../../styles/login/LoginPage.css';
 import { API_BASE_URL, EMPTY_FORM_DATA } from '../signup/SignupConstants';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function LoginPage() {
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -50,6 +51,8 @@ function LoginPage() {
                 // Navigate based on user role
                 if (data.role === 'ADMIN') {
                     navigate('/admin');
+                } else if (location.state?.from === '/checkout' || localStorage.getItem('cinemaPendingCheckout')) {
+                    navigate('/checkout', { replace: true });
                 } else {
                     navigate('/');
                 }

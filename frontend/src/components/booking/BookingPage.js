@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import TicketPrices from './TicketPrices';
@@ -8,7 +8,9 @@ import '../../styles/booking/BookingPage.css';
 
 function BookingPage() {
   const { movieId, showtimeId } = useParams();
+  const navigate = useNavigate();
   const reservationStorageKey = `seat-hold-token:${showtimeId}`;
+  const pendingCheckoutStorageKey = 'cinemaPendingCheckout';
   const [movie, setMovie] = useState(null);
   const [showtime, setShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -100,17 +102,9 @@ function BookingPage() {
 
     loadSeatMap(token).catch(err => console.error(err));
 
-    const releaseAll = () => {
-      fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve?reservationToken=${encodeURIComponent(token)}`, {
-        method: 'DELETE'
-      }).catch(() => {});
-      localStorage.removeItem(key);
-    };
-
-    window.addEventListener('beforeunload', releaseAll);
     return () => {
-      window.removeEventListener('beforeunload', releaseAll);
-      releaseAll();
+      // Keep the seat hold active across checkout/login navigation.
+      // The reservation expires automatically after the backend hold window.
     };
   }, [movieId, showtimeId, loadSeatMap, reservationStorageKey]);
 
@@ -173,6 +167,31 @@ function BookingPage() {
 
     setSelectedSeats(prev => [...prev, seatId]);
     await loadSeatMap(data.reservationToken || reservationToken);
+  };
+
+  const handleProceedToCheckout = () => {
+    const auth = localStorage.getItem('cinemaAuth') || localStorage.getItem('userId');
+    const checkoutPayload = {
+      movieId,
+      showtimeId,
+      movie,
+      showtime,
+      tickets,
+      selectedSeats,
+      seatAvailability,
+      reservationToken,
+      subtotal: Number(totalPrice),
+      createdAt: new Date().toISOString()
+    };
+
+    localStorage.setItem(pendingCheckoutStorageKey, JSON.stringify(checkoutPayload));
+
+    if (!auth) {
+      navigate('/login', { state: { from: '/checkout' } });
+      return;
+    }
+
+    navigate('/checkout');
   };
 
   // compute the total amount of tickets
@@ -247,6 +266,7 @@ function BookingPage() {
           </div>
           <button 
             className="proceed-btn"
+            onClick={handleProceedToCheckout}
             disabled={
               totalTickets === 0 ||
               selectedSeats.length !== totalTickets ||
