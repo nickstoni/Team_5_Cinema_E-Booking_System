@@ -11,7 +11,12 @@ function BookingPage() {
   const [movie, setMovie] = useState(null);
   const [showtime, setShowtime] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [occupiedSeats] = useState([]);
+  const [occupiedSeats, setOccupiedSeats] = useState([]);
+  const [seatAvailability, setSeatAvailability] = useState({
+    totalSeats: 0,
+    bookedSeats: 0,
+    availableSeats: 0
+  });
 
   // Format the time (assuming it comes as HH:MM:SS)
   const formatTime = (timeString) => {
@@ -52,10 +57,40 @@ function BookingPage() {
       .then(res => res.json())
       .then(data => setShowtime(data.find(s => s.showtimeId === parseInt(showtimeId))))
       .catch(err => console.error(err));
+
+    fetch('http://localhost:8080/api/showtimes/ticket-prices')
+      .then(res => res.json())
+      .then(data => {
+        setTickets(prev => ({
+          adult: { ...prev.adult, price: Number(data.adult ?? 0) },
+          child: { ...prev.child, price: Number(data.child ?? 0) },
+          senior: { ...prev.senior, price: Number(data.senior ?? 0) }
+        }));
+      })
+      .catch(err => console.error(err));
+
+    fetch(`http://localhost:8080/api/showtimes/${showtimeId}/availability`)
+      .then(res => res.json())
+      .then(data => {
+        const availableSeats = Number(data.availableSeats ?? 0);
+        setSeatAvailability({
+          totalSeats: Number(data.totalSeats ?? 0),
+          bookedSeats: Number(data.bookedSeats ?? 0),
+          availableSeats
+        });
+
+        // Seat-level booking is not implemented yet, so expose aggregate sold capacity only.
+        setOccupiedSeats([]);
+      })
+      .catch(err => console.error(err));
   }, [movieId, showtimeId]);
 
   // function to update the tickets on hand
   const handleTicketChange = (type, change) => {
+    if (change > 0 && totalTickets >= seatAvailability.availableSeats) {
+      return;
+    }
+
     setTickets(prev => ({
       ...prev,
       [type]: { ...prev[type], quantity: Math.max(0, prev[type].quantity + change) }
@@ -105,6 +140,7 @@ function BookingPage() {
             <p><strong>Date:</strong> {new Date(showtime.showdate).toDateString()}</p>
             <p><strong>Time:</strong> {formatTime(showtime.showtime)}</p>
             <p><strong>Room:</strong> {formatRoomNumber(showtime.showroomName)}</p>
+            <p><strong>Available Seats:</strong> {seatAvailability.availableSeats}</p>
           </div>
         </div>
         {/* Ticket Prices component */}
@@ -129,6 +165,10 @@ function BookingPage() {
               <span>Seats:</span>
               <span>{selectedSeats.join(', ') || 'None'}</span>
             </div>
+            <div className="summary-row">
+              <span>Seats Remaining:</span>
+              <span>{seatAvailability.availableSeats}</span>
+            </div>
             <div className="summary-row total">
               <span>Total:</span>
               <span className="total-price">${totalPrice}</span>
@@ -136,9 +176,15 @@ function BookingPage() {
           </div>
           <button 
             className="proceed-btn"
-            disabled={totalTickets === 0 || selectedSeats.length !== totalTickets}
+            disabled={
+              totalTickets === 0 ||
+              selectedSeats.length !== totalTickets ||
+              totalTickets > seatAvailability.availableSeats
+            }
           >
-            {selectedSeats.length !== totalTickets 
+            {totalTickets > seatAvailability.availableSeats
+              ? 'Not enough seats available'
+              : selectedSeats.length !== totalTickets 
               ? `Select ${totalTickets} seat(s)`
               : 'Checkout'}
           </button>
