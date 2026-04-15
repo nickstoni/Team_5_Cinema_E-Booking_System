@@ -54,28 +54,28 @@ Cinema E-Booking System is a web application that allows users to browse movies,
     index.js
     index.css
     /components -> all React components
-      /admin -> admin dashboard components
-      /booking -> booking and checkout components
-      /home -> homepage components
-      /layout -> shared layout components
-      /login -> login and password reset components
-      /moviedetails -> movie detail and showtime components
-      /notfound -> 404 page components
-      /profile -> user profile components
-      /showtimes -> showtimes listing components
-      /signup -> sign-up and verification components
-      /utils -> shared frontend helper functions
+      /admin -> admin dashboard
+      /booking -> booking and checkout
+      /home -> homepage 
+      /layout -> shared layout
+      /login -> login and password reset
+      /moviedetails -> movie detail and showtime
+      /notfound -> 404 page
+      /profile -> user profile
+      /showtimes -> showtimes listing
+      /signup -> sign-up and verification
+      /utils -> shared frontend helper
     /styles -> all CSS stylesheets
-      /admin -> admin styles
-      /booking -> booking styles
-      /home -> home page styles
-      /layout -> shared layout styles
-      /login -> login styles
-      /moviedetails -> movie details styles
-      /notfound -> not found page styles
-      /profile -> profile styles
-      /showtimes -> showtimes styles
-      /signup -> sign-up styles
+      /admin
+      /booking
+      /home
+      /layout
+      /login
+      /moviedetails
+      /notfound
+      /profile
+      /showtimes
+      /signup
 ```
 
 ---
