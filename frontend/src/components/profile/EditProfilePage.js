@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Navbar from "../layout/Navbar";
 import Footer from "../layout/Footer";
 import RequiredInfoSection from "../signup/RequiredInfoSection";
@@ -6,7 +6,17 @@ import AddressSection from "../signup/AddressSection";
 import PaymentCardsSection from "../signup/PaymentCardsSection";
 import ChangePasswordSection from "./ChangePasswordSection";
 import MovieCard from "../home/MovieCard";
+import { createEmptyCard } from "../signup/SignupConstants";
 import "../../styles/profile/EditProfilePage.css";
+
+const EMPTY_ADDRESS = {
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: ""
+};
 
 function EditProfilePage() {
   const userId = localStorage.getItem("userId");
@@ -14,23 +24,7 @@ function EditProfilePage() {
   const currentYear = new Date().getFullYear();
   const expiryYears = Array.from({ length: 10 }, (_, i) => String(currentYear + i));
 
-  const emptyAddress = {
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: ""
-  };
-
-  const emptyCard = {
-    cardType: "",
-    cardNumber: "",
-    cardHolderName: "",
-    expiryMonth: "",
-    expiryYear: "",
-    cvv: ""
-  };
+  const emptyCard = createEmptyCard();
 
   const [profile, setProfile] = useState({
     user: {
@@ -40,7 +34,7 @@ function EditProfilePage() {
       phoneNumber: "",
       promotionsEnabled: false
     },
-    address: emptyAddress,
+    address: EMPTY_ADDRESS,
     cards: [],
     favoriteMovies: []
   });
@@ -48,7 +42,7 @@ function EditProfilePage() {
   const [message, setMessage] = useState("");
   const [addressFormOpen, setAddressFormOpen] = useState(false);
 
-  const loadProfile = () => {
+  const loadProfile = useCallback(() => {
     fetch(`http://localhost:8080/api/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -60,7 +54,7 @@ function EditProfilePage() {
             phoneNumber: "",
             promotionsEnabled: false
           },
-          address: data.address || emptyAddress,
+          address: data.address || EMPTY_ADDRESS,
           cards: data.cards || [],
           favoriteMovies: data.favoriteMovies || []
         });
@@ -80,7 +74,7 @@ function EditProfilePage() {
         console.error("Error loading profile:", err);
         setMessage("Failed to load profile");
       });
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadProfile();
@@ -96,7 +90,7 @@ function EditProfilePage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [loadProfile]);
 
   const handleUserInputChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -133,7 +127,7 @@ function EditProfilePage() {
         profile.address.state ||
         profile.address.postalCode ||
         profile.address.country
-      ) ? profile.address : emptyAddress;
+      ) ? profile.address : EMPTY_ADDRESS;
 
       const res = await fetch(`http://localhost:8080/api/profile/${userId}`, {
         method: "PUT",
@@ -156,7 +150,7 @@ function EditProfilePage() {
   const handleAddAddress = () => {
     setProfile((prev) => ({
       ...prev,
-      address: emptyAddress
+      address: EMPTY_ADDRESS
     }));
     setAddressFormOpen(true);
   };
@@ -164,7 +158,7 @@ function EditProfilePage() {
   const handleRemoveAddress = () => {
     setProfile((prev) => ({
       ...prev,
-      address: emptyAddress
+      address: EMPTY_ADDRESS
     }));
     setAddressFormOpen(false);
   };

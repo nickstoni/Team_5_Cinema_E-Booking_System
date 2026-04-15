@@ -76,6 +76,8 @@ function ShowtimesPage() {
     }, {});
   }, [showtimes]);
 
+  const sortedMovieGroups = Object.values(groupedShowtimes);
+
   return (
     <div className="showtimes-page">
       <Navbar onGenreChange={() => {}} />
@@ -94,7 +96,7 @@ function ShowtimesPage() {
           <p className="showtimes-state">No showtimes available right now.</p>
         )}
 
-        {!loading && !error && Object.values(groupedShowtimes).map(({ movie, slots }) => (
+        {!loading && !error && sortedMovieGroups.map(({ movie, slots }) => (
           <section key={movie.movieId} className="movie-showtimes-block">
             <div className="movie-showtimes-info">
               <img src={movie.poster} alt={movie.title} className="movie-showtimes-poster" />

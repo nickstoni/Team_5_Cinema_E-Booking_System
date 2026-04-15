@@ -1,6 +1,6 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatTime12Hour } from '../../utils/time';
+import { formatRoomNumber } from '../../utils/showtime';
 import '../../styles/moviedetails/ShowtimeCard.css';
 
 function ShowtimeCard({ showtime, movieId }) {
@@ -13,11 +13,6 @@ function ShowtimeCard({ showtime, movieId }) {
       day: 'numeric',
       year: 'numeric'
     });
-  };
-
-  const formatRoomNumber = (roomName) => {
-    if (!roomName) return 'TBD';
-    return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
   };
 
   return (

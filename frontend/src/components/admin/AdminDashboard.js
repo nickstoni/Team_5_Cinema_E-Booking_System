@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
@@ -33,44 +33,19 @@ function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // Load dashboard summary
-      const dashRes = await fetch('http://localhost:8080/api/admin/dashboard');
-      if (dashRes.ok) {
-        const dashData = await dashRes.json();
-        setDashboardData(dashData);
-      }
+      const [dashRes, usersRes, moviesRes, promotionsRes, showtimesRes] = await Promise.all([
+        fetch('http://localhost:8080/api/admin/dashboard'),
+        fetch('http://localhost:8080/api/admin/users'),
+        fetch('http://localhost:8080/api/admin/movies'),
+        fetch('http://localhost:8080/api/admin/promotions'),
+        fetch('http://localhost:8080/api/admin/showtimes')
+      ]);
 
-      // Load users
-      const usersRes = await fetch('http://localhost:8080/api/admin/users');
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData);
-      }
-
-      // Load movies
-      const moviesRes = await fetch('http://localhost:8080/api/admin/movies');
-      if (moviesRes.ok) {
-        const moviesData = await moviesRes.json();
-        setMovies(moviesData);
-      }
-
-      // Load promotions
-      const promotionsRes = await fetch('http://localhost:8080/api/admin/promotions');
-      if (promotionsRes.ok) {
-        const promotionsData = await promotionsRes.json();
-        setPromotions(promotionsData);
-      } else {
-        setPromotions([]);
-      }
-
-      // Load showtimes
-      const showtimesRes = await fetch('http://localhost:8080/api/admin/showtimes');
-      if (showtimesRes.ok) {
-        const showtimesData = await showtimesRes.json();
-        setShowtimes(showtimesData);
-      } else {
-        setShowtimes([]);
-      }
+      if (dashRes.ok) setDashboardData(await dashRes.json());
+      if (usersRes.ok) setUsers(await usersRes.json());
+      if (moviesRes.ok) setMovies(await moviesRes.json());
+      setPromotions(promotionsRes.ok ? await promotionsRes.json() : []);
+      setShowtimes(showtimesRes.ok ? await showtimesRes.json() : []);
     } catch (error) {
       console.error('Error loading admin data:', error);
       setMessage('Error loading admin data');
