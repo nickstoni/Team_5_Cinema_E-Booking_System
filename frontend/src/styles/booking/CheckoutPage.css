@@ -60,6 +60,12 @@
   background: rgba(16, 31, 22, 0.92);
 }
 
+.error-card {
+  margin-bottom: 24px;
+  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(44, 18, 24, 0.92);
+}
+
 .movie-summary-top {
   display: flex;
   gap: 18px;

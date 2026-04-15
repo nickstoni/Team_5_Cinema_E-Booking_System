@@ -78,6 +78,11 @@ function AdminDashboard() {
   };
 
   const handleLogout = () => {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('seat-hold-token:'))
+      .forEach((key) => localStorage.removeItem(key));
+    localStorage.removeItem('cinemaPendingCheckout');
+    localStorage.removeItem('cinemaAuth');
     localStorage.removeItem('userId');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userEmail');

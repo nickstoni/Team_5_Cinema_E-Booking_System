@@ -11,7 +11,8 @@ function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [checkoutData, setCheckoutData] = useState(null);
-  const [confirmation, setConfirmation] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const readPendingCheckout = (value) => {
     if (!value) return null;
@@ -69,21 +70,53 @@ function CheckoutPage() {
     return `${hour12}:${minute} ${period}`;
   };
 
-  const handleConfirmOrder = () => {
-    const orderReference = `AC-${Date.now()}`;
-    setConfirmation({
-      orderReference,
-      confirmedAt: new Date().toLocaleString()
-    });
-    localStorage.setItem(
-      'cinemaLastOrder',
-      JSON.stringify({
-        orderReference,
-        confirmedAt: new Date().toISOString(),
-        checkoutData,
-        pricing
-      })
-    );
+  const handleProceedToPayment = async () => {
+    if (!checkoutData || isSubmitting) return;
+
+    if (!checkoutData.selectedSeats || checkoutData.selectedSeats.length === 0) {
+      setSubmitError('Please select at least one seat before proceeding to payment.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reserve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservationToken: checkoutData.reservationToken,
+          seatLabels: checkoutData.selectedSeats
+        })
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || 'Unable to reserve seats before payment.');
+      }
+
+      const reserveResult = await response.json();
+      const updatedCheckout = {
+        ...checkoutData,
+        reservationToken: reserveResult.reservationToken || checkoutData.reservationToken
+      };
+
+      localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
+      localStorage.setItem(`seat-hold-token:${checkoutData.showtimeId}`, updatedCheckout.reservationToken || '');
+
+      navigate('/payment', {
+        state: {
+          checkoutData: updatedCheckout,
+          pricing,
+          seatReservation: reserveResult
+        }
+      });
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to proceed to payment right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!checkoutData) {
@@ -131,14 +164,10 @@ function CheckoutPage() {
           </Link>
         </div>
 
-        {confirmation ? (
-          <section className="checkout-card success-card">
-            <h2>Order confirmed</h2>
-            <p>Your order reference is <strong>{confirmation.orderReference}</strong>.</p>
-            <p>Confirmed at {confirmation.confirmedAt}.</p>
-            <p>
-              Selected seats remain reserved for the current hold window while your booking is finalized.
-            </p>
+        {submitError ? (
+          <section className="checkout-card error-card">
+            <h2>Unable to continue</h2>
+            <p>{submitError}</p>
           </section>
         ) : null}
 
@@ -183,8 +212,8 @@ function CheckoutPage() {
                 <span>${pricing.total.toFixed(2)}</span>
               </div>
             </div>
-            <button className="confirm-btn" onClick={handleConfirmOrder} disabled={Boolean(confirmation)}>
-              {confirmation ? 'Order Confirmed' : 'Confirm Order'}
+            <button className="confirm-btn" onClick={handleProceedToPayment} disabled={isSubmitting}>
+              {isSubmitting ? 'Reserving Seats...' : 'Proceed to Payment'}
             </button>
           </section>
         </div>

@@ -24,14 +24,24 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
             s.movie_id AS movieId,
             COALESCE(sr.room_name, 'TBD') AS showroomName,
             COALESCE(sr.total_seats, 0) AS totalSeats,
-            COALESCE(COUNT(t.ticket_id), 0) AS bookedSeats,
-            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(COUNT(t.ticket_id), 0), 0) AS availableSeats
+            COALESCE(bt.bookedSeats, 0) AS bookedSeats,
+            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(bt.bookedSeats, 0) - COALESCE(rs.reservedSeats, 0), 0) AS availableSeats
         FROM shows s
         LEFT JOIN showrooms sr ON sr.room_id = s.showroom_id
-        LEFT JOIN bookings b ON b.show_id = s.show_id
-        LEFT JOIN tickets t ON t.booking_id = b.booking_id
+        LEFT JOIN (
+            SELECT b.show_id AS show_id, COUNT(t.ticket_id) AS bookedSeats
+            FROM bookings b
+            LEFT JOIN tickets t ON t.booking_id = b.booking_id
+            GROUP BY b.show_id
+        ) bt ON bt.show_id = s.show_id
+        LEFT JOIN (
+            SELECT r.show_id AS show_id, COUNT(*) AS reservedSeats
+            FROM seat_reservations r
+            WHERE r.expires_at > NOW()
+            GROUP BY r.show_id
+        ) rs ON rs.show_id = s.show_id
         WHERE s.movie_id = :movieId
-        GROUP BY s.show_id, s.show_date, s.start_time, s.movie_id, sr.room_name, sr.total_seats
+        GROUP BY s.show_id, s.show_date, s.start_time, s.movie_id, sr.room_name, sr.total_seats, bt.bookedSeats, rs.reservedSeats
         ORDER BY s.show_date, s.start_time
         """, nativeQuery = true)
     List<ShowtimeVisibilityView> findVisibilityByMovieId(@Param("movieId") Integer movieId);
@@ -40,14 +50,24 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
         SELECT
             s.show_id AS showtimeId,
             COALESCE(sr.total_seats, 0) AS totalSeats,
-            COALESCE(COUNT(t.ticket_id), 0) AS bookedSeats,
-            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(COUNT(t.ticket_id), 0), 0) AS availableSeats
+            COALESCE(bt.bookedSeats, 0) AS bookedSeats,
+            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(bt.bookedSeats, 0) - COALESCE(rs.reservedSeats, 0), 0) AS availableSeats
         FROM shows s
         LEFT JOIN showrooms sr ON sr.room_id = s.showroom_id
-        LEFT JOIN bookings b ON b.show_id = s.show_id
-        LEFT JOIN tickets t ON t.booking_id = b.booking_id
+        LEFT JOIN (
+            SELECT b.show_id AS show_id, COUNT(t.ticket_id) AS bookedSeats
+            FROM bookings b
+            LEFT JOIN tickets t ON t.booking_id = b.booking_id
+            GROUP BY b.show_id
+        ) bt ON bt.show_id = s.show_id
+        LEFT JOIN (
+            SELECT r.show_id AS show_id, COUNT(*) AS reservedSeats
+            FROM seat_reservations r
+            WHERE r.expires_at > NOW()
+            GROUP BY r.show_id
+        ) rs ON rs.show_id = s.show_id
         WHERE s.show_id = :showtimeId
-        GROUP BY s.show_id, sr.total_seats
+        GROUP BY s.show_id, sr.total_seats, bt.bookedSeats, rs.reservedSeats
         """, nativeQuery = true)
     ShowtimeAvailabilityView findAvailabilityByShowtimeId(@Param("showtimeId") Integer showtimeId);
 
@@ -57,14 +77,24 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
             COALESCE(sr.room_id, 0) AS showroomId,
             COALESCE(sr.room_name, 'TBD') AS showroomName,
             COALESCE(sr.total_seats, 0) AS totalSeats,
-            COALESCE(COUNT(t.ticket_id), 0) AS bookedSeats,
-            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(COUNT(t.ticket_id), 0), 0) AS availableSeats
+            COALESCE(bt.bookedSeats, 0) AS bookedSeats,
+            GREATEST(COALESCE(sr.total_seats, 0) - COALESCE(bt.bookedSeats, 0) - COALESCE(rs.reservedSeats, 0), 0) AS availableSeats
         FROM shows s
         LEFT JOIN showrooms sr ON sr.room_id = s.showroom_id
-        LEFT JOIN bookings b ON b.show_id = s.show_id
-        LEFT JOIN tickets t ON t.booking_id = b.booking_id
+        LEFT JOIN (
+            SELECT b.show_id AS show_id, COUNT(t.ticket_id) AS bookedSeats
+            FROM bookings b
+            LEFT JOIN tickets t ON t.booking_id = b.booking_id
+            GROUP BY b.show_id
+        ) bt ON bt.show_id = s.show_id
+        LEFT JOIN (
+            SELECT r.show_id AS show_id, COUNT(*) AS reservedSeats
+            FROM seat_reservations r
+            WHERE r.expires_at > NOW()
+            GROUP BY r.show_id
+        ) rs ON rs.show_id = s.show_id
         WHERE s.show_id = :showtimeId
-        GROUP BY s.show_id, sr.room_id, sr.room_name, sr.total_seats
+        GROUP BY s.show_id, sr.room_id, sr.room_name, sr.total_seats, bt.bookedSeats, rs.reservedSeats
         """, nativeQuery = true)
     SeatMapShowtimeView findSeatMapByShowtimeId(@Param("showtimeId") Integer showtimeId);
 }

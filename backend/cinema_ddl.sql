@@ -89,6 +89,7 @@ create table if not exists tickets (
     foreign key (booking_id) references bookings (booking_id) on delete cascade
 );
 
+/* Added seat_reservations for future timer on seat selections */
 create table if not exists seat_reservations (
     reservation_id int auto_increment,
     show_id int not null,
