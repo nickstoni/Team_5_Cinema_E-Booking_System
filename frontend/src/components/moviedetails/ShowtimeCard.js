@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { formatTime12Hour } from '../../utils/time';
 import '../../styles/moviedetails/ShowtimeCard.css';
 
 function ShowtimeCard({ showtime, movieId }) {
@@ -14,22 +15,6 @@ function ShowtimeCard({ showtime, movieId }) {
     });
   };
 
-  // Format the time (assuming it comes as HH:MM:SS)
-  const formatTime = (timeString) => {
-    if (!timeString) return '';
-    
-    // Parse the time string (format: HH:MM:SS or HH:MM)
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    const minute = minutes || '00';
-    
-    // Convert to 12-hour format
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    
-    return `${hour12}:${minute} ${period}`;
-  };
-
   const formatRoomNumber = (roomName) => {
     if (!roomName) return 'TBD';
     return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
@@ -42,7 +27,7 @@ function ShowtimeCard({ showtime, movieId }) {
       </div>
       <div className="showtime-card-divider"></div>
       <div className="showtime-card-time">
-        <div className="time-text">{formatTime(showtime.showtime)}</div>
+        <div className="time-text">{formatTime12Hour(showtime.showtime)}</div>
       </div>
       <div className="showtime-meta">
         <div className="meta-text">Room #{formatRoomNumber(showtime.showroomName)}</div>

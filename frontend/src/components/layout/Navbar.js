@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { isAuthenticated } from '../../utils/auth';
 import '../../styles/layout/Navbar.css';
 
 // Component for a clean navbar
@@ -11,9 +12,8 @@ function Navbar({ onSearch, onGenreChange }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authData = localStorage.getItem('cinemaAuth');
     const role = localStorage.getItem('userRole');
-    setLoggedIn(Boolean(authData));
+    setLoggedIn(isAuthenticated());
     setUserRole(role);
   }, []);
 

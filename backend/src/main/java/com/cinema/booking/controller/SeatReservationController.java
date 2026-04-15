@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cinema.booking.dto.SeatMapResponse;
+import com.cinema.booking.dto.ReservationEmailRequest;
 import com.cinema.booking.dto.SeatReservationRequest;
 import com.cinema.booking.dto.SeatReservationResponse;
+import com.cinema.booking.service.EmailService;
 import com.cinema.booking.service.SeatReservationService;
 
 @RestController
@@ -23,9 +25,11 @@ import com.cinema.booking.service.SeatReservationService;
 public class SeatReservationController {
 
     private final SeatReservationService seatReservationService;
+    private final EmailService emailService;
 
-    public SeatReservationController(SeatReservationService seatReservationService) {
+    public SeatReservationController(SeatReservationService seatReservationService, EmailService emailService) {
         this.seatReservationService = seatReservationService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/{showtimeId}/seats")
@@ -61,5 +65,27 @@ public class SeatReservationController {
             @PathVariable Integer showtimeId,
             @RequestParam String reservationToken) {
         seatReservationService.releaseAll(showtimeId, reservationToken);
+    }
+
+    @PostMapping("/{showtimeId}/seats/reservation-confirmation-email")
+    public void sendReservationConfirmationEmail(
+            @PathVariable Integer showtimeId,
+            @RequestBody ReservationEmailRequest request) {
+        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid email address is required");
+        }
+
+        // Ensure showtime exists before attempting to send an email tied to this reservation context.
+        seatReservationService.buildSeatMap(showtimeId, null);
+
+        try {
+            emailService.sendSeatReservationConfirmationEmail(
+                    request.getEmail().trim().toLowerCase(),
+                    request.getMovieTitle(),
+                    request.getShowtimeLabel(),
+                    request.getSeatLabels());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to send reservation confirmation email", ex);
+        }
     }
 }

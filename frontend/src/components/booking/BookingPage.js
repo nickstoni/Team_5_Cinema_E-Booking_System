@@ -4,6 +4,8 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import TicketPrices from './TicketPrices';
 import SeatSelection from './SeatSelection';
+import { isAuthenticated } from '../../utils/auth';
+import { formatTime12Hour } from '../../utils/time';
 import '../../styles/booking/BookingPage.css';
 
 function BookingPage() {
@@ -22,22 +24,6 @@ function BookingPage() {
     bookedSeats: 0,
     availableSeats: 0
   });
-
-  // Format the time (assuming it comes as HH:MM:SS)
-  const formatTime = (timeString) => {
-    if (!timeString) return '';
-    
-    // Parse the time string (format: HH:MM:SS or HH:MM)
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    const minute = minutes || '00';
-    
-    // Convert to 12-hour format
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    
-    return `${hour12}:${minute} ${period}`;
-  };
 
   const formatRoomNumber = (roomName) => {
     if (!roomName) return 'TBD';
@@ -92,6 +78,7 @@ function BookingPage() {
       })
       .catch(err => console.error(err));
 
+    // Generate and store a reservation token for this session
     const key = reservationStorageKey;
     let token = localStorage.getItem(key);
     if (!token) {
@@ -100,18 +87,13 @@ function BookingPage() {
     }
     setReservationToken(token);
 
-    loadSeatMap(token).catch(err => console.error(err));
+    // Load seat map once on mount (without token to only show occupied seats, not other users' selections)
+    loadSeatMap(null).catch(err => console.error(err));
 
     return () => {
-      // Keep the seat hold active across checkout/login navigation.
-      // The reservation expires automatically after the backend hold window.
+      // Cleanup
     };
   }, [movieId, showtimeId, loadSeatMap, reservationStorageKey]);
-
-  useEffect(() => {
-    if (!reservationToken) return;
-    loadSeatMap(reservationToken).catch(err => console.error(err));
-  }, [reservationToken, loadSeatMap]);
 
   // function to update the tickets on hand
   const handleTicketChange = (type, change) => {
@@ -126,51 +108,26 @@ function BookingPage() {
   };
 
   // function to update selected seats when clicking on them
-  const handleSeatClick = async (seatId) => {
+  // NOTE: Seats are NOT reserved in DB here, only marked as selected locally
+  // Reservation happens when user commits to checkout (after authentication)
+  const handleSeatClick = (seatId) => {
     if (occupiedSeats.includes(seatId)) return;
 
     const alreadySelected = selectedSeats.includes(seatId);
 
     if (alreadySelected) {
-      const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve/${encodeURIComponent(seatId)}?reservationToken=${encodeURIComponent(reservationToken)}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        alert('Unable to release this seat right now.');
-        return;
-      }
-
+      // Remove from selection
       setSelectedSeats(prev => prev.filter(s => s !== seatId));
-      await loadSeatMap(reservationToken);
-      return;
+    } else {
+      // Add to selection
+      setSelectedSeats(prev => [...prev, seatId]);
     }
-
-    const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats/reserve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reservationToken, seatLabels: [seatId] })
-    });
-
-    if (!response.ok) {
-      const message = await response.text();
-      alert(message || 'This seat is no longer available.');
-      await loadSeatMap(reservationToken);
-      return;
-    }
-
-    const data = await response.json();
-    if (data.reservationToken && data.reservationToken !== reservationToken) {
-      localStorage.setItem(reservationStorageKey, data.reservationToken);
-      setReservationToken(data.reservationToken);
-    }
-
-    setSelectedSeats(prev => [...prev, seatId]);
-    await loadSeatMap(data.reservationToken || reservationToken);
   };
 
   const handleProceedToCheckout = () => {
-    const auth = localStorage.getItem('cinemaAuth') || localStorage.getItem('userId');
+    const auth = isAuthenticated();
+    
+    // Save checkout data including reservation token for CheckoutPage to use
     const checkoutPayload = {
       movieId,
       showtimeId,
@@ -179,14 +136,14 @@ function BookingPage() {
       tickets,
       selectedSeats,
       seatAvailability,
-      reservationToken,
+      reservationToken, // CheckoutPage will use this to reserve seats
       subtotal: Number(totalPrice),
       createdAt: new Date().toISOString()
     };
 
     localStorage.setItem(pendingCheckoutStorageKey, JSON.stringify(checkoutPayload));
-
     if (!auth) {
+      // Redirect to login - CheckoutPage will reserve seats after login
       navigate('/login', { state: { from: '/checkout' } });
       return;
     }
@@ -227,7 +184,7 @@ function BookingPage() {
           <div className="booking-details">
             <h2 className="booking-movie-title">{movie.title}</h2>
             <p><strong>Date:</strong> {new Date(showtime.showdate).toDateString()}</p>
-            <p><strong>Time:</strong> {formatTime(showtime.showtime)}</p>
+            <p><strong>Time:</strong> {formatTime12Hour(showtime.showtime)}</p>
             <p><strong>Room:</strong> {formatRoomNumber(showtime.showroomName)}</p>
             <p><strong>Available Seats:</strong> {seatAvailability.availableSeats}</p>
           </div>
@@ -277,7 +234,7 @@ function BookingPage() {
               ? 'Not enough seats available'
               : selectedSeats.length !== totalTickets 
               ? `Select ${totalTickets} seat(s)`
-              : 'Checkout'}
+              : 'Proceed to Checkout'}
           </button>
         </section>
       </div>

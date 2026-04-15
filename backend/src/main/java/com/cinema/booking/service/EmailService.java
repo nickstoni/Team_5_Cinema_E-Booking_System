@@ -1,5 +1,7 @@
 package com.cinema.booking.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -166,6 +168,45 @@ public class EmailService {
             logger.error("Failed to send password change email to: {}", recipientEmail, e);
             // Don't throw exception here - non-critical operation
             logger.warn("Continuing despite password change email failure");
+        }
+    }
+
+    public void sendSeatReservationConfirmationEmail(
+            String recipientEmail,
+            String movieTitle,
+            String showtimeLabel,
+            List<String> seatLabels) {
+        try {
+            String seatsText = (seatLabels == null || seatLabels.isEmpty())
+                    ? "N/A"
+                    : String.join(", ", seatLabels);
+
+            String emailBody = String.format(
+                "Hello,\n\n" +
+                "Your seat reservation request was received successfully.\n\n" +
+                "Movie: %s\n" +
+                "Showtime: %s\n" +
+                "Seats: %s\n\n" +
+                "These seats will be reserved for 5 minutes while you complete checkout.\n" +
+                "If checkout is not completed in time, the seats will be released automatically.\n\n" +
+                "Best regards,\n" +
+                "Absolute Cinema Team",
+                movieTitle == null || movieTitle.isBlank() ? "Selected Movie" : movieTitle,
+                showtimeLabel == null || showtimeLabel.isBlank() ? "Selected Showtime" : showtimeLabel,
+                seatsText
+            );
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(recipientEmail);
+            message.setSubject("Absolute Cinema Seat Reservation Confirmation");
+            message.setText(emailBody);
+
+            mailSender.send(message);
+            logger.info("Seat reservation confirmation email sent to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send seat reservation confirmation email to: {}", recipientEmail, e);
+            throw new RuntimeException("Failed to send reservation confirmation email: " + e.getMessage());
         }
     }
 }

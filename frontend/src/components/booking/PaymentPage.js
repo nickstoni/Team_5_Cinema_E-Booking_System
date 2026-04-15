@@ -26,6 +26,9 @@ function PaymentPage() {
           <p>
             Seats <strong>{checkoutData.selectedSeats?.join(', ') || 'N/A'}</strong> are reserved and ready for payment.
           </p>
+          <p>
+            Confirmation email: <strong>{checkoutData.confirmationEmail || localStorage.getItem('userEmail') || 'N/A'}</strong>
+          </p>
           {seatReservation?.expiresAt ? (
             <p className="payment-meta">Seat hold expires at: {new Date(seatReservation.expiresAt).toLocaleTimeString()}</p>
           ) : null}

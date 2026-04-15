@@ -1,212 +1,235 @@
 # Users' Portal Sprint - Implementation Status
 
 ## Overview
-This document outlines what has been implemented and what still needs to be completed for the Users' Portal sprint (50 Points).
+This status is updated from the current codebase (frontend + backend) and lists what is completed and what is still missing for the Users' Portal sprint (50 points).
 
 ---
 
-## ✅ COMPLETED (Partially Implemented)
+## Feature Status (Completed vs Not Completed)
 
-### 1. **Showtimes Visibility – 5 pts** [DONE ~80%]
-- ✅ **What's Done:**
-  - Showtimes loaded from database in MovieDetails component
-  - Showtimes displayed for each movie using `ShowtimeCard` component
-  - Showtime data fetched from `/api/showtimes` endpoint
-  - Shows date and time properly formatted
-  - Shows "Book Now" button for each showtime
-  
-- ❌ **What's Missing:**
-  - Verify backend endpoint returns data properly filtered by movie
-  - Ensure showroom information is included in response
-  - Add availability information (seats available count)
+### 1. Showtime Visibility - 5 pts
+**Status:** DONE (~100%)
 
-### 2. **Start Booking – 5 pts** [DONE ~90%]
-- ✅ **What's Done:**
-  - User can click "Book Now" from ShowtimeCard
-  - BookingPage component receives movieId and showtimeId via URL parameters
-  - Movie and showtime information displayed on booking page
-  - User can select number of tickets by category (Adult, Child, Senior)
-  - Navigation back to movie details works
-  
-- ❌ **What's Missing:**
-  - Backend endpoint to fetch ticket prices (prices are hardcoded as 0.00)
-  - Backend endpoint to verify seat availability for specific showtimes
+- Completed:
+  - `MovieDetails` fetches movie-specific showtimes from `GET /api/showtimes/movie/{movieId}`.
+  - `ShowtimeCard` displays date, time, room name, and available seat count.
+  - Backend `ShowtimeController` and `ShowtimeRepository` return showroom + availability fields (`showroomName`, `totalSeats`, `bookedSeats`, `availableSeats`).
+  - "Book Now" navigation is wired to booking route.
 
-### 3. **Seat Map Display – 5 pts** [DONE ~70%]
-- ✅ **What's Done:**
-  - SeatSelection component displays seat layout
-  - Shows 10 rows (A-J) × 12 seats per row (hardcoded)
-  - Visual distinction between available/selected/occupied seats
-  - Legend showing seat status meanings
-  - Screen indicator at top
-  
-- ❌ **What's Missing:**
-  - **CRITICAL:** Backend doesn't track occupied seats
-  - Integration with database `seats` and `bookings` tables
-  - Fetch actual showroom information (room layout varies by showroom)
-  - Fetch actually booked seats for selected showtime
-  - Fetch showroom capacity data
-  - Prevent users from seeing occupied seats locked by other users
+- Not completed:
+  - None identified in code for this requirement.
 
-### 4. **Seat Selection – 15 pts** [DONE ~50%]
-- ✅ **What's Done:**
-  - User can click seats to select/deselect them
-  - Selected seats displayed in order summary
-  - System prevents deselecting unavailable seats
-  - UI shows selected seats count
-  - Validation: Can't checkout if seat count ≠ ticket count
-  
-- ❌ **What's Missing:**
-  - **CRITICAL:** No backend persistence of selected seats
-  - No session-based seat reservation (should lock seats for 5 minutes)
-  - No concurrency handling for seat locking
-  - No API endpoint to reserve seats
-  - No validation that selected seats match total tickets exactly (frontend-only)
-  - Backend seat availability not fetched or updated
+### 2. Start Booking - 5 pts
+**Status:** DONE (~100%)
 
-### 5. **Checkout Order Summary – 13 pts** [DONE ~40%]
-- ✅ **What's Done:**
-  - Order summary section in BookingPage shows:
-    - Ticket count
-    - Selected seats
-    - Total price (calculated dynamically)
-  - "Checkout" button (labeled but not functional)
-  - Display of basic pricing
-  
-- ❌ **What's Missing:**
-  - **CRITICAL:** No checkout page component created
-  - Order summary missing: Movie title name (showtime card needs title)
-  - Order summary missing: Showtime display
-  - Order summary missing: Price per ticket by type
-  - Order summary missing: Tax calculation and display
-  - No API endpoint to create order
-  - No confirmation functionality
-  - All price information is hardcoded or comes from incomplete backend
+- Completed:
+  - "Book Now" goes to `/booking/:movieId/:showtimeId`.
+  - `BookingPage` reads `movieId` and `showtimeId` from URL.
+  - Booking page displays movie details, show date/time, room, and available seats.
+  - Ticket quantities by type (Adult/Child/Senior) are selectable.
+  - Ticket prices are fetched from backend `GET /api/showtimes/ticket-prices`.
+  - Navigation back to movie details is present.
 
-### 6. **Email Confirmation Page – 5 pts** [NOT STARTED]
-- ❌ **What's Missing:**
-  - Email confirmation component not created
-  - User can confirm existing email or enter new one
-  - Backend endpoint to retrieve user email
-  - Backend endpoint to validate/update email before checkout
-  - Email service integration (partially exists in backend)
+- Not completed:
+  - None identified in code for this requirement.
 
-### 7. **Payment Processing Page (Mockup) – 5 pts** [NOT STARTED]
-- ❌ **What's Missing:**
-  - Payment page component not created
-  - Mock payment processing display
-  - Order number/reference display
-  - Payment confirmation message
-  - Navigation from checkout to payment page
+### 3. Seat Map Display - 5 pts
+**Status:** DONE (~95%)
 
-### 8. **Login Requirement at Checkout – 2 pts** [NOT DONE]
-- ❌ **What's Missing:**
-  - Check if user is authenticated before allowing checkout
-  - Redirect to login if not authenticated
-  - Preserve selected seats during login redirect
-  - Resume checkout after login
+- Completed:
+  - Backend seat map endpoint exists: `GET /api/showtimes/{showtimeId}/seats`.
+  - Seat layout is loaded from `seats` + `showrooms` tables (not hardcoded on backend).
+  - Seat statuses supported: `available`, `occupied` (booked), `reserved` (other user's hold), `selected` (current user's hold).
+  - Frontend `SeatSelection` renders seat map with status legend and screen indicator.
+  - Seat capacity/availability is returned and displayed.
 
----
+- Not completed:
+  - Frontend still has a hardcoded fallback layout when backend rows are empty.
 
-## 🔴 NOT STARTED / MISSING BACKEND
+### 4. Seat Selection - 15 pts
+**Status:** MOSTLY DONE (~85%)
 
-### Models/Entities to Create:
-- [ ] `Booking` entity (mapped to `bookings` table)
-- [ ] `Ticket` entity (mapped to `tickets` table)
-- [ ] `Seat` entity (mapped to `seats` table)
-- [ ] `Showroom` entity (mapped to `showrooms` table)
-- [ ] DTOs for API requests/responses
+- Completed:
+  - Click-to-select / deselect seats on booking page.
+  - Backend reservation APIs implemented:
+    - `POST /api/showtimes/{showtimeId}/seats/reserve`
+    - `DELETE /api/showtimes/{showtimeId}/seats/reserve/{seatLabel}`
+    - `DELETE /api/showtimes/{showtimeId}/seats/reserve`
+  - 5-minute hold window implemented in backend (`SeatReservationService`).
+  - Concurrency protection present (unique `(show_id, seat_id)` + conflict checks).
+  - Checkout button enforces ticket count must match selected seats.
 
-### Repositories Needed:
-- [ ] `BookingRepository` (CRUD + custom queries)
-- [ ] `TicketRepository` (CRUD)
-- [ ] `SeatRepository` (find by showroom, check availability)
-- [ ] `ShowroomRepository` (find by id, get seat layout)
+- Not completed:
+  - No final conversion of held seats into booked tickets yet (depends on booking/order creation).
 
-### Controllers/Endpoints Needed:
-- [ ] `BookingController` with endpoints:
-  - `POST /api/bookings` - Create booking
-  - `GET /api/bookings/{id}` - Get booking details
-  - `GET /api/bookings/user/{userId}` - Get user's bookings
-  - `PATCH /api/bookings/{id}/confirm` - Confirm order
+### 5. Checkout Order Summary - 13 pts
+**Status:** PARTIALLY DONE (~70%)
 
-- [ ] `SeatController` with endpoints:
-  - `GET /api/showtimes/{showtimeId}/seats` - Get seat layout + availability
-  - `POST /api/seats/reserve` - Reserve seats temporarily
-  - `DELETE /api/seats/reserve/{reservationId}` - Release seats
-  - `GET /api/seats/showroom/{showtimeId}` - Get available seats
+- Completed:
+  - `CheckoutPage.js` exists and route `/checkout` is configured.
+  - Checkout shows movie title/poster, showtime, selected seats, ticket breakdown, subtotal, and total.
+  - Checkout attempts to re-validate/re-reserve seats before payment.
 
-- [ ] `ShowroomController` with endpoints:
-  - `GET /api/showrooms` - List all showrooms
-  - `GET /api/showrooms/{id}` - Get showroom details
+- Not completed:
+  - No booking/order creation API call (no `POST /api/bookings` flow implemented).
+  - No persisted order record or confirmation step.
+  - Tax value is computed in code but not displayed/applied separately in final total.
 
-### Services Needed:
-- [ ] `BookingService` - Booking business logic
-- [ ] `SeatReservationService` - Handle seat locking/unlocking
-- [ ] `TicketService` - Ticket generation and pricing
+### 6. Email Confirmation Page - 5 pts
+**Status:** PARTIALLY DONE (~30%)
 
-### Frontend Components to Create:
-- [ ] `CheckoutPage.js` - Order review and email confirmation
-- [ ] `PaymentPage.js` - Mock payment processing
-- [ ] Possibly: `SeatReservation.js` - Handle reserved seats state
+- Completed:
+  - Checkout shows an email line (from `localStorage.userEmail`).
 
-### Frontend Updates Needed:
-- [ ] BookingPage: Add navigation to CheckoutPage
-- [ ] BookingPage: Fetch actual prices from backend
-- [ ] BookingPage: Fetch occupied seats from backend
-- [ ] BookingPage: Show seat count availability per showtime
-- [ ] Add route: `/checkout`
-- [ ] Add route: `/payment`
+- Not completed:
+  - No dedicated email confirmation component/step.
+  - User cannot edit/confirm email during checkout.
+  - No backend endpoint for checkout-time email validation/update.
+
+### 7. Payment Processing Page (Mockup) - 5 pts
+**Status:** PARTIALLY DONE (~60%)
+
+- Completed:
+  - `PaymentPage.js` exists and route `/payment` is configured.
+  - Payment page shows selected seats, amount due, and reservation expiry time.
+  - Navigation from checkout to payment is implemented.
+
+- Not completed:
+  - "Complete Payment (Mock)" button does not create booking/tickets.
+  - No order number/reference generation and display.
+  - No payment confirmation completion state.
+
+### 8. Login Requirement at Checkout - 2 pts
+**Status:** DONE (~100%)
+
+- Completed:
+  - Checkout access checks authentication.
+  - Unauthenticated users are redirected to `/login`.
+  - Pending checkout data and seat hold token are preserved in local storage.
+  - Post-login resume to `/checkout` is implemented.
+
+- Not completed:
+  - None identified in code for this requirement.
 
 ---
 
-## Database Status
+## Backend Implementation Status
 
-✅ **Tables Exist:**
-- `shows` - Showtimes with showroom reference
-- `seats` - Seats by showroom
-- `bookings` - Booking records
-- `tickets` - Ticket records linked to bookings
-- `showrooms` - Theater room information
-- `users` - User accounts
+### Implemented Models/Entities
+- `Seat`
+- `Ticket`
+- `Showroom`
+- `SeatReservation`
 
-❌ **Not Utilized Yet:**
-- Seat availability tracking
-- Booking creation
-- Ticket pricing from database
-- Email integration with orders
+### Missing Models/Entities
+- `Booking` entity (still missing)
+
+### Implemented Repositories
+- `SeatRepository`
+- `TicketRepository`
+- `ShowroomRepository`
+- `SeatReservationRepository`
+- `ShowtimeRepository` (availability/visibility queries)
+
+### Missing Repositories
+- `BookingRepository`
+
+### Implemented Controllers/Endpoints
+- `ShowtimeController`
+  - `GET /api/showtimes`
+  - `GET /api/showtimes/movie/{movieId}`
+  - `GET /api/showtimes/{showtimeId}/availability`
+  - `GET /api/showtimes/ticket-prices`
+- `SeatReservationController`
+  - `GET /api/showtimes/{showtimeId}/seats`
+  - `POST /api/showtimes/{showtimeId}/seats/reserve`
+  - `DELETE /api/showtimes/{showtimeId}/seats/reserve/{seatLabel}`
+  - `DELETE /api/showtimes/{showtimeId}/seats/reserve`
+
+### Missing Controllers/Endpoints
+- `BookingController` and booking endpoints:
+  - `POST /api/bookings`
+  - `GET /api/bookings/{id}`
+  - `GET /api/bookings/user/{userId}`
+  - `PATCH /api/bookings/{id}/confirm`
+- `ShowroomController`:
+  - `GET /api/showrooms`
+  - `GET /api/showrooms/{id}`
+
+### Service Layer Status
+- Implemented:
+  - `SeatReservationService` (hold, release, concurrency, expiry)
+- Missing:
+  - `BookingService`
+  - `TicketService` for booking finalization workflow
+
+### DTO Status
+- Implemented DTOs for showtime visibility/availability, seat map, seat reservation, ticket prices.
+- Missing DTOs for booking creation/confirmation payloads.
 
 ---
 
-## Priority Implementation Order
+## Frontend Implementation Status
 
-### Phase 1 (Critical Path):
-1. Create Booking, Ticket, Seat, Showroom models
-2. Create SeatController with `/api/showtimes/{id}/seats` endpoint
-3. Update BookingPage to fetch actual occupied seats
-4. Create CheckoutPage component with order summary
+### Implemented Components (Booking Flow)
+- `BookingPage.js`
+- `SeatSelection.js`
+- `TicketPrices.js`
+- `CheckoutPage.js`
+- `PaymentPage.js`
+- `ShowtimeCard.js`
 
-### Phase 2 (Core Functionality):
-5. Create BookingController with POST `/api/bookings` endpoint
-6. Fetch ticket prices from backend
-7. Add email confirmation on checkout page
-8. Create PaymentPage component (mockup)
+### Implemented Routes
+- `/booking/:movieId/:showtimeId`
+- `/checkout`
+- `/payment`
 
-### Phase 3 (Authentication & Polish):
-9. Add login requirement at checkout
-10. Preserve seats during login redirect
-11. Add order confirmation functionality
-12. Email service integration
+### Remaining Frontend Gaps
+- No finalized order confirmation page/state after mock payment.
+- No booking history / booking details view tied to backend bookings.
+- No checkout email edit/confirm UI.
 
 ---
 
-## Estimated Effort
+## Database Utilization Status
 
-- **Backend Models & Repositories:** 2-3 hours
-- **Backend Controllers & Services:** 3-4 hours
-- **Frontend Checkout/Payment Pages:** 2-3 hours
-- **Frontend Integration:** 2-3 hours
-- **Testing & Bug Fixes:** 2-3 hours
+### Existing Tables Used in Current Flow
+- `shows`
+- `showrooms`
+- `seats`
+- `seat_reservations`
+- `bookings` (read for availability calculations)
+- `tickets` (read for occupied seat calculations)
 
-**Total:** ~12-16 hours of development
+### Existing Tables Not Fully Used Yet
+- `bookings` (no create/update from checkout flow)
+- `tickets` (no create from checkout flow)
 
+---
+
+## Priority Remaining Work
+
+### Phase 1 - Booking Finalization (Critical)
+1. Add `Booking` entity + `BookingRepository` + booking DTOs.
+2. Add `BookingController` (`POST /api/bookings`) to create booking + tickets from checkout payload.
+3. On successful booking creation, clear seat reservation token and persist confirmation details.
+
+### Phase 2 - Checkout/Payment Completion
+1. Wire `PaymentPage` "Complete Payment (Mock)" button to booking creation endpoint.
+2. Generate/display booking number or payment reference.
+3. Add final confirmation UI (success/failure states).
+
+### Phase 3 - UX/Polish
+1. Add email confirmation/edit step in checkout.
+2. Display tax explicitly (and include correctly in total).
+3. Optional: booking history page for user profile.
+
+---
+
+## Updated Effort Estimate (Remaining)
+
+- Booking backend (entity/repository/controller/service + DTOs): 3-5 hours
+- Checkout/payment wiring + confirmation UI: 2-4 hours
+- Email/tax polish + testing: 2-3 hours
+
+**Total remaining:** ~7-12 hours
