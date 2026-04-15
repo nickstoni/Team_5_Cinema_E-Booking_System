@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
+import { formatShowtimeLabel } from '../../utils/showtime';
 import '../../styles/booking/PaymentPage.css';
 
 function PaymentPage() {
@@ -10,6 +11,7 @@ function PaymentPage() {
   const checkoutData = location.state?.checkoutData || null;
   const pricing = location.state?.pricing || null;
   const seatReservation = location.state?.seatReservation || null;
+  const showtimeLabel = formatShowtimeLabel(checkoutData?.showtime);
 
   if (!checkoutData) {
     navigate('/checkout', { replace: true });
@@ -28,6 +30,9 @@ function PaymentPage() {
           </p>
           <p>
             Confirmation email: <strong>{checkoutData.confirmationEmail || localStorage.getItem('userEmail') || 'N/A'}</strong>
+          </p>
+          <p>
+            Showtime: <strong>{showtimeLabel}</strong>
           </p>
           {seatReservation?.expiresAt ? (
             <p className="payment-meta">Seat hold expires at: {new Date(seatReservation.expiresAt).toLocaleTimeString()}</p>

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import { isAuthenticated } from '../../utils/auth';
-import { formatTime12Hour } from '../../utils/time';
+import { formatShowtimeLabel } from '../../utils/showtime';
 import '../../styles/booking/CheckoutPage.css';
 
 const TAX_RATE = 0.06;
@@ -173,9 +173,7 @@ function CheckoutPage() {
       };
 
       const movieName = checkoutData.movie?.title || 'Selected Movie';
-      const checkoutShowtimeLabel = checkoutData.showtime
-        ? `${new Date(checkoutData.showtime.showdate).toDateString()} • ${formatTime12Hour(checkoutData.showtime.showtime)} • ${checkoutData.showtime.showroomName || 'TBD'}`
-        : 'Showtime details unavailable';
+      const checkoutShowtimeLabel = formatShowtimeLabel(checkoutData.showtime);
 
       const emailResponse = await fetch(
         `http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reservation-confirmation-email`,
@@ -232,9 +230,7 @@ function CheckoutPage() {
 
   const movieTitle = checkoutData.movie?.title || 'Selected Movie';
   const poster = checkoutData.movie?.poster;
-  const showtimeLabel = checkoutData.showtime
-    ? `${new Date(checkoutData.showtime.showdate).toDateString()} • ${formatTime12Hour(checkoutData.showtime.showtime)} • ${checkoutData.showtime.showroomName || 'TBD'}`
-    : 'Showtime details unavailable';
+  const showtimeLabel = formatShowtimeLabel(checkoutData.showtime);
   const ticketLines = [
     { label: 'Adult', quantity: Number(checkoutData.tickets?.adult?.quantity ?? 0), price: Number(checkoutData.tickets?.adult?.price ?? 0) },
     { label: 'Child', quantity: Number(checkoutData.tickets?.child?.quantity ?? 0), price: Number(checkoutData.tickets?.child?.price ?? 0) },

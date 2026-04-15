@@ -6,12 +6,21 @@ function SeatSelection({ seatRows = [], selectedSeats, occupiedSeats, onSeatClic
     const seatsPerRow = 12;
     const seatNumbers = Array.from({ length: seatsPerRow }, (_, i) => i + 1);
 
-    // function to check if a seat is available, selected, or occupied
-    const getSeatStatus = (seatId) => {
+        const getSeatStatus = (seatId) => {
         if (occupiedSeats.includes(seatId)) return 'occupied';
         if (selectedSeats.includes(seatId)) return 'selected';
         return 'available';
     };
+
+        const renderSeatNumberHeader = () => (
+            <div className="seat-number-row" aria-hidden="true">
+                <span className="row-label"></span>
+                {seatNumbers.map((number) => (
+                    <span key={`header-${number}`} className="seat-number-label">{number}</span>
+                ))}
+                <span className="row-label"></span>
+            </div>
+        );
 
     const hasSeatRows = Array.isArray(seatRows) && seatRows.length > 0;
 
@@ -27,22 +36,12 @@ function SeatSelection({ seatRows = [], selectedSeats, occupiedSeats, onSeatClic
         <div className="seating-chart">
             {hasSeatRows ? (
                 <>
-                    <div className="seat-number-row" aria-hidden="true">
-                        <span className="row-label"></span>
-                        {seatNumbers.map((number) => (
-                          <span key={`header-${number}`} className="seat-number-label">{number}</span>
-                        ))}
-                        <span className="row-label"></span>
-                    </div>
+                    {renderSeatNumberHeader()}
                     {seatRows.map(row => (
                         <div key={row.rowLabel} className="seat-row">
                             <span className="row-label">{row.rowLabel}</span>
                             {(row.seats || []).map((seat) => {
-                                const status = seat.status === 'selected' || selectedSeats.includes(seat.seatLabel)
-                                    ? 'selected'
-                                    : seat.status === 'occupied' || seat.status === 'reserved'
-                                        ? 'occupied'
-                                        : 'available';
+                                const status = getSeatStatus(seat.seatLabel);
 
                                 return (
                                     <button
@@ -61,13 +60,7 @@ function SeatSelection({ seatRows = [], selectedSeats, occupiedSeats, onSeatClic
                 </>
             ) : (
                 <>
-                    <div className="seat-number-row" aria-hidden="true">
-                        <span className="row-label"></span>
-                        {seatNumbers.map((number) => (
-                          <span key={`header-${number}`} className="seat-number-label">{number}</span>
-                        ))}
-                        <span className="row-label"></span>
-                    </div>
+                    {renderSeatNumberHeader()}
                     {fallbackRows.map(row => (
                     <div key={row} className="seat-row">
                         <span className="row-label">{row}</span>

@@ -6,6 +6,7 @@ import TicketPrices from './TicketPrices';
 import SeatSelection from './SeatSelection';
 import { isAuthenticated } from '../../utils/auth';
 import { formatTime12Hour } from '../../utils/time';
+import { formatRoomNumber } from '../../utils/showtime';
 import '../../styles/booking/BookingPage.css';
 
 function BookingPage() {
@@ -24,11 +25,6 @@ function BookingPage() {
     bookedSeats: 0,
     availableSeats: 0
   });
-
-  const formatRoomNumber = (roomName) => {
-    if (!roomName) return 'TBD';
-    return String(roomName).replace(/^room\s*/i, '').trim() || 'TBD';
-  };
 
   const loadSeatMap = useCallback(async (token) => {
     const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats${token ? `?reservationToken=${encodeURIComponent(token)}` : ''}`);
