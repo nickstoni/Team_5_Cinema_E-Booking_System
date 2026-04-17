@@ -336,6 +336,9 @@ public class AdminController {
         }
     }
 
+    /**
+     * Inner class for dashboard summary response
+     */
     public static class DashboardSummary {
         public final long totalUsers;
         public final long activeUsers;

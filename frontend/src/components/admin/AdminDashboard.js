@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import '../../styles/admin/AdminDashboard.css';
-
+import ShowtimesSection from './ShowtimesSection';
 const API = 'http://localhost:8080/api/admin';
 
 const MPAA_RATINGS = ['g', 'pg', 'pg_13', 'r', 'nc_17'];
@@ -671,12 +671,21 @@ function AdminDashboard() {
           {activeTab === 'users' && (
             <div className="users-section">
               <h2>User Management</h2>
-              {users.length === 0 ? <p className="empty-msg">No users found.</p> : (
+              {users.length === 0 ? (
+                <p className="empty-msg">No users found.</p>
+              ) : (
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
-                      <th>Status</th><th>Role</th><th>Verified</th><th>Promotions</th><th>Actions</th>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Status</th>
+                      <th>Role</th>
+                      <th>Verified</th>
+                      <th>Promos</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
