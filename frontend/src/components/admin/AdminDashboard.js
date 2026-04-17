@@ -94,7 +94,7 @@ function AdminDashboard() {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitShowtime = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/shows", {
         method: "POST",
@@ -107,21 +107,39 @@ function AdminDashboard() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create showtime");
+          let message = "Failed to create showtime";
+
+          const contentType = response.headers.get("content-type");
+
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            message = errorData.message || message;
+          } else {
+            message = await response.text();
+          }
+
+          throw new Error(message);
       }
 
       const data = await response.json();
 
       console.log("Showtime created:", data);
 
-      // refresh showtimes list
+      await loadDashboardData();
       setFormData({});
-      // clear form
       setShowForm(false);
 
     } catch (error) {
       console.error("Error:", error);
+      const cleanMessage = error?.message || "Something went wrong while creating the showtime";
+      setMessage(cleanMessage);
+      setTimeout(() => setMessage(""), 4000);
     }
+  };
+
+  const handleCancelShowtime = () => {
+    setFormData({});
+    setShowForm(false);
   };
 
   if (loading) {
@@ -393,12 +411,18 @@ function AdminDashboard() {
                   >
                     Add Showtime
                   </button>
+                  {message && (
+                    <div className="message error-message">
+                      <span>{message}</span>
+                      <button onClick={() => setMessage('')}>×</button>
+                    </div>
+                  )}
                   {showForm && (
                     <ShowtimesSection
                       formData={formData}
                       onInputChange={handleInputChange}
-                      onSubmit={handleSubmit}
-                      onCancel={() => setShowForm(false)}
+                      onSubmit={handleSubmitShowtime}
+                      onCancel={handleCancelShowtime}
                     />
                   )}
             </div>
