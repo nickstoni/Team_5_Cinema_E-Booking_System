@@ -105,7 +105,7 @@ function BookingPage() {
 
   // function to update selected seats when clicking on them
   // NOTE: Seats are NOT reserved in DB here, only marked as selected locally
-  // Reservation happens when user commits to checkout (after authentication)
+  // Reservation happens later when the user completes payment
   const handleSeatClick = (seatId) => {
     if (occupiedSeats.includes(seatId)) return;
 
@@ -123,7 +123,7 @@ function BookingPage() {
   const handleProceedToCheckout = () => {
     const auth = isAuthenticated();
     
-    // Save checkout data including reservation token for CheckoutPage to use
+    // Save checkout data including reservation token for PaymentPage to use
     const checkoutPayload = {
       movieId,
       showtimeId,
@@ -139,7 +139,7 @@ function BookingPage() {
 
     localStorage.setItem(pendingCheckoutStorageKey, JSON.stringify(checkoutPayload));
     if (!auth) {
-      // Redirect to login - CheckoutPage will reserve seats after login
+      // Redirect to login - checkout data is preserved for PaymentPage
       navigate('/login', { state: { from: '/checkout' } });
       return;
     }

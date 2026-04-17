@@ -142,6 +142,28 @@ function AdminDashboard() {
     setShowForm(false);
   };
 
+  const handleDeleteShowtime = async (showtimeId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this showtime?');
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/shows/${showtimeId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to delete showtime');
+      }
+
+      setMessage('Showtime deleted successfully');
+      await loadDashboardData();
+    } catch (error) {
+      console.error('Error deleting showtime:', error);
+      setMessage(error?.message || 'Something went wrong while deleting the showtime');
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -389,7 +411,7 @@ function AdminDashboard() {
                   </thead>
                   <tbody>
                     {showtimes.map((shows) => (
-                      <tr key={shows.showId}>
+                      <tr key={shows.showtimeId}>
                         <td>{shows.showtimeId}</td>
                         <td>{shows.movie?.title}</td>
                         <td>{shows.showroom?.roomName || "TBD"}</td>
@@ -398,7 +420,12 @@ function AdminDashboard() {
                         {/* <td>{shows.availableSeats}</td> */}
                         <td>
                           <button className="action-btn edit">Edit</button>
-                          <button className="action-btn delete">Delete</button>
+                          <button
+                            className="action-btn delete"
+                            onClick={() => handleDeleteShowtime(shows.showtimeId)}
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}

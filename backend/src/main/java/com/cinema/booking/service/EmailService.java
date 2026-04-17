@@ -187,8 +187,8 @@ public class EmailService {
                 "Movie: %s\n" +
                 "Showtime: %s\n" +
                 "Seats: %s\n\n" +
-                "These seats will be reserved for 5 minutes while you complete checkout.\n" +
-                "If checkout is not completed in time, the seats will be released automatically.\n\n" +
+                "These seats will be reserved for 5 minutes while you complete payment.\n" +
+                "If payment is not completed in time, the seats will be released automatically.\n\n" +
                 "Best regards,\n" +
                 "Absolute Cinema Team",
                 movieTitle == null || movieTitle.isBlank() ? "Selected Movie" : movieTitle,

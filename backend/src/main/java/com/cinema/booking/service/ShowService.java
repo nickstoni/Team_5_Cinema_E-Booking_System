@@ -1,6 +1,7 @@
 package com.cinema.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.cinema.booking.dto.ShowRequest;
@@ -49,5 +50,17 @@ public class ShowService {
         show.setShowtime(req.startTime);
 
         return showRepository.save(show);
+    }
+
+    public void deleteShow(Integer showtimeId) {
+        if (!showRepository.existsById(showtimeId)) {
+            throw new RuntimeException("Showtime not found");
+        }
+
+        try {
+            showRepository.deleteById(showtimeId);
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException("Cannot delete showtime with existing bookings", ex);
+        }
     }
 }
