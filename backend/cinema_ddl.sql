@@ -214,3 +214,15 @@ create table if not exists payment_cards (
     primary key (card_id),
     foreign key (user_id) references users(user_id) on delete cascade
 );
+
+create table if not exists recommended_movies (
+    rec_id int auto_increment,
+    user_id int not null,
+    movie_id int not null,
+    score decimal(5,2),
+    created_at datetime not null,
+    primary key (rec_id),
+    foreign key (user_id) references users(user_id) on delete cascade,
+    foreign key (movie_id) references movies(movie_id) on delete cascade,
+    unique (user_id, movie_id)
+);
