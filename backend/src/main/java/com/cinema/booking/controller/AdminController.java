@@ -2,8 +2,11 @@ package com.cinema.booking.controller;
 
 import com.cinema.booking.model.User;
 import com.cinema.booking.model.Movie;
+import com.cinema.booking.model.Showtime;
 import com.cinema.booking.repository.UserRepository;
 import com.cinema.booking.repository.MovieRepository;
+import com.cinema.booking.repository.ShowtimeRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +21,12 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
+    private final ShowtimeRepository showtimeRepository;
 
-    public AdminController(UserRepository userRepository, MovieRepository movieRepository) {
+    public AdminController(UserRepository userRepository, MovieRepository movieRepository, ShowtimeRepository showtimeRepository) {
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
+        this.showtimeRepository = showtimeRepository;
     }
 
     /**
@@ -124,6 +129,20 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error retrieving dashboard summary: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Shows all the scheduled showtimes
+     */
+    @GetMapping("/showtimes")
+    public ResponseEntity<?> getAllShowtimes() {
+        try {
+            List<Showtime> showtimes = showtimeRepository.findAll();
+            return ResponseEntity.ok(showtimes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error retrieving showtimes: " + e.getMessage());
         }
     }
 
