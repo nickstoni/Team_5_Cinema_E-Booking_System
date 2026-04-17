@@ -36,8 +36,12 @@ function ChangePasswordSection({ userId, onSuccess }) {
       setError('Password confirmation is required');
       return false;
     }
-    if (passwords.newPassword.length < 6) {
-      setError('New password must be at least 6 characters');
+    if (passwords.newPassword.length < 8) {
+      setError('New password must be at least 8 characters');
+      return false;
+    }
+    if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(passwords.newPassword)) {
+      setError('New password must contain at least one uppercase letter, one lowercase letter, and one number.');
       return false;
     }
     if (passwords.newPassword !== passwords.confirmPassword) {
@@ -147,7 +151,7 @@ function ChangePasswordSection({ userId, onSuccess }) {
               id="newPassword"
               name="newPassword"
               className="form-input"
-              placeholder="Enter a new password (min. 6 characters)"
+              placeholder="Enter a new password"
               value={passwords.newPassword}
               onChange={handleInputChange}
               disabled={isLoading}

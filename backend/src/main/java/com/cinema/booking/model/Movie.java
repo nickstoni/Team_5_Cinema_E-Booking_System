@@ -1,5 +1,6 @@
 package com.cinema.booking.model;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,18 @@ public class Movie {
     @Column(name = "show_availability")
     private String showAvailability;
 
+    private String director;
+    private String producer;
+
+    @Column(name = "rating")
+    private String mpaaRating;
+
+    @Column(name = "duration_mins")
+    private Integer durationMins;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
     public Movie() {}
 
     public Integer getMovieId() { return movieId; }
@@ -56,6 +69,21 @@ public class Movie {
 
     public String getShowAvailability() { return showAvailability; }
     public void setShowAvailability(String showAvailability) { this.showAvailability = showAvailability; }
+
+    public String getDirector() { return director; }
+    public void setDirector(String director) { this.director = director; }
+
+    public String getProducer() { return producer; }
+    public void setProducer(String producer) { this.producer = producer; }
+
+    public String getMpaaRating() { return mpaaRating; }
+    public void setMpaaRating(String mpaaRating) { this.mpaaRating = mpaaRating; }
+
+    public Integer getDurationMins() { return durationMins; }
+    public void setDurationMins(Integer durationMins) { this.durationMins = durationMins; }
+
+    public LocalDate getReleaseDate() { return releaseDate; }
+    public void setReleaseDate(LocalDate releaseDate) { this.releaseDate = releaseDate; }
 
     public Set<Genre> getGenres() { return genresSet; }
     public void addGenre(Genre genre) { genresSet.add(genre); }

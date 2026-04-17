@@ -189,7 +189,7 @@ create table if not exists reviews (
 );
 create table if not exists addresses (
     address_id int auto_increment,
-    cust_id int not null unique,
+    user_id int not null unique,
     address_line1 varchar(100) not null,
     address_line2 varchar(100),
     city varchar(50) not null,
@@ -197,7 +197,7 @@ create table if not exists addresses (
     postal_code varchar(20) not null,
     country varchar(50) not null,
     primary key (address_id),
-    foreign key (cust_id) references customers(cust_id) on delete cascade
+    foreign key (user_id) references users(user_id) on delete cascade
 );
 
 create table if not exists payment_cards (

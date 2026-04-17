@@ -35,6 +35,16 @@ function ResetPasswordPage() {
             return;
         }
 
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long.');
+            return;
+        }
+
+        if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
+            setError('Password must contain at least one uppercase letter, one lowercase letter, and one number.');
+            return;
+        }
+
         setIsLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
@@ -65,7 +75,7 @@ function ResetPasswordPage() {
     };
 
     return (
-        <div className="forgot-password-page">
+        <div className="forgot-password-page page-bg">
             <Navbar />
             <main className="forgot-password-main">
                 <div className="forgot-password-card">
@@ -97,7 +107,7 @@ function ResetPasswordPage() {
                                         required
                                     />
                                 </label>
-                                <button type="submit" className="primary-btn" disabled={isLoading || !token}>
+                                <button type="submit" className="btn-primary" disabled={isLoading || !token}>
                                     {isLoading ? 'Resetting...' : 'Reset Password'}
                                 </button>
                             </form>
