@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import '../../styles/admin/AdminDashboard.css';
+import ShowtimesSection from './ShowtimesSection';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ function AdminDashboard() {
   const [showtimes, setShowtimes] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({});
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in and is admin
@@ -81,6 +84,62 @@ function AdminDashboard() {
       console.error('Error updating user:', error);
       setMessage('Error updating user status');
     }
+  };
+
+  const handleInputChange  = (event) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmitShowtime = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/shows", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+        movieId: Number(formData.movieId),
+        showroomId: Number(formData.showroomId)
+      });
+
+      if (!response.ok) {
+          let message = "Failed to create showtime";
+
+          const contentType = response.headers.get("content-type");
+
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            message = errorData.message || message;
+          } else {
+            message = await response.text();
+          }
+
+          throw new Error(message);
+      }
+
+      const data = await response.json();
+
+      console.log("Showtime created:", data);
+
+      await loadDashboardData();
+      setFormData({});
+      setShowForm(false);
+
+    } catch (error) {
+      console.error("Error:", error);
+      const cleanMessage = error?.message || "Something went wrong while creating the showtime";
+      setMessage(cleanMessage);
+      setTimeout(() => setMessage(""), 4000);
+    }
+  };
+
+  const handleCancelShowtime = () => {
+    setFormData({});
+    setShowForm(false);
   };
 
   if (loading) {
@@ -314,7 +373,6 @@ function AdminDashboard() {
               {showtimes.length === 0 ? (
                 <div className="empty-state">
                   <p>No showtimes scheduled</p>
-                  <button className="primary-btn">Add Showtime</button>
                 </div>
               ) : (
                 <table className="admin-table">
@@ -322,24 +380,22 @@ function AdminDashboard() {
                     <tr>
                       <th>ID</th>
                       <th>Movie</th>
-                      <th>Theatre</th>
+                      <th>Showroom</th>
                       <th>Date</th>
                       <th>Start Time</th>
-                      <th>End Time</th>
-                      <th>Available Seats</th>
+                      {/* <th>Available Seats</th> */}
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {showtimes.map((showtime) => (
-                      <tr key={showtime.id}>
-                        <td>{showtime.id}</td>
-                        <td>{showtime.movieTitle}</td>
-                        <td>{showtime.theatreName}</td>
-                        <td>{showtime.date}</td>
-                        <td>{showtime.startTime}</td>
-                        <td>{showtime.endTime}</td>
-                        <td>{showtime.availableSeats}</td>
+                    {showtimes.map((shows) => (
+                      <tr key={shows.showId}>
+                        <td>{shows.showtimeId}</td>
+                        <td>{shows.movie?.title}</td>
+                        <td>{shows.showroom?.roomName || "TBD"}</td>
+                        <td>{shows.showdate}</td>
+                        <td>{shows.showtime}</td>
+                        {/* <td>{shows.availableSeats}</td> */}
                         <td>
                           <button className="action-btn edit">Edit</button>
                           <button className="action-btn delete">Delete</button>
@@ -349,6 +405,26 @@ function AdminDashboard() {
                   </tbody>
                 </table>
               )}
+              <button
+                    className="primary-btn"
+                    onClick={() => setShowForm(true)}
+                  >
+                    Add Showtime
+                  </button>
+                  {message && (
+                    <div className="message error-message">
+                      <span>{message}</span>
+                      <button onClick={() => setMessage('')}>×</button>
+                    </div>
+                  )}
+                  {showForm && (
+                    <ShowtimesSection
+                      formData={formData}
+                      onInputChange={handleInputChange}
+                      onSubmit={handleSubmitShowtime}
+                      onCancel={handleCancelShowtime}
+                    />
+                  )}
             </div>
           )}
         </div>
