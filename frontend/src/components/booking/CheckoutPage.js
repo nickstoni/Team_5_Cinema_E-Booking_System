@@ -13,10 +13,6 @@ function CheckoutPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [checkoutData, setCheckoutData] = useState(null);
-  const [seatsReserved, setSeatsReserved] = useState(false);
-  const [reservationError, setReservationError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [emailError, setEmailError] = useState('');
 
@@ -81,50 +77,6 @@ function CheckoutPage() {
     loadEmailFromProfile();
   }, [checkoutData]);
 
-  // Reserve seats when user first enters checkout (after authentication)
-  useEffect(() => {
-    if (!checkoutData || seatsReserved || !checkoutData.selectedSeats || checkoutData.selectedSeats.length === 0) {
-      return;
-    }
-
-    const reserveSeats = async () => {
-      try {
-        const response = await fetch(`http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reserve`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            reservationToken: checkoutData.reservationToken,
-            seatLabels: checkoutData.selectedSeats
-          })
-        });
-
-        if (!response.ok) {
-          const message = await response.text();
-          setReservationError(message || 'Unable to reserve seats.');
-          return;
-        }
-
-        const reserveResult = await response.json();
-        
-        // Update checkout data with new reservation token if it changed
-        const updatedCheckout = {
-          ...checkoutData,
-          reservationToken: reserveResult.reservationToken || checkoutData.reservationToken
-        };
-        
-        setCheckoutData(updatedCheckout);
-        localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
-        localStorage.setItem(`seat-hold-token:${checkoutData.showtimeId}`, updatedCheckout.reservationToken || '');
-        
-        setSeatsReserved(true);
-      } catch (error) {
-        setReservationError(error.message || 'Unable to reserve seats right now.');
-      }
-    };
-
-    reserveSeats();
-  }, [checkoutData, seatsReserved]);
-
   const pricing = useMemo(() => {
     if (!checkoutData) {
       return { subtotal: 0, tax: 0, total: 0 };
@@ -142,16 +94,10 @@ function CheckoutPage() {
 
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const handleProceedToPayment = async () => {
-    if (!checkoutData || isSubmitting) return;
+  const handleProceedToPayment = () => {
+    if (!checkoutData) return;
 
     if (!checkoutData.selectedSeats || checkoutData.selectedSeats.length === 0) {
-      setSubmitError('Please select at least one seat before proceeding to payment.');
-      return;
-    }
-
-    if (!seatsReserved) {
-      setSubmitError('Seats are still being reserved. Please wait a moment and try again.');
       return;
     }
 
@@ -163,54 +109,21 @@ function CheckoutPage() {
 
     setEmailError('');
 
-    setIsSubmitting(true);
-    setSubmitError('');
+    const updatedCheckout = {
+      ...checkoutData,
+      confirmationEmail: normalizedEmail
+    };
 
-    try {
-      const updatedCheckout = {
-        ...checkoutData,
-        confirmationEmail: normalizedEmail
-      };
+    setCheckoutData(updatedCheckout);
+    localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
+    localStorage.setItem('userEmail', normalizedEmail);
 
-      const movieName = checkoutData.movie?.title || 'Selected Movie';
-      const checkoutShowtimeLabel = formatShowtimeLabel(checkoutData.showtime);
-
-      const emailResponse = await fetch(
-        `http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reservation-confirmation-email`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: normalizedEmail,
-            movieTitle: movieName,
-            showtimeLabel: checkoutShowtimeLabel,
-            seatLabels: checkoutData.selectedSeats || []
-          })
-        }
-      );
-
-      if (!emailResponse.ok) {
-        const message = await emailResponse.text();
-        throw new Error(message || 'Unable to send seat reservation confirmation email right now.');
+    navigate('/payment', {
+      state: {
+        checkoutData: updatedCheckout,
+        pricing
       }
-
-      setCheckoutData(updatedCheckout);
-      localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
-      localStorage.setItem('userEmail', normalizedEmail);
-
-      // Seats are already reserved, proceed directly to payment
-      navigate('/payment', {
-        state: {
-          checkoutData: updatedCheckout,
-          pricing,
-          seatReservation: { reservationToken: checkoutData.reservationToken }
-        }
-      });
-    } catch (error) {
-      setSubmitError(error.message || 'Unable to proceed to payment right now.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
   };
 
   if (!checkoutData) {
@@ -248,30 +161,14 @@ function CheckoutPage() {
             <p className="checkout-subtitle">
               Confirm your tickets, seats, and payment details before completing the order.
             </p>
-            {!seatsReserved && !reservationError && (
-              <p style={{ color: '#666', marginTop: '8px', fontSize: '0.9em' }}>
-                ⏳ Confirming your seat reservation...
-              </p>
-            )}
+            <p style={{ color: '#666', marginTop: '8px', fontSize: '0.9em' }}>
+              Your seats will be locked when you complete payment.
+            </p>
           </div>
           <Link to={`/booking/${checkoutData.movieId}/${checkoutData.showtimeId}`} className="back-link">
             ← Back to seats
           </Link>
         </div>
-
-        {submitError ? (
-          <section className="checkout-card error-card">
-            <h2>Unable to continue</h2>
-            <p>{submitError}</p>
-          </section>
-        ) : null}
-
-        {reservationError ? (
-          <section className="checkout-card error-card">
-            <h2>Reservation Error</h2>
-            <p>{reservationError}</p>
-          </section>
-        ) : null}
 
         <div className="checkout-grid">
           <section className="checkout-card movie-summary-card">
@@ -346,10 +243,9 @@ function CheckoutPage() {
             </div>
             <button 
               className="confirm-btn" 
-              onClick={handleProceedToPayment} 
-              disabled={isSubmitting || !seatsReserved || reservationError}
+              onClick={handleProceedToPayment}
             >
-              {!seatsReserved ? 'Reserving Seats...' : isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+              Proceed to Payment
             </button>
           </section>
         </div>
