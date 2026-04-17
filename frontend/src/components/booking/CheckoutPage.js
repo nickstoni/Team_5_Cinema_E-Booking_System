@@ -1,0 +1,362 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Navbar from '../layout/Navbar';
+import Footer from '../layout/Footer';
+import { isAuthenticated } from '../../utils/auth';
+import { formatShowtimeLabel } from '../../utils/showtime';
+import '../../styles/booking/CheckoutPage.css';
+
+const TAX_RATE = 0.06;
+const PENDING_CHECKOUT_KEY = 'cinemaPendingCheckout';
+
+function CheckoutPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [checkoutData, setCheckoutData] = useState(null);
+  const [seatsReserved, setSeatsReserved] = useState(false);
+  const [reservationError, setReservationError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [emailAddress, setEmailAddress] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const readPendingCheckout = (value) => {
+    if (!value) return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const auth = isAuthenticated();
+    const rawPending = localStorage.getItem(PENDING_CHECKOUT_KEY);
+    const pendingFromState = location.state?.checkoutData;
+    const pending = pendingFromState || readPendingCheckout(rawPending);
+
+    if (!auth) {
+      if (pending) {
+        localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(pending));
+      }
+      navigate('/login', { replace: true, state: { from: '/checkout' } });
+      return;
+    }
+
+    if (pending) {
+      setCheckoutData(pending);
+      return;
+    }
+
+    navigate('/', { replace: true });
+  }, [location.state, navigate]);
+
+  useEffect(() => {
+    if (!checkoutData) return;
+
+    const storedEmail = localStorage.getItem('userEmail') || '';
+    if (storedEmail) {
+      setEmailAddress(storedEmail);
+      return;
+    }
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    const loadEmailFromProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/profile/${userId}`);
+        if (!response.ok) return;
+        const profile = await response.json();
+        const profileEmail = profile?.user?.email || '';
+        if (profileEmail) {
+          setEmailAddress(profileEmail);
+          localStorage.setItem('userEmail', profileEmail);
+        }
+      } catch {
+        // Non-blocking fallback: user can enter email manually.
+      }
+    };
+
+    loadEmailFromProfile();
+  }, [checkoutData]);
+
+  // Reserve seats when user first enters checkout (after authentication)
+  useEffect(() => {
+    if (!checkoutData || seatsReserved || !checkoutData.selectedSeats || checkoutData.selectedSeats.length === 0) {
+      return;
+    }
+
+    const reserveSeats = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reserve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reservationToken: checkoutData.reservationToken,
+            seatLabels: checkoutData.selectedSeats
+          })
+        });
+
+        if (!response.ok) {
+          const message = await response.text();
+          setReservationError(message || 'Unable to reserve seats.');
+          return;
+        }
+
+        const reserveResult = await response.json();
+        
+        // Update checkout data with new reservation token if it changed
+        const updatedCheckout = {
+          ...checkoutData,
+          reservationToken: reserveResult.reservationToken || checkoutData.reservationToken
+        };
+        
+        setCheckoutData(updatedCheckout);
+        localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
+        localStorage.setItem(`seat-hold-token:${checkoutData.showtimeId}`, updatedCheckout.reservationToken || '');
+        
+        setSeatsReserved(true);
+      } catch (error) {
+        setReservationError(error.message || 'Unable to reserve seats right now.');
+      }
+    };
+
+    reserveSeats();
+  }, [checkoutData, seatsReserved]);
+
+  const pricing = useMemo(() => {
+    if (!checkoutData) {
+      return { subtotal: 0, tax: 0, total: 0 };
+    }
+
+    const subtotal = Number(checkoutData.subtotal ?? 0);
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + tax;
+    return {
+      subtotal,
+      tax,
+      total
+    };
+  }, [checkoutData]);
+
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleProceedToPayment = async () => {
+    if (!checkoutData || isSubmitting) return;
+
+    if (!checkoutData.selectedSeats || checkoutData.selectedSeats.length === 0) {
+      setSubmitError('Please select at least one seat before proceeding to payment.');
+      return;
+    }
+
+    if (!seatsReserved) {
+      setSubmitError('Seats are still being reserved. Please wait a moment and try again.');
+      return;
+    }
+
+    const normalizedEmail = emailAddress.trim().toLowerCase();
+    if (!normalizedEmail || !isValidEmail(normalizedEmail)) {
+      setEmailError('Please confirm a valid email address before proceeding to payment.');
+      return;
+    }
+
+    setEmailError('');
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const updatedCheckout = {
+        ...checkoutData,
+        confirmationEmail: normalizedEmail
+      };
+
+      const movieName = checkoutData.movie?.title || 'Selected Movie';
+      const checkoutShowtimeLabel = formatShowtimeLabel(checkoutData.showtime);
+
+      const emailResponse = await fetch(
+        `http://localhost:8080/api/showtimes/${checkoutData.showtimeId}/seats/reservation-confirmation-email`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            movieTitle: movieName,
+            showtimeLabel: checkoutShowtimeLabel,
+            seatLabels: checkoutData.selectedSeats || []
+          })
+        }
+      );
+
+      if (!emailResponse.ok) {
+        const message = await emailResponse.text();
+        throw new Error(message || 'Unable to send seat reservation confirmation email right now.');
+      }
+
+      setCheckoutData(updatedCheckout);
+      localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(updatedCheckout));
+      localStorage.setItem('userEmail', normalizedEmail);
+
+      // Seats are already reserved, proceed directly to payment
+      navigate('/payment', {
+        state: {
+          checkoutData: updatedCheckout,
+          pricing,
+          seatReservation: { reservationToken: checkoutData.reservationToken }
+        }
+      });
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to proceed to payment right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!checkoutData) {
+    return (
+      <div className="checkout-page">
+        <Navbar />
+        <main className="checkout-main">
+          <section className="checkout-card loading-card">
+            <h1>Loading checkout...</h1>
+            <p>Preparing your order summary.</p>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const movieTitle = checkoutData.movie?.title || 'Selected Movie';
+  const poster = checkoutData.movie?.poster;
+  const showtimeLabel = formatShowtimeLabel(checkoutData.showtime);
+  const ticketLines = [
+    { label: 'Adult', quantity: Number(checkoutData.tickets?.adult?.quantity ?? 0), price: Number(checkoutData.tickets?.adult?.price ?? 0) },
+    { label: 'Child', quantity: Number(checkoutData.tickets?.child?.quantity ?? 0), price: Number(checkoutData.tickets?.child?.price ?? 0) },
+    { label: 'Senior', quantity: Number(checkoutData.tickets?.senior?.quantity ?? 0), price: Number(checkoutData.tickets?.senior?.price ?? 0) }
+  ].filter((ticket) => ticket.quantity > 0);
+
+  return (
+    <div className="checkout-page">
+      <Navbar />
+      <main className="checkout-main">
+        <div className="checkout-header">
+          <div>
+            <p className="checkout-kicker">Final review</p>
+            <h1>Checkout Order Summary</h1>
+            <p className="checkout-subtitle">
+              Confirm your tickets, seats, and payment details before completing the order.
+            </p>
+            {!seatsReserved && !reservationError && (
+              <p style={{ color: '#666', marginTop: '8px', fontSize: '0.9em' }}>
+                ⏳ Confirming your seat reservation...
+              </p>
+            )}
+          </div>
+          <Link to={`/booking/${checkoutData.movieId}/${checkoutData.showtimeId}`} className="back-link">
+            ← Back to seats
+          </Link>
+        </div>
+
+        {submitError ? (
+          <section className="checkout-card error-card">
+            <h2>Unable to continue</h2>
+            <p>{submitError}</p>
+          </section>
+        ) : null}
+
+        {reservationError ? (
+          <section className="checkout-card error-card">
+            <h2>Reservation Error</h2>
+            <p>{reservationError}</p>
+          </section>
+        ) : null}
+
+        <div className="checkout-grid">
+          <section className="checkout-card movie-summary-card">
+            <div className="movie-summary-top">
+              {poster ? <img src={poster} alt={movieTitle} className="checkout-poster" /> : null}
+              <div>
+                <p className="section-label">Movie</p>
+                <h2>{movieTitle}</h2>
+                <p className="showtime-line">{showtimeLabel}</p>
+              </div>
+            </div>
+
+            <div className="email-confirmation-box">
+              <p className="section-label">Email confirmation</p>
+              <p className="contact-line">Confirm your email address for booking confirmation.</p>
+              <input
+                type="email"
+                className="email-input"
+                value={emailAddress}
+                onChange={(event) => {
+                  setEmailAddress(event.target.value);
+                  if (emailError) {
+                    setEmailError('');
+                  }
+                }}
+                placeholder="Enter email address"
+                autoComplete="email"
+              />
+              {emailError ? <p className="email-error">{emailError}</p> : null}
+            </div>
+          </section>
+
+          <section className="checkout-card summary-card">
+            <h2>Order details</h2>
+            <div className="summary-table">
+              <div className="summary-row">
+                <span>Movie name</span>
+                <span>{movieTitle}</span>
+              </div>
+              <div className="summary-row">
+                <span>Showtime</span>
+                <span>{showtimeLabel}</span>
+              </div>
+              <div className="summary-row">
+                <span>Tickets</span>
+                <span>{ticketLines.reduce((sum, ticket) => sum + ticket.quantity, 0)}</span>
+              </div>
+              <div className="summary-row">
+                <span>Selected seats</span>
+                <span>{checkoutData.selectedSeats?.join(', ') || 'None'}</span>
+              </div>
+              {ticketLines.map((ticket) => (
+                <div key={ticket.label} className="summary-row ticket-row">
+                  <span>
+                    {ticket.label} × {ticket.quantity} (@ ${ticket.price.toFixed(2)} each)
+                  </span>
+                  <span>${(ticket.quantity * ticket.price).toFixed(2)}</span>
+                </div>
+              ))}
+              <div className="summary-row">
+                <span>Total before tax</span>
+                <span>${pricing.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="summary-row">
+                <span>Tax (6%)</span>
+                <span>${pricing.tax.toFixed(2)}</span>
+              </div>
+              <div className="summary-row total-row">
+                <span>Total</span>
+                <span>${pricing.total.toFixed(2)}</span>
+              </div>
+            </div>
+            <button 
+              className="confirm-btn" 
+              onClick={handleProceedToPayment} 
+              disabled={isSubmitting || !seatsReserved || reservationError}
+            >
+              {!seatsReserved ? 'Reserving Seats...' : isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+            </button>
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export default CheckoutPage;

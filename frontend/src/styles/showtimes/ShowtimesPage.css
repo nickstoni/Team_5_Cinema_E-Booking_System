@@ -1,0 +1,97 @@
+.showtimes-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 1rem 3rem;
+}
+
+.showtimes-header {
+  margin-bottom: 1.5rem;
+}
+
+.showtimes-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+}
+
+.showtimes-header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.showtimes-state {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.9rem 1rem;
+  color: #111827;
+}
+
+.showtimes-state.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.movie-showtimes-block {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.movie-showtimes-info {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.movie-showtimes-info h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.showtimes-movie-title-link {
+  text-decoration: none;
+  background: linear-gradient(135deg, #e50914, #ff6b6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.showtimes-movie-title-link:hover {
+  filter: brightness(1.12);
+}
+
+.showtimes-movie-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1 rem;
+  margin: 0;
+}
+
+.showtimes-rating-number {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.movie-showtimes-poster {
+  width: 64px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 0.4rem;
+}
+
+.movie-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .showtimes-header h1 {
+    font-size: 1.6rem;
+  }
+}

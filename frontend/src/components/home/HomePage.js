@@ -1,8 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Navbar from '../layout/Navbar';
 import HeroSection from './HeroSection';
 import MoviesSection from './MoviesSection';
 import Footer from '../layout/Footer';
+
+function splitMoviesByAvailability(movies = []) {
+  return movies.reduce(
+    (acc, movie) => {
+      const availability = (movie.showAvailability || '').toLowerCase();
+      if (availability === 'current') {
+        acc.nowPlaying.push(movie);
+      } else if (availability === 'upcoming') {
+        acc.upcoming.push(movie);
+      }
+      return acc;
+    },
+    { nowPlaying: [], upcoming: [] }
+  );
+}
 
 function HomePage() {
   const [nowPlaying, setNowPlaying] = useState([]);
@@ -10,10 +25,11 @@ function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
 
-  const userId = 1;
+  const userId = localStorage.getItem("userId");
   const [favoriteMovies, setFavoriteMovies] = useState([]);
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
+    if (!userId) return;
     try {
       const res = await fetch(`http://localhost:8080/api/profile/${userId}/favorites`);
       const data = await res.json();
@@ -21,27 +37,32 @@ function HomePage() {
     } catch (err) {
       console.error("Failed to load favorites:", err);
     }
-  };
+  }, [userId]);
+
+  const loadMovies = useCallback(async (url) => {
+    const res = await fetch(url);
+    const data = await res.json();
+    const { nowPlaying: current, upcoming: coming } = splitMoviesByAvailability(Array.isArray(data) ? data : []);
+    setNowPlaying(current);
+    setUpcoming(coming);
+  }, []);
 
   useEffect(() => {
-    async function loadMovies() {
-      try {
-        const res = await fetch("http://localhost:8080/api/movies");
-        const data = await res.json();
-
-        const current = data.filter(m => (m.showAvailability || "").toLowerCase() === "current");
-        const coming = data.filter(m => (m.showAvailability || "").toLowerCase() === "upcoming");
-
-        setNowPlaying(current);
-        setUpcoming(coming);
-      } catch (err) {
-        console.error("Failed to load movies:", err);
-      }
+    // Clear favorites if user is logged out
+    if (!userId) {
+      setFavoriteMovies([]);
     }
 
-    loadMovies();
-    loadFavorites();
-  }, []);
+    const initialize = async () => {
+      try {
+        await Promise.all([loadMovies("http://localhost:8080/api/movies"), loadFavorites()]);
+      } catch (err) {
+        console.error("Failed to initialize home page:", err);
+      }
+    };
+
+    initialize();
+  }, [userId, loadFavorites, loadMovies]);
 
   const handleSearch = async (query) => {
     try {
@@ -52,14 +73,7 @@ function HomePage() {
         ? `http://localhost:8080/api/movies?search=${encodeURIComponent(query.trim())}`
         : "http://localhost:8080/api/movies";
 
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const current = data.filter(m => (m.showAvailability || "").toLowerCase() === "current");
-      const coming = data.filter(m => (m.showAvailability || "").toLowerCase() === "upcoming");
-
-      setNowPlaying(current);
-      setUpcoming(coming);
+      await loadMovies(url);
     } catch (err) {
       console.error("Search failed:", err);
     }
@@ -74,14 +88,7 @@ function HomePage() {
         ? `http://localhost:8080/api/movies/by-genre?genre=${encodeURIComponent(genre.trim())}`
         : "http://localhost:8080/api/movies";
 
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const current = data.filter(m => (m.showAvailability || "").toLowerCase() === "current");
-      const coming = data.filter(m => (m.showAvailability || "").toLowerCase() === "upcoming");
-
-      setNowPlaying(current);
-      setUpcoming(coming);
+      await loadMovies(url);
     } catch (err) {
       console.error("Genre filter failed:", err);
     }

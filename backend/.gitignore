@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Node Modules ###
+node_modules/
+package-lock.json
+
+### Environment Variables - DO NOT COMMIT ###
+.env
+.env.local
+.env.*.local
+application-local.properties
+

@@ -12,9 +12,13 @@ public class Showtime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "show_id")
     private Integer showtimeId;
 
+    @Column(name = "start_time")
     private LocalTime showtime;
+
+    @Column(name = "show_date")
     private LocalDate showdate;
 
     @ManyToOne

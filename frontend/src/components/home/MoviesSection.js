@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MovieCard from './MovieCard';
 import '../../styles/home/MoviesSection.css';
 
@@ -19,6 +19,10 @@ function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favori
     }
   };
 
+  useEffect(() => {
+    setStartIndex(0);
+  }, [movies, searchQuery, selectedGenre]);
+
   // Don't render section if no movies and user has filtered/searched
   if (movies.length === 0 && (searchQuery || selectedGenre)) {
     return null;
@@ -33,14 +37,14 @@ function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favori
           <button 
             onClick={prevMovies} 
             className="scroll-buttons scroll-left"
-            disabled={startIndex === 0}
+            disabled={startIndex === 0 || movies.length <= moviesPerPage}
           >
             ←
           </button>
           <button 
             onClick={nextMovies} 
             className="scroll-buttons scroll-right"
-            disabled={startIndex + moviesPerPage >= movies.length}
+            disabled={movies.length <= moviesPerPage || startIndex + moviesPerPage >= movies.length}
           >
             →
           </button>
@@ -50,11 +54,12 @@ function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favori
       <div className="movies-grid">
         {movies.slice(startIndex, startIndex + moviesPerPage).map((movie) => (
           <MovieCard
-          movie={movie}
-          type={type}
-          favoriteMovies={favoriteMovies}
-          refreshFavorites={refreshFavorites}
-        />
+            key={movie.movieId}
+            movie={movie}
+            type={type}
+            favoriteMovies={favoriteMovies}
+            refreshFavorites={refreshFavorites}
+          />
         ))}
       </div>
     </section>

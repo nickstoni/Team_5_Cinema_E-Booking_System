@@ -4,7 +4,6 @@
     radial-gradient(circle at 10% 10%, rgba(229, 9, 20, 0.2), transparent 35%),
     radial-gradient(circle at 90% 90%, rgba(255, 107, 107, 0.15), transparent 30%),
     #080808;
-    
 }
 
 .login-main {
@@ -18,7 +17,7 @@
 h1 {
   font-size: 2.5rem;
   color: #ffe3e3;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 h2 {
@@ -26,14 +25,21 @@ h2 {
   color: #ffe3e3;
 }
 
+p {
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
 .login-section {
-    width : 75%;
+  width: 100%;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 1rem;
     background: rgba(255, 255, 255, 0.02);
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 1rem;
 }
 
@@ -44,6 +50,7 @@ h2 {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    padding-top: 1.5rem;
 }
 
 .forgot-password-btn {
@@ -62,7 +69,7 @@ h2 {
 }
 
 .submit-button {
-  width: 25%;
+  width: 100%;
   border: none;
   border-radius: 9px;
   height: 44px;
@@ -75,6 +82,25 @@ h2 {
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
+.login-form {
+  width: 75%;
+}
+
 .submit-button:hover {
+  background: linear-gradient(120deg, #ff6b6b, #e50914);
   transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+}
+
+.login-error {
+  width: 100%;
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  padding: 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.email-section, .password-section {
+  width: 100%;
 }

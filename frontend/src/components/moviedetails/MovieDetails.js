@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import ShowtimeCard from './ShowtimeCard';
@@ -7,9 +7,14 @@ import '../../styles/moviedetails/MovieDetails.css';
 
 function MovieDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
   const [movie, setMovie] = useState(null);
   const [showtimes, setShowtimes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [favoriteMessage, setFavoriteMessage] = useState('');
 
   // Fetch the movie's details and showtimes
   useEffect(() => {
@@ -21,16 +26,33 @@ function MovieDetails() {
         const foundMovie = movieData.find(m => m.movieId === parseInt(id));
         setMovie(foundMovie);
 
-        // Fetch showtimes for this movie
+        // Fetch showtimes (from shows table) for this movie
         if (foundMovie) {
-          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes`);
-          const showtimesData = await showtimesRes.json();
+          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes/movie/${foundMovie.movieId}`);
           
-          // Filter showtimes for this specific movie
-          const movieShowtimes = showtimesData.filter(
-            showtime => showtime.movie.movieId === foundMovie.movieId
-          );
-          setShowtimes(movieShowtimes);
+          if (!showtimesRes.ok) {
+            console.warn("Showtimes API returned error, continuing without showtimes");
+            setShowtimes([]);
+          } else {
+            const showtimesData = await showtimesRes.json();
+            
+            // Safely set showtimes (handle if response isn't an array)
+            if (Array.isArray(showtimesData)) {
+              setShowtimes(showtimesData);
+            } else {
+              setShowtimes([]);
+            }
+          }
+
+          // Check if movie is already a favorite
+          if (userId) {
+            const favRes = await fetch(`http://localhost:8080/api/profile/${userId}/favorites`);
+            if (favRes.ok) {
+              const favData = await favRes.json();
+              const isFav = favData.some(fav => fav.movieId === foundMovie.movieId);
+              setIsFavorite(isFav);
+            }
+          }
         }
 
         setLoading(false);
@@ -41,7 +63,7 @@ function MovieDetails() {
     }
 
     fetchMovieDetails();
-  }, [id]);
+  }, [id, userId]);
 
   // Helper function to extract YouTube video ID from URL
   const getYouTubeEmbedUrl = (url) => {
@@ -61,6 +83,38 @@ function MovieDetails() {
     }
     
     return null;
+  };
+
+  // Toggle favorite status
+  const handleToggleFavorite = async () => {
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    setFavoriteMessage('');
+    try {
+      const endpoint = `http://localhost:8080/api/profile/${userId}/favorites/${movie.movieId}`;
+      const method = isFavorite ? "DELETE" : "POST";
+
+      const res = await fetch(endpoint, { method });
+
+      if (res.ok) {
+        setIsFavorite(!isFavorite);
+        setFavoriteMessage(
+          isFavorite ? 'Removed from favorites' : 'Added to favorites'
+        );
+      } else {
+        const errorText = await res.text();
+        setFavoriteMessage(errorText || "Failed to update favorite");
+      }
+    } catch (err) {
+      console.error("Error updating favorite:", err);
+      setFavoriteMessage("Error updating favorite");
+    } finally {
+      setFavoriteLoading(false);
+    }
   };
 
   // Show loading state
@@ -123,11 +177,27 @@ function MovieDetails() {
 
           {/* Details */}
           <div className="movie-details-content">
-            <h1 className="movie-title">{movie.title}</h1>
+            <div className="movie-title-section">
+              <h1 className="movie-title">{movie.title}</h1>
+              <button 
+                className={`favorite-btn ${isFavorite ? 'favorited' : ''}`}
+                onClick={handleToggleFavorite}
+                disabled={favoriteLoading}
+                title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              >
+                {isFavorite ? '♥' : '♡'}
+              </button>
+            </div>
+
+            {favoriteMessage && (
+              <div className={`favorite-message ${isFavorite ? 'success' : 'error'}`}>
+                {favoriteMessage}
+              </div>
+            )}
 
             {/* Rating */}
             <div className="movie-rating">
-              ⭐ <span className="rating-number">{movie.rating}/100</span>
+              ⭐ <span className="rating-number">{movie.rating ?? movie.user_score ?? 'N/A'}/100</span>
             </div>
 
             {/* Genres */}

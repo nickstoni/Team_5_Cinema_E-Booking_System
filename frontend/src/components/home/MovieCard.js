@@ -1,9 +1,10 @@
 import '../../styles/home/MovieCard.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 function MovieCard({ movie, type, favoriteMovies = [], refreshFavorites }) {
-  const userId = 1;
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteMessage, setFavoriteMessage] = useState('');
 
@@ -17,6 +18,11 @@ function MovieCard({ movie, type, favoriteMovies = [], refreshFavorites }) {
   const handleFavoriteToggle = async (event) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
 
     try {
       let response;

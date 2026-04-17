@@ -43,29 +43,49 @@ function PaymentCardsSection({
             <div className="signup-grid two-columns">
               <label className="form-row">
                 <span className="form-label">Card Type</span>
-                <select
-                  className="form-input"
-                  value={card.cardType || ""}
-                  onChange={(event) => onCardChange(index, "cardType", event.target.value)}
-                >
-                  <option value="">Select Card Type</option>
-                  <option value="Visa">Visa</option>
-                  <option value="MasterCard">Mastercard</option>
-                  <option value="Amex">American Express</option>
-                  <option value="Discover">Discover</option>
-                </select>
+                {card.cardId ? (
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={card.cardType || ""}
+                    disabled={true}
+                    readOnly={true}
+                  />
+                ) : (
+                  <select
+                    className="form-input"
+                    value={card.cardType || ""}
+                    onChange={(event) => onCardChange(index, "cardType", event.target.value)}
+                  >
+                    <option value="">Select Card Type</option>
+                    <option value="Visa">Visa</option>
+                    <option value="MasterCard">Mastercard</option>
+                    <option value="Amex">American Express</option>
+                    <option value="Discover">Discover</option>
+                  </select>
+                )}
               </label>
 
               <label className="form-row">
                 <span className="form-label">Card Number</span>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={card.cardNumber || ""}
-                  onChange={(event) => onCardChange(index, "cardNumber", event.target.value)}
-                  inputMode="numeric"
-                  placeholder="1234123412341234"
-                />
+                {card.cardId ? (
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={`•••• •••• •••• ${card.lastFour || "••••"}`}
+                    disabled={true}
+                    readOnly={true}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={card.cardNumber || ""}
+                    onChange={(event) => onCardChange(index, "cardNumber", event.target.value)}
+                    inputMode="numeric"
+                    placeholder="1234123412341234"
+                  />
+                )}
               </label>
 
               <label className="form-row full-span">
@@ -76,46 +96,68 @@ function PaymentCardsSection({
                   value={card.cardHolderName || ""}
                   onChange={(event) => onCardChange(index, "cardHolderName", event.target.value)}
                   placeholder="Your Name"
+                  disabled={card.cardId ? true : false}
+                  readOnly={card.cardId ? true : false}
                 />
               </label>
 
               <label className="form-row">
                 <span className="form-label">Expiry Month</span>
-                <select
-                  className="form-input"
-                  value={card.expiryMonth || ""}
-                  onChange={(event) => onCardChange(index, "expiryMonth", event.target.value)}
-                >
-                  <option value="">MM</option>
-                  <option value="01">01</option>
-                  <option value="02">02</option>
-                  <option value="03">03</option>
-                  <option value="04">04</option>
-                  <option value="05">05</option>
-                  <option value="06">06</option>
-                  <option value="07">07</option>
-                  <option value="08">08</option>
-                  <option value="09">09</option>
-                  <option value="10">10</option>
-                  <option value="11">11</option>
-                  <option value="12">12</option>
-                </select>
+                {card.cardId ? (
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={card.expiryMonth || ""}
+                    disabled={true}
+                    readOnly={true}
+                  />
+                ) : (
+                  <select
+                    className="form-input"
+                    value={card.expiryMonth || ""}
+                    onChange={(event) => onCardChange(index, "expiryMonth", event.target.value)}
+                  >
+                    <option value="">MM</option>
+                    <option value="01">01</option>
+                    <option value="02">02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                    <option value="05">05</option>
+                    <option value="06">06</option>
+                    <option value="07">07</option>
+                    <option value="08">08</option>
+                    <option value="09">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select>
+                )}
               </label>
 
               <label className="form-row">
                 <span className="form-label">Expiry Year</span>
-                <select
-                  className="form-input"
-                  value={card.expiryYear || ""}
-                  onChange={(event) => onCardChange(index, "expiryYear", event.target.value)}
-                >
-                  <option value="">YYYY</option>
-                  {expiryYears.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                {card.cardId ? (
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={card.expiryYear || ""}
+                    disabled={true}
+                    readOnly={true}
+                  />
+                ) : (
+                  <select
+                    className="form-input"
+                    value={card.expiryYear || ""}
+                    onChange={(event) => onCardChange(index, "expiryYear", event.target.value)}
+                  >
+                    <option value="">YYYY</option>
+                    {expiryYears.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </label>
 
               <label className="form-row">
@@ -128,6 +170,8 @@ function PaymentCardsSection({
                   inputMode="numeric"
                   maxLength={4}
                   placeholder="123"
+                  disabled={card.cardId ? true : false}
+                  readOnly={card.cardId ? true : false}
                 />
               </label>
             </div>
