@@ -25,6 +25,13 @@ public class Showtime {
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
+    @ManyToOne
+    @JoinColumn(name = "showroom_id")
+    private Showroom showroom;
+
+    @Column(name = "duration_mins")
+    private Integer durationMins;
+
     public Showtime() {}
 
     public Integer getShowtimeId() {
@@ -50,6 +57,20 @@ public class Showtime {
     }
     public void setMovie(Movie movie) {
         this.movie = movie;
+    }
+
+    public Showroom getShowroom() {
+        return showroom;
+    }
+    public void setShowroom(Showroom showroom) {
+        this.showroom = showroom;
+    }
+
+    public Integer getDurationMins() {
+        return durationMins;
+    }
+    public void setDurationMins(Integer durationMins) {
+        this.durationMins = durationMins;
     }
 
 }

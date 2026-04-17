@@ -1,5 +1,8 @@
 package com.cinema.booking.repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +18,9 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
     
     @Query("SELECT s FROM Showtime s JOIN FETCH s.movie")
     List<Showtime> findAllWithMovie();
+
+    @Query("SELECT s FROM Showtime s JOIN FETCH s.movie LEFT JOIN FETCH s.showroom ORDER BY s.showdate ASC, s.showtime ASC")
+    List<Showtime> findAllWithMovieAndShowroom();
 
     @Query(value = """
         SELECT
@@ -97,4 +103,6 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
         GROUP BY s.show_id, sr.room_id, sr.room_name, sr.total_seats, bt.bookedSeats, rs.reservedSeats
         """, nativeQuery = true)
     SeatMapShowtimeView findSeatMapByShowtimeId(@Param("showtimeId") Integer showtimeId);
+
+    boolean existsByShowtimeAndShowdateAndShowroom_RoomId(LocalTime showtime, LocalDate showdate, Integer showroomId);
 }

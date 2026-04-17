@@ -1,5 +1,8 @@
 package com.cinema.booking.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,6 +210,40 @@ public class EmailService {
         } catch (Exception e) {
             logger.error("Failed to send seat reservation confirmation email to: {}", recipientEmail, e);
             throw new RuntimeException("Failed to send reservation confirmation email: " + e.getMessage());
+        }
+    }
+
+    public void sendPromotionEmail(String recipientEmail, String fullName, String promoCode,
+            BigDecimal discountPercent, LocalDate startDate, LocalDate endDate) {
+        try {
+            String emailBody = String.format(
+                "Hello %s,\n\n" +
+                "Great news! We have a special promotion just for you!\n\n" +
+                "Promo Code: %s\n" +
+                "Discount: %.0f%% off\n" +
+                "Valid From: %s\n" +
+                "Valid Until: %s\n\n" +
+                "Use this code at checkout to save on your next booking at Absolute Cinema.\n\n" +
+                "Book now at: %s\n\n" +
+                "Best regards,\n" +
+                "Absolute Cinema Team",
+                fullName, promoCode, discountPercent,
+                startDate != null ? startDate.toString() : "Now",
+                endDate != null ? endDate.toString() : "Limited time",
+                baseUrl
+            );
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(recipientEmail);
+            message.setSubject("Absolute Cinema Special Promotion: " + discountPercent.intValue() + "% Off!");
+            message.setText(emailBody);
+
+            mailSender.send(message);
+            logger.info("Promotion email sent successfully to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send promotion email to: {}", recipientEmail, e);
+            throw new RuntimeException("Failed to send promotion email: " + e.getMessage());
         }
     }
 }
