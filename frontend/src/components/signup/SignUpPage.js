@@ -158,7 +158,7 @@ function SignUpPage() {
   };
 
   return (
-    <div className="signup-page">
+    <div className="signup-page page-bg">
       <Navbar onSearch={() => {}} onGenreChange={() => {}} />
 
       <main className="signup-main">
@@ -191,7 +191,7 @@ function SignUpPage() {
                 expiryYears={expiryYears}
               />
 
-              <button type="submit" className="primary-btn full-width" disabled={isLoading}>
+              <button type="submit" className="btn-primary full-width" disabled={isLoading}>
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>

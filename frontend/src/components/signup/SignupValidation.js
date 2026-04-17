@@ -42,6 +42,10 @@ export function validateSignupForm(formData, cards) {
     return 'Password must be at least 8 characters long.';
   }
 
+  if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(formData.password)) {
+    return 'Password must contain at least one uppercase letter, one lowercase letter, and one number.';
+  }
+
   if (formData.password !== formData.confirmPassword) {
     return 'Password and confirm password do not match.';
   }

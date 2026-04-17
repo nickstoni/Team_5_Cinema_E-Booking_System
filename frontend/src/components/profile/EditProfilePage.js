@@ -255,7 +255,7 @@ function EditProfilePage() {
   );
 
   return (
-    <div className="profile-page">
+    <div className="profile-page page-bg">
       <Navbar />
       
       <div className="profile-main">

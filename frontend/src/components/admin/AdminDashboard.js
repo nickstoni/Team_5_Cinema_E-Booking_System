@@ -275,7 +275,7 @@ function AdminDashboard() {
   if (loading) return <div className="loading">Loading admin dashboard...</div>;
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard page-bg">
       <Navbar onSearch={() => {}} onGenreChange={() => {}} />
 
       <main className="admin-main">
@@ -332,7 +332,7 @@ function AdminDashboard() {
             <div className="movies-section">
               <div className="section-header">
                 <h2>Movie Management</h2>
-                <button className="primary-btn" onClick={() => { setShowAddMovie(v => !v); setFormErrors({}); }}>
+                <button className="btn-primary" onClick={() => { setShowAddMovie(v => !v); setFormErrors({}); }}>
                   {showAddMovie ? 'Cancel' : '+ Add Movie'}
                 </button>
               </div>
@@ -409,7 +409,7 @@ function AdminDashboard() {
                   </div>
 
                   <div className="form-actions">
-                    <button type="submit" className="primary-btn" disabled={submitting}>
+                    <button type="submit" className="btn-primary" disabled={submitting}>
                       {submitting ? 'Saving...' : 'Add Movie'}
                     </button>
                     <button type="button" className="cancel-btn" onClick={() => { setShowAddMovie(false); setFormErrors({}); }}>
@@ -472,7 +472,7 @@ function AdminDashboard() {
             <div className="showtimes-section">
               <div className="section-header">
                 <h2>Showtimes Management</h2>
-                <button className="primary-btn" onClick={() => { setShowAddShowtime(v => !v); setFormErrors({}); }}>
+                <button className="btn-primary" onClick={() => { setShowAddShowtime(v => !v); setFormErrors({}); }}>
                   {showAddShowtime ? 'Cancel' : '+ Schedule Showtime'}
                 </button>
               </div>
@@ -524,7 +524,7 @@ function AdminDashboard() {
                   </div>
 
                   <div className="form-actions">
-                    <button type="submit" className="primary-btn" disabled={submitting}>
+                    <button type="submit" className="btn-primary" disabled={submitting}>
                       {submitting ? 'Scheduling...' : 'Schedule Showtime'}
                     </button>
                     <button type="button" className="cancel-btn"
@@ -573,7 +573,7 @@ function AdminDashboard() {
             <div className="promotions-section">
               <div className="section-header">
                 <h2>Promotions Management</h2>
-                <button className="primary-btn" onClick={() => { setShowAddPromo(v => !v); setFormErrors({}); }}>
+                <button className="btn-primary" onClick={() => { setShowAddPromo(v => !v); setFormErrors({}); }}>
                   {showAddPromo ? 'Cancel' : '+ Create Promotion'}
                 </button>
               </div>
@@ -616,7 +616,7 @@ function AdminDashboard() {
                   </div>
 
                   <div className="form-actions">
-                    <button type="submit" className="primary-btn" disabled={submitting}>
+                    <button type="submit" className="btn-primary" disabled={submitting}>
                       {submitting ? 'Creating...' : 'Create Promotion'}
                     </button>
                     <button type="button" className="cancel-btn"

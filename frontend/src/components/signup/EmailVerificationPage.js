@@ -56,7 +56,7 @@ function EmailVerificationPage() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="email-verification-page">
+    <div className="email-verification-page page-bg">
       <Navbar onSearch={() => {}} onGenreChange={() => {}} />
 
       <main className="verification-main">
@@ -82,7 +82,7 @@ function EmailVerificationPage() {
                 <p>{message}</p>
                 <div className="action-buttons">
                   <button
-                    className="primary-btn"
+                    className="btn-primary"
                     onClick={() => navigate('/signup')}
                   >
                     Back to Sign Up

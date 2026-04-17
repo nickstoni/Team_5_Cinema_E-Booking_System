@@ -40,7 +40,7 @@ function ForgotPasswordPage() {
     };
 
     return (
-        <div className="forgot-password-page">
+        <div className="forgot-password-page page-bg">
             <Navbar />
             <main className="forgot-password-main">
                 <h1>Forgot Password</h1>
@@ -63,7 +63,7 @@ function ForgotPasswordPage() {
                                 required
                             />
                         </label>
-                        <button type="submit" className="primary-btn" disabled={isLoading}>
+                        <button type="submit" className="btn-primary" disabled={isLoading}>
                             {isLoading ? 'Sending...' : 'Send Password Reset Link'}
                         </button>
                     </form>

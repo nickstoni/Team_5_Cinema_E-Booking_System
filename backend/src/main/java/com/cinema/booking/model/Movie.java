@@ -25,7 +25,7 @@ public class Movie {
     private String title;
 
     @Column(name = "user_score")
-    private Integer userScore;
+    private Integer rating;
 
     @Column(length = 1000)
     private String description;
@@ -55,11 +55,8 @@ public class Movie {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public Integer getUserScore() { return userScore; }
-    public void setUserScore(Integer userScore) { this.userScore = userScore; }
-
-    public Integer getRating() { return userScore; }
-    public void setRating(Integer rating) { this.userScore = rating; }
+    public Integer getRating() { return rating; }
+    public void setRating(Integer rating) { this.rating = rating; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

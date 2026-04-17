@@ -67,7 +67,7 @@ function LoginPage() {
     };
 
     return (
-        <div className="login-page">
+        <div className="login-page page-bg">
             <Navbar />
             <main className="login-main">
                 <h1>Login</h1>
@@ -83,7 +83,7 @@ function LoginPage() {
                             >
                                 Forgot Password?
                             </button>
-                            <button type="submit" className="submit-button" disabled={isLoading}>
+                            <button type="submit" className="btn-primary" disabled={isLoading}>
                                 {isLoading ? 'Logging In...' : 'Login'}
                             </button>
                         </div>
