@@ -564,6 +564,36 @@
   transform: translateY(-1px);
 }
 
+/* Edit Button */
+.action-btn.edit {
+  background: rgba(33, 150, 243, 0.2);
+  color: #90caf9;
+  border: 1px solid rgba(33, 150, 243, 0.4);
+}
+.action-btn.edit:hover {
+  background: rgba(33, 150, 243, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+.action-btn.delete {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f8a0a0;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+}
+.action-btn.delete:hover {
+  background: rgba(244, 67, 54, 0.35);
+  transform: translateY(-1px);
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
 /* Toggle Label */
 .toggle-label {
   display: flex;
