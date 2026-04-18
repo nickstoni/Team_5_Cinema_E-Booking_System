@@ -4,6 +4,8 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import '../../styles/admin/AdminDashboard.css';
 import ShowtimesSection from './ShowtimesSection';
+import MoviesSection from './MoviesSection';
+import PromotionsSection from './PromotionsSection';
 const API = 'http://localhost:8080/api/admin';
 
 const MPAA_RATINGS = ['g', 'pg', 'pg_13', 'r', 'nc_17'];
@@ -13,9 +15,6 @@ const ALL_GENRES = [
   'documentary', 'drama', 'family', 'fantasy', 'history',
   'horror', 'music', 'romance', 'suspense', 'thriller', 'war'
 ];
-
-// Helpers
-function fmt(val) { return val ?? '-'; }
 
 // Blank form states
 const blankMovie = {
@@ -273,142 +272,20 @@ function AdminDashboard() {
 
           {/* ── MOVIES ── */}
           {activeTab === 'movies' && (
-            <div className="movies-section">
-              <div className="section-header">
-                <h2>Movie Management</h2>
-                <button className="btn-primary" onClick={() => { setShowAddMovie(v => !v); setFormErrors({}); }}>
-                  {showAddMovie ? 'Cancel' : '+ Add Movie'}
-                </button>
-              </div>
-
-              {showAddMovie && (
-                <form className="admin-form" onSubmit={handleAddMovie} noValidate>
-                  <h3>Add New Movie</h3>
-                  <div className="form-grid">
-                    <FormField label="Title *" error={formErrors.title}>
-                      <input value={movieForm.title} onChange={e => setMovieForm(p => ({...p, title: e.target.value}))}
-                        placeholder="Movie title" maxLength={100} />
-                    </FormField>
-
-                    <FormField label="Director" error={formErrors.director}>
-                      <input value={movieForm.director} onChange={e => setMovieForm(p => ({...p, director: e.target.value}))}
-                        placeholder="Director name" maxLength={100} />
-                    </FormField>
-
-                    <FormField label="Producer" error={formErrors.producer}>
-                      <input value={movieForm.producer} onChange={e => setMovieForm(p => ({...p, producer: e.target.value}))}
-                        placeholder="Producer name" maxLength={100} />
-                    </FormField>
-
-                    <FormField label="MPAA Rating *" error={formErrors.rating}>
-                      <select value={movieForm.rating} onChange={e => setMovieForm(p => ({...p, rating: e.target.value}))}>
-                        {MPAA_RATINGS.map(r => <option key={r} value={r}>{r.replace('_', '-').toUpperCase()}</option>)}
-                      </select>
-                    </FormField>
-
-                    <FormField label="Duration (mins)" error={formErrors.durationMins}>
-                      <input type="number" min="1" max="600" value={movieForm.durationMins}
-                        onChange={e => setMovieForm(p => ({...p, durationMins: e.target.value}))}
-                        placeholder="e.g. 120" />
-                    </FormField>
-
-                    <FormField label="Release Date" error={formErrors.releaseDate}>
-                      <input type="date" value={movieForm.releaseDate}
-                        onChange={e => setMovieForm(p => ({...p, releaseDate: e.target.value}))} />
-                    </FormField>
-
-                    <FormField label="Show Availability *" error={formErrors.showAvailability}>
-                      <select value={movieForm.showAvailability} onChange={e => setMovieForm(p => ({...p, showAvailability: e.target.value}))}>
-                        {AVAILABILITY_OPTIONS.map(a => <option key={a} value={a}>{a.charAt(0).toUpperCase() + a.slice(1)}</option>)}
-                      </select>
-                    </FormField>
-
-                    <FormField label="Poster URL" error={formErrors.poster}>
-                      <input value={movieForm.poster} onChange={e => setMovieForm(p => ({...p, poster: e.target.value}))}
-                        placeholder="https://..." maxLength={200} />
-                    </FormField>
-
-                    <FormField label="Trailer URL (YouTube)" error={formErrors.trailer}>
-                      <input value={movieForm.trailer} onChange={e => setMovieForm(p => ({...p, trailer: e.target.value}))}
-                        placeholder="https://youtube.com/..." maxLength={500} />
-                    </FormField>
-                  </div>
-
-                  <FormField label="Synopsis" error={formErrors.description} fullWidth>
-                    <textarea rows={3} value={movieForm.description}
-                      onChange={e => setMovieForm(p => ({...p, description: e.target.value}))}
-                      placeholder="Movie description..." maxLength={1000} />
-                  </FormField>
-
-                  <div className="form-field full-width">
-                    <label>Genres</label>
-                    <div className="genre-checkboxes">
-                      {ALL_GENRES.map(g => (
-                        <label key={g} className={`genre-chip ${movieForm.genres.includes(g) ? 'selected' : ''}`}>
-                          <input type="checkbox" checked={movieForm.genres.includes(g)} onChange={() => toggleGenre(g)} hidden />
-                          {g.charAt(0).toUpperCase() + g.slice(1)}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="form-actions">
-                    <button type="submit" className="btn-primary" disabled={submitting}>
-                      {submitting ? 'Saving...' : 'Add Movie'}
-                    </button>
-                    <button type="button" className="cancel-btn" onClick={() => { setShowAddMovie(false); setFormErrors({}); }}>
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {movies.length === 0 ? (
-                <p className="empty-msg">No movies found. Add your first movie above.</p>
-              ) : (
-                <div className="movies-admin-list">
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Poster</th>
-                        <th>Title</th>
-                        <th>Rating</th>
-                        <th>Director</th>
-                        <th>Duration</th>
-                        <th>Status</th>
-                        <th>Genres</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {movies.map(m => (
-                        <tr key={m.movieId}>
-                          <td>
-                            {m.poster ? (
-                              <img src={m.poster} alt={m.title} className="movie-thumb"
-                                onError={e => { e.target.src = 'https://via.placeholder.com/50x75?text=N/A'; }} />
-                            ) : <span className="no-img">No img</span>}
-                          </td>
-                          <td><strong>{m.title}</strong></td>
-                          <td>{m.mpaaRating ? m.mpaaRating.replace('_','-').toUpperCase() : '-'}</td>
-                          <td>{fmt(m.director)}</td>
-                          <td>{m.durationMins ? `${m.durationMins} min` : '-'}</td>
-                          <td>
-                            <span className={`status-badge ${m.showAvailability === 'current' ? 'active' : 'upcoming'}`}>
-                              {m.showAvailability ?? '-'}
-                            </span>
-                          </td>
-                          <td className="genres-cell">
-                            {m.genres && m.genres.length > 0
-                              ? m.genres.map(g => g.genreName).join(', ')
-                              : '-'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+            <MoviesSection
+              movies={movies}
+              movieForm={movieForm}
+              formErrors={formErrors}
+              showAddMovie={showAddMovie}
+              submitting={submitting}
+              onToggleAddMovie={() => { setShowAddMovie(v => !v); setFormErrors({}); }}
+              onMovieFormChange={(field, value) => setMovieForm(p => ({ ...p, [field]: value }))}
+              onToggleGenre={toggleGenre}
+              onSubmit={handleAddMovie}
+              ratings={MPAA_RATINGS}
+              availabilityOptions={AVAILABILITY_OPTIONS}
+              allGenres={ALL_GENRES}
+            />
           )}
 
           {/* ── SHOWTIMES ── */}
@@ -424,101 +301,17 @@ function AdminDashboard() {
 
           {/* ── PROMOTIONS ── */}
           {activeTab === 'promotions' && (
-            <div className="promotions-section">
-              <div className="section-header">
-                <h2>Promotions Management</h2>
-                <button className="btn-primary" onClick={() => { setShowAddPromo(v => !v); setFormErrors({}); }}>
-                  {showAddPromo ? 'Cancel' : '+ Create Promotion'}
-                </button>
-              </div>
-
-              {showAddPromo && (
-                <form className="admin-form" onSubmit={handleAddPromotion} noValidate>
-                  <h3>Create Promotion</h3>
-                  <div className="form-grid">
-                    <FormField label="Promo Code *" error={formErrors.promoCode}>
-                      <input value={promoForm.promoCode}
-                        onChange={e => setPromoForm(p => ({...p, promoCode: e.target.value.toUpperCase()}))}
-                        placeholder="e.g. SUMMER20" maxLength={50} />
-                    </FormField>
-
-                    <FormField label="Discount % *" error={formErrors.discountPercent}>
-                      <input type="number" min="1" max="100" step="0.01"
-                        value={promoForm.discountPercent}
-                        onChange={e => setPromoForm(p => ({...p, discountPercent: e.target.value}))}
-                        placeholder="e.g. 20" />
-                    </FormField>
-
-                    <FormField label="Start Date *" error={formErrors.startDate}>
-                      <input type="date" value={promoForm.startDate}
-                        onChange={e => setPromoForm(p => ({...p, startDate: e.target.value}))} />
-                    </FormField>
-
-                    <FormField label="End Date *" error={formErrors.endDate}>
-                      <input type="date" value={promoForm.endDate}
-                        min={promoForm.startDate || undefined}
-                        onChange={e => setPromoForm(p => ({...p, endDate: e.target.value}))} />
-                    </FormField>
-
-                    <FormField label="Active">
-                      <label className="toggle-label">
-                        <input type="checkbox" checked={promoForm.isActive}
-                          onChange={e => setPromoForm(p => ({...p, isActive: e.target.checked}))} />
-                        <span>{promoForm.isActive ? 'Active' : 'Inactive'}</span>
-                      </label>
-                    </FormField>
-                  </div>
-
-                  <div className="form-actions">
-                    <button type="submit" className="btn-primary" disabled={submitting}>
-                      {submitting ? 'Creating...' : 'Create Promotion'}
-                    </button>
-                    <button type="button" className="cancel-btn"
-                      onClick={() => { setShowAddPromo(false); setFormErrors({}); }}>
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {promotions.length === 0 ? (
-                <p className="empty-msg">No promotions found.</p>
-              ) : (
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Code</th>
-                      <th>Discount</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {promotions.map(p => (
-                      <tr key={p.promoId}>
-                        <td><strong>{p.promoCode}</strong></td>
-                        <td>{p.discountPercent}%</td>
-                        <td>{p.startDate}</td>
-                        <td>{p.endDate}</td>
-                        <td>
-                          <span className={`status-badge ${p.isActive ? 'active' : 'inactive'}`}>
-                            {p.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td>
-                          <button className="action-btn send-email"
-                            onClick={() => handleSendPromoEmail(p.promoId, p.promoCode)}>
-                            Send Email
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+            <PromotionsSection
+              promotions={promotions}
+              promoForm={promoForm}
+              formErrors={formErrors}
+              showAddPromo={showAddPromo}
+              submitting={submitting}
+              onToggleAddPromo={() => { setShowAddPromo(v => !v); setFormErrors({}); }}
+              onPromoFormChange={(field, value) => setPromoForm(p => ({ ...p, [field]: value }))}
+              onSubmit={handleAddPromotion}
+              onSendPromoEmail={handleSendPromoEmail}
+            />
           )}
 
           {/* ── USERS ── */}
@@ -585,16 +378,6 @@ function StatCard({ label, value, cls = '' }) {
     <div className="stat-card">
       <h3>{label}</h3>
       <p className={`stat-number ${cls}`}>{value}</p>
-    </div>
-  );
-}
-
-function FormField({ label, error, children, fullWidth = false }) {
-  return (
-    <div className={`form-field ${fullWidth ? 'full-width' : ''}`}>
-      <label>{label}</label>
-      {children}
-      {error && <span className="field-error">{error}</span>}
     </div>
   );
 }
