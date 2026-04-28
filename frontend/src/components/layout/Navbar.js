@@ -39,8 +39,8 @@ function Navbar({ onSearch, onGenreChange }) {
   };
 
   return (
-    <nav className="navbar">
-      <div className="nav-container">
+    <nav className={`navbar ${userRole === 'ADMIN' ? 'navbar-admin' : ''}`}>
+      <div className={`nav-container ${userRole === 'ADMIN' ? 'nav-container-admin' : ''}`}>
         <Link to="/" className="logo-link">
           <div className="logo">
             <span className="logo-icon">🎬</span>

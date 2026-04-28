@@ -181,3 +181,47 @@
 .genre-select option {
   color: black;
 }
+
+/* Admin navbar compact styling */
+.navbar-admin {
+  padding: 0.75rem 0;
+}
+
+.nav-container-admin {
+  padding: 0 1.5rem;
+}
+
+.nav-container-admin .nav-links {
+  gap: 1.5rem;
+}
+
+.nav-container-admin .auth-buttons {
+  gap: 0.3rem;
+}
+
+.nav-container-admin .signin-btn,
+.nav-container-admin .login-btn,
+.nav-container-admin .admin-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.nav-container-admin .search-bar {
+  flex: 0 1 300px;
+}
+
+.nav-container-admin .search-input {
+  min-width: 150px;
+  height: 36px;
+  font-size: 0.9rem;
+}
+
+.nav-container-admin .genre-select {
+  height: 36px;
+  font-size: 0.9rem;
+}
+
+.nav-container-admin .search-btn {
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+}

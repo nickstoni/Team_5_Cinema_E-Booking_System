@@ -105,4 +105,6 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
     SeatMapShowtimeView findSeatMapByShowtimeId(@Param("showtimeId") Integer showtimeId);
 
     boolean existsByShowtimeAndShowdateAndShowroom_RoomId(LocalTime showtime, LocalDate showdate, Integer showroomId);
+
+    boolean existsByMovieMovieId(Integer movieId);
 }

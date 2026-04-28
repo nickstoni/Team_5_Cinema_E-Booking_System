@@ -81,6 +81,18 @@ public class AdminController {
         }
     }
 
+    @DeleteMapping("/movies/{movieId}")
+    public ResponseEntity<?> deleteMovie(@PathVariable Integer movieId) {
+        try {
+            return ResponseEntity.ok(adminService.deleteMovie(movieId));
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting movie: " + e.getMessage());
+        }
+    }
+
     // ────────────────────────────── SHOWROOMS ──────────────────────────────
 
     @GetMapping("/showrooms")
@@ -117,6 +129,18 @@ public class AdminController {
         }
     }
 
+    @DeleteMapping("/showtimes/{showtimeId}")
+    public ResponseEntity<?> deleteShowtime(@PathVariable Integer showtimeId) {
+        try {
+            return ResponseEntity.ok(adminService.deleteShowtime(showtimeId));
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting showtime: " + e.getMessage());
+        }
+    }
+
     // ────────────────────────────── PROMOTIONS ──────────────────────────────
 
     @GetMapping("/promotions")
@@ -138,6 +162,18 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error adding promotion: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/promotions/{promoId}")
+    public ResponseEntity<?> deletePromotion(@PathVariable Integer promoId) {
+        try {
+            return ResponseEntity.ok(adminService.deletePromotion(promoId));
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting promotion: " + e.getMessage());
         }
     }
 

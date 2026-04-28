@@ -171,7 +171,8 @@
 
 .admin-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin-top: 1.5rem;
   overflow: hidden;
   border-radius: 10px;
@@ -181,6 +182,17 @@
   background: linear-gradient(120deg, rgba(229, 9, 20, 0.3), rgba(255, 107, 107, 0.15));
   color: #ffe8e8;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+}
+
+.admin-table thead tr {
+  width: 100%;
+  border-bottom: none;
+}
+
+.admin-table tbody {
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-table th {
@@ -190,17 +202,31 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex: 1;
 }
 
-.admin-table td {
-  padding: 1rem;
+.admin-table tr {
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
+  width: 100%;
 }
 
 .admin-table tbody tr:hover {
   background: rgba(229, 9, 20, 0.1);
+}
+
+.admin-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.admin-table td {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 .status-badge {
@@ -243,6 +269,7 @@
   font-weight: 600;
   transition: all 0.3s ease;
   margin-right: 0.5rem;
+  display: inline-block;
 }
 
 .action-btn.activate {
@@ -619,4 +646,20 @@
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.95rem;
   padding: 1rem 0;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+
+.action-buttons .action-btn {
+  margin-right: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }

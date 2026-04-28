@@ -234,6 +234,39 @@ public class AdminService {
                 totalPromotions);
     }
 
+    @Transactional
+    public String deleteMovie(Integer movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found"));
+        
+        boolean hasShowtimes = showtimeRepository.existsByMovieMovieId(movieId);
+        if (hasShowtimes) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cannot delete movie with existing showtimes. Delete showtimes first.");
+        }
+        
+        movieRepository.deleteById(movieId);
+        return "Movie deleted successfully";
+    }
+
+    @Transactional
+    public String deleteShowtime(Integer showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found"));
+        
+        showtimeRepository.deleteById(showtimeId);
+        return "Showtime deleted successfully";
+    }
+
+    @Transactional
+    public String deletePromotion(Integer promoId) {
+        Promotion promotion = promotionRepository.findById(promoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found"));
+        
+        promotionRepository.deleteById(promoId);
+        return "Promotion deleted successfully";
+    }
+
     private AdminShowtimeResponse toAdminShowtimeResponse(Showtime showtime) {
         return new AdminShowtimeResponse(
                 showtime.getShowtimeId(),

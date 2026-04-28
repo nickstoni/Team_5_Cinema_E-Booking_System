@@ -273,6 +273,49 @@ function AdminDashboard() {
     } catch { showMsg('Network error', 'error'); }
   };
 
+  // Delete handlers
+  const handleDeleteMovie = async (movieId, movieTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${movieTitle}"?\n\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${API}/movies/${movieId}`, { method: 'DELETE' });
+      const msg = await res.text();
+      if (res.ok) {
+        showMsg('Movie deleted successfully');
+        loadAll();
+      } else {
+        showMsg(msg || 'Error deleting movie', 'error');
+      }
+    } catch { showMsg('Network error', 'error'); }
+  };
+
+  const handleDeleteShowtime = async (showtimeId, movieTitle, showDate, startTime) => {
+    if (!window.confirm(`Delete showtime: ${movieTitle} on ${showDate} at ${fmtTime(startTime)}?\n\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${API}/showtimes/${showtimeId}`, { method: 'DELETE' });
+      const msg = await res.text();
+      if (res.ok) {
+        showMsg('Showtime deleted successfully');
+        loadAll();
+      } else {
+        showMsg(msg || 'Error deleting showtime', 'error');
+      }
+    } catch { showMsg('Network error', 'error'); }
+  };
+
+  const handleDeletePromotion = async (promoId, promoCode) => {
+    if (!window.confirm(`Delete promotion "${promoCode}"?\n\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch(`${API}/promotions/${promoId}`, { method: 'DELETE' });
+      const msg = await res.text();
+      if (res.ok) {
+        showMsg('Promotion deleted successfully');
+        loadAll();
+      } else {
+        showMsg(msg || 'Error deleting promotion', 'error');
+      }
+    } catch { showMsg('Network error', 'error'); }
+  };
+
   // Render
   if (loading) return <div className="loading">Loading admin dashboard...</div>;
 
@@ -435,6 +478,7 @@ function AdminDashboard() {
                         <th>Duration</th>
                         <th>Status</th>
                         <th>Genres</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -459,6 +503,10 @@ function AdminDashboard() {
                             {m.genres && m.genres.length > 0
                               ? m.genres.map(g => g.genreName).join(', ')
                               : '-'}
+                          </td>
+                          <td>
+                            <button className="action-btn delete" 
+                              onClick={() => handleDeleteMovie(m.movieId, m.title)}>Delete</button>
                           </td>
                         </tr>
                       ))}
@@ -550,6 +598,7 @@ function AdminDashboard() {
                       <th>Start Time</th>
                       <th>Duration</th>
                       <th>Total Seats</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -562,6 +611,10 @@ function AdminDashboard() {
                         <td>{fmtTime(st.startTime)}</td>
                         <td>{st.durationMins ? `${st.durationMins} min` : '-'}</td>
                         <td>{st.totalSeats}</td>
+                        <td>
+                          <button className="action-btn delete"
+                            onClick={() => handleDeleteShowtime(st.showtimeId, st.movieTitle, st.showDate, st.startTime)}>Delete</button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -656,10 +709,14 @@ function AdminDashboard() {
                           </span>
                         </td>
                         <td>
-                          <button className="action-btn send-email"
-                            onClick={() => handleSendPromoEmail(p.promoId, p.promoCode)}>
-                            Send Email
-                          </button>
+                          <div className="action-buttons">
+                            <button className="action-btn send-email"
+                              onClick={() => handleSendPromoEmail(p.promoId, p.promoCode)}>
+                              Send Email
+                            </button>
+                            <button className="action-btn delete"
+                              onClick={() => handleDeletePromotion(p.promoId, p.promoCode)}>Delete</button>
+                          </div>
                         </td>
                       </tr>
                     ))}
