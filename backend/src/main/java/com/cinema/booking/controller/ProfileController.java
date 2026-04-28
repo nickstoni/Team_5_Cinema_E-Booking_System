@@ -1,261 +1,60 @@
 package com.cinema.booking.controller;
 
 import com.cinema.booking.dto.ProfileResponse;
-import com.cinema.booking.model.*;
-import com.cinema.booking.repository.*;
-import com.cinema.booking.service.EmailService;
-import com.cinema.booking.service.EncryptionService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.cinema.booking.dto.PaymentCardUpsertRequest;
+import com.cinema.booking.service.ProfileService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/profile")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProfileController {
 
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
-    private final PaymentCardRepository paymentCardRepository;
-    private final FavoriteMovieRepository favoriteMovieRepository;
-    private final MovieRepository movieRepository;
-    private final EmailService emailService;
-    private final EncryptionService encryptionService;
+    private final ProfileService profileService;
 
-    public ProfileController(UserRepository userRepository,
-                             AddressRepository addressRepository,
-                             PaymentCardRepository paymentCardRepository,
-                             FavoriteMovieRepository favoriteMovieRepository,
-                             MovieRepository movieRepository,
-                             EmailService emailService,
-                             EncryptionService encryptionService) {
-        this.userRepository = userRepository;
-        this.addressRepository = addressRepository;
-        this.paymentCardRepository = paymentCardRepository;
-        this.favoriteMovieRepository = favoriteMovieRepository;
-        this.movieRepository = movieRepository;
-        this.emailService = emailService;
-        this.encryptionService = encryptionService;
+    public ProfileController(ProfileService profileService) {
+        this.profileService = profileService;
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getProfile(@PathVariable Integer userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        User user = userOpt.get();
-        Optional<Address> addressOpt = addressRepository.findByUserId(userId);
-        List<PaymentCard> cards = paymentCardRepository.findByUserId(userId);
-
-        List<FavoriteMovie> favorites = favoriteMovieRepository.findByUserId(userId);
-        List<Movie> favoriteMovies = new ArrayList<>();
-        for (FavoriteMovie favorite : favorites) {
-            movieRepository.findById(favorite.getMovieId()).ifPresent(favoriteMovies::add);
-        }
-
-        ProfileResponse response = new ProfileResponse();
-        response.setUser(user);
-        response.setAddress(addressOpt.orElse(null));
-        response.setCards(cards);
-        response.setFavoriteMovies(favoriteMovies);
-
-        return ResponseEntity.ok(response);
+    public ProfileResponse getProfile(@PathVariable Integer userId) {
+        return profileService.getProfile(userId);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateProfile(@PathVariable Integer userId, @RequestBody ProfileResponse request) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        User existingUser = userOpt.get();
-        User incomingUser = request.getUser();
-        boolean profileUpdated = false;
-
-        if (incomingUser != null) {
-            existingUser.setFirstName(incomingUser.getFirstName());
-            existingUser.setLastName(incomingUser.getLastName());
-            existingUser.setPhoneNumber(incomingUser.getPhoneNumber());
-            existingUser.setPromotionsEnabled(incomingUser.getPromotionsEnabled());
-            // Email is intentionally NOT updated
-            userRepository.save(existingUser);
-            profileUpdated = true;
-        }
-
-        Address incomingAddress = request.getAddress();
-        if (incomingAddress != null) {
-            Optional<Address> addressOpt = addressRepository.findByUserId(userId);
-            Address address = addressOpt.orElse(new Address());
-
-            address.setUserId(userId);
-            address.setAddressLine1(incomingAddress.getAddressLine1());
-            address.setAddressLine2(incomingAddress.getAddressLine2());
-            address.setCity(incomingAddress.getCity());
-            address.setState(incomingAddress.getState());
-            address.setPostalCode(incomingAddress.getPostalCode());
-            address.setCountry(incomingAddress.getCountry());
-
-            addressRepository.save(address);
-            profileUpdated = true;
-        }
-
-        // Send profile change notification email
-        if (profileUpdated) {
-            try {
-                String fullName = existingUser.getFirstName() + " " + existingUser.getLastName();
-                emailService.sendProfileChangeNotification(existingUser.getEmail(), fullName);
-            } catch (Exception e) {
-                // Log error but don't fail the profile update
-                System.err.println("Failed to send profile change notification: " + e.getMessage());
-            }
-        }
-
-        return ResponseEntity.ok("Profile updated successfully");
+    public String updateProfile(@PathVariable Integer userId, @RequestBody ProfileResponse request) {
+        return profileService.updateProfile(userId, request);
     }
 
     @PostMapping("/{userId}/cards")
-    public ResponseEntity<?> addCard(@PathVariable Integer userId, @RequestBody PaymentCard card) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        long cardCount = paymentCardRepository.countByUserId(userId);
-        if (cardCount >= 3) {
-            return ResponseEntity.badRequest().body("Users cannot store more than 3 payment cards.");
-        }
-
-        card.setUser(userOpt.get());
-
-        String rawCardNumber = card.getCardNumber();
-        String rawCvv = card.getCvv();
-
-        if (rawCardNumber != null && !rawCardNumber.isBlank()) {
-            if (rawCardNumber.length() >= 4) {
-                card.setLastFour(rawCardNumber.substring(rawCardNumber.length() - 4));
-            } else {
-                card.setLastFour("");
-            }
-
-            card.setCardNumber(encryptionService.encrypt(rawCardNumber));
-        } else {
-            card.setCardNumber("");
-            card.setLastFour("");
-        }
-
-        if (rawCvv != null && !rawCvv.isBlank()) {
-            card.setCvv(encryptionService.encrypt(rawCvv));
-        } else {
-            card.setCvv("");
-        }
-
-        PaymentCard saved = paymentCardRepository.save(card);
-        return ResponseEntity.ok(saved);
+    public Object addCard(@PathVariable Integer userId, @RequestBody PaymentCardUpsertRequest card) {
+        return profileService.addCard(userId, card);
     }
 
     @PutMapping("/{userId}/cards/{cardId}")
-    public ResponseEntity<?> updateCard(@PathVariable Integer userId,
-                                        @PathVariable Integer cardId,
-                                        @RequestBody PaymentCard updatedCard) {
-        Optional<PaymentCard> cardOpt = paymentCardRepository.findById(cardId);
-        if (cardOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
-        }
-
-        PaymentCard existingCard = cardOpt.get();
-        if (!existingCard.getUserId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This card does not belong to the user");
-        }
-
-        existingCard.setCardType(updatedCard.getCardType());
-        existingCard.setCardHolderName(updatedCard.getCardHolderName());
-        existingCard.setExpiryMonth(updatedCard.getExpiryMonth());
-        existingCard.setExpiryYear(updatedCard.getExpiryYear());
-
-        String rawCardNumber = updatedCard.getCardNumber();
-        String rawCvv = updatedCard.getCvv();
-
-        if (rawCardNumber != null && !rawCardNumber.isBlank()) {
-            existingCard.setCardNumber(encryptionService.encrypt(rawCardNumber));
-
-            if (rawCardNumber.length() >= 4) {
-                existingCard.setLastFour(rawCardNumber.substring(rawCardNumber.length() - 4));
-            } else {
-                existingCard.setLastFour("");
-            }
-        }
-
-        if (rawCvv != null && !rawCvv.isBlank()) {
-            existingCard.setCvv(encryptionService.encrypt(rawCvv));
-        }
-
-        return ResponseEntity.ok(paymentCardRepository.save(existingCard));
+    public Object updateCard(@PathVariable Integer userId,
+                             @PathVariable Integer cardId,
+                             @RequestBody PaymentCardUpsertRequest updatedCard) {
+        return profileService.updateCard(userId, cardId, updatedCard);
     }
 
     @DeleteMapping("/{userId}/cards/{cardId}")
-    public ResponseEntity<?> deleteCard(@PathVariable Integer userId, @PathVariable Integer cardId) {
-        Optional<PaymentCard> cardOpt = paymentCardRepository.findById(cardId);
-        if (cardOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
-        }
-
-        PaymentCard card = cardOpt.get();
-        if (!card.getUserId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This card does not belong to the user");
-        }
-
-        paymentCardRepository.delete(card);
-        return ResponseEntity.ok("Card deleted successfully");
+    public String deleteCard(@PathVariable Integer userId, @PathVariable Integer cardId) {
+        return profileService.deleteCard(userId, cardId);
     }
 
     @GetMapping("/{userId}/favorites")
-    public ResponseEntity<?> getFavorites(@PathVariable Integer userId) {
-        List<FavoriteMovie> favorites = favoriteMovieRepository.findByUserId(userId);
-        List<Movie> movies = new ArrayList<>();
-
-        for (FavoriteMovie favorite : favorites) {
-            movieRepository.findById(favorite.getMovieId()).ifPresent(movies::add);
-        }
-
-        return ResponseEntity.ok(movies);
+    public Object getFavorites(@PathVariable Integer userId) {
+        return profileService.getFavorites(userId);
     }
 
     @PostMapping("/{userId}/favorites/{movieId}")
-    public ResponseEntity<?> addFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
-        if (!userRepository.existsById(userId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        if (!movieRepository.existsById(movieId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Movie not found");
-        }
-
-        if (favoriteMovieRepository.existsByUserIdAndMovieId(userId, movieId)) {
-            return ResponseEntity.badRequest().body("Movie is already in favorites");
-        }
-
-        FavoriteMovie favorite = new FavoriteMovie();
-        favorite.setUserId(userId);
-        favorite.setMovieId(movieId);
-
-        return ResponseEntity.ok(favoriteMovieRepository.save(favorite));
+    public Object addFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
+        return profileService.addFavorite(userId, movieId);
     }
 
     @DeleteMapping("/{userId}/favorites/{movieId}")
-    public ResponseEntity<?> deleteFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
-        Optional<FavoriteMovie> favoriteOpt = favoriteMovieRepository.findByUserIdAndMovieId(userId, movieId);
-        if (favoriteOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Favorite not found");
-        }
-
-        favoriteMovieRepository.delete(favoriteOpt.get());
-        return ResponseEntity.ok("Favorite removed successfully");
+    public String deleteFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
+        return profileService.deleteFavorite(userId, movieId);
     }
 }

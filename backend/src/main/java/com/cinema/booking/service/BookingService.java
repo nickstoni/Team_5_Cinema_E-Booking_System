@@ -96,7 +96,6 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ticket quantity must match selected seats");
         }
 
-        BigDecimal subtotal = coalesceMoney(request.getSubtotal());
         BigDecimal tax = coalesceMoney(request.getTax());
         BigDecimal total = coalesceMoney(request.getTotal());
 
