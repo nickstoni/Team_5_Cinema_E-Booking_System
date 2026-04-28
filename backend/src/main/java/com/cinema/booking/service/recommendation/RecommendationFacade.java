@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.cinema.booking.dto.MovieResponse;
-import com.cinema.booking.model.Booking;
-import com.cinema.booking.model.Showtime;
-import com.cinema.booking.repository.BookingRepository;
-import com.cinema.booking.repository.ShowtimeRepository;
+import com.cinema.booking.dto.catalog.MovieResponse;
+import com.cinema.booking.model.booking.Booking;
+import com.cinema.booking.model.catalog.Showtime;
+import com.cinema.booking.repository.booking.BookingRepository;
+import com.cinema.booking.repository.catalog.ShowtimeRepository;
 
 @Service
 public class RecommendationFacade {

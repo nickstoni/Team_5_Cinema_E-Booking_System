@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.cinema.booking.dto.MovieResponse;
-import com.cinema.booking.model.Booking;
-import com.cinema.booking.model.Movie;
-import com.cinema.booking.model.Ticket;
-import com.cinema.booking.model.Showtime;
-import com.cinema.booking.repository.BookingRepository;
-import com.cinema.booking.repository.TicketRepository;
-import com.cinema.booking.repository.ShowtimeRepository;
-import com.cinema.booking.service.CatalogService;
+import com.cinema.booking.dto.catalog.MovieResponse;
+import com.cinema.booking.model.booking.Booking;
+import com.cinema.booking.model.catalog.Movie;
+import com.cinema.booking.model.booking.Ticket;
+import com.cinema.booking.model.catalog.Showtime;
+import com.cinema.booking.repository.booking.BookingRepository;
+import com.cinema.booking.repository.booking.TicketRepository;
+import com.cinema.booking.repository.catalog.ShowtimeRepository;
+import com.cinema.booking.service.catalog.CatalogService;
 
 @Component
 public class OrderHistoryRecommender {

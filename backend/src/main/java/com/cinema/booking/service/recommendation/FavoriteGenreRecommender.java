@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.cinema.booking.dto.MovieResponse;
-import com.cinema.booking.model.Movie;
-import com.cinema.booking.repository.FavoriteMovieRepository;
-import com.cinema.booking.repository.MovieRepository;
-import com.cinema.booking.service.CatalogService;
+import com.cinema.booking.dto.catalog.MovieResponse;
+import com.cinema.booking.model.catalog.Movie;
+import com.cinema.booking.repository.profile.FavoriteMovieRepository;
+import com.cinema.booking.repository.catalog.MovieRepository;
+import com.cinema.booking.service.catalog.CatalogService;
 
 @Component
 public class FavoriteGenreRecommender {
