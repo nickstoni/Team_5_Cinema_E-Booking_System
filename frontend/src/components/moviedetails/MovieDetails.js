@@ -4,6 +4,7 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import ShowtimeCard from './ShowtimeCard';
 import '../../styles/moviedetails/MovieDetails.css';
+import { API_BASE_URL } from '../../config/api';
 
 function MovieDetails() {
   const { id } = useParams();
@@ -21,14 +22,14 @@ function MovieDetails() {
     async function fetchMovieDetails() {
       try {
         // Fetch movie details
-        const movieRes = await fetch(`http://localhost:8080/api/movies`);
+        const movieRes = await fetch(`${API_BASE_URL}/api/movies`);
         const movieData = await movieRes.json();
         const foundMovie = movieData.find(m => m.movieId === parseInt(id));
         setMovie(foundMovie);
 
         // Fetch showtimes (from shows table) for this movie
         if (foundMovie) {
-          const showtimesRes = await fetch(`http://localhost:8080/api/showtimes/movie/${foundMovie.movieId}`);
+          const showtimesRes = await fetch(`${API_BASE_URL}/api/showtimes/movie/${foundMovie.movieId}`);
           
           if (!showtimesRes.ok) {
             console.warn("Showtimes API returned error, continuing without showtimes");
@@ -46,7 +47,7 @@ function MovieDetails() {
 
           // Check if movie is already a favorite
           if (userId) {
-            const favRes = await fetch(`http://localhost:8080/api/profile/${userId}/favorites`);
+            const favRes = await fetch(`${API_BASE_URL}/api/profile/${userId}/favorites`);
             if (favRes.ok) {
               const favData = await favRes.json();
               const isFav = favData.some(fav => fav.movieId === foundMovie.movieId);
@@ -95,7 +96,7 @@ function MovieDetails() {
     setFavoriteLoading(true);
     setFavoriteMessage('');
     try {
-      const endpoint = `http://localhost:8080/api/profile/${userId}/favorites/${movie.movieId}`;
+      const endpoint = `${API_BASE_URL}/api/profile/${userId}/favorites/${movie.movieId}`;
       const method = isFavorite ? "DELETE" : "POST";
 
       const res = await fetch(endpoint, { method });

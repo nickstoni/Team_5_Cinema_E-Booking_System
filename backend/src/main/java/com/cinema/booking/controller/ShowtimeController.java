@@ -41,7 +41,7 @@ public class ShowtimeController {
     }
 
     @GetMapping()
-    public List<Showtime> getallShowtimes() {
+    public List<Showtime> getAllShowtimes() {
         return showtimeRepository.findAllWithMovie();
     }
 

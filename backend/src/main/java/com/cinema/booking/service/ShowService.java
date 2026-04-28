@@ -1,10 +1,11 @@
 package com.cinema.booking.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.cinema.booking.dto.ShowRequest;
+import com.cinema.booking.exception.ConflictException;
+import com.cinema.booking.exception.ResourceNotFoundException;
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.model.Showtime;
 import com.cinema.booking.model.Showroom;
@@ -15,52 +16,56 @@ import com.cinema.booking.repository.ShowroomRepository;
 @Service
 public class ShowService {
 
-    @Autowired
-    private ShowRepository showRepository;
+    private final ShowRepository showRepository;
+    private final MovieRepository movieRepository;
+    private final ShowroomRepository showroomRepository;
 
-    @Autowired
-    private MovieRepository movieRepository;
-
-    @Autowired
-    private ShowroomRepository showroomRepository;
+    public ShowService(
+            ShowRepository showRepository,
+            MovieRepository movieRepository,
+            ShowroomRepository showroomRepository) {
+        this.showRepository = showRepository;
+        this.movieRepository = movieRepository;
+        this.showroomRepository = showroomRepository;
+    }
 
     public Showtime createShow(ShowRequest req) {
 
         boolean conflict = showRepository.existsByShowroomRoomIdAndShowdateAndShowtime(
-            req.showroomId,
-            req.showDate,
-            req.startTime
+            req.getShowroomId(),
+            req.getShowDate(),
+            req.getStartTime()
         );
 
         if (conflict) {
-            throw new RuntimeException("Showroom already booked at this time");
+            throw new ConflictException("Showroom already booked at this time");
         }
 
-        Movie movie = movieRepository.findById(req.movieId)
-            .orElseThrow(() -> new RuntimeException("Movie not found"));
+        Movie movie = movieRepository.findById(req.getMovieId())
+            .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
 
-        Showroom showroom = showroomRepository.findById(req.showroomId)
-            .orElseThrow(() -> new RuntimeException("Showroom not found"));
+        Showroom showroom = showroomRepository.findById(req.getShowroomId())
+            .orElseThrow(() -> new ResourceNotFoundException("Showroom not found"));
 
         Showtime show = new Showtime();
         show.setMovie(movie);
 
         show.setShowroom(showroom);
-        show.setShowdate(req.showDate);
-        show.setShowtime(req.startTime);
+        show.setShowdate(req.getShowDate());
+        show.setShowtime(req.getStartTime());
 
         return showRepository.save(show);
     }
 
     public void deleteShow(Integer showtimeId) {
         if (!showRepository.existsById(showtimeId)) {
-            throw new RuntimeException("Showtime not found");
+            throw new ResourceNotFoundException("Showtime not found");
         }
 
         try {
             showRepository.deleteById(showtimeId);
         } catch (DataIntegrityViolationException ex) {
-            throw new RuntimeException("Cannot delete showtime with existing bookings", ex);
+            throw new ConflictException("Cannot delete showtime with existing bookings");
         }
     }
 }

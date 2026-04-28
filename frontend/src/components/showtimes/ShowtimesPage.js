@@ -4,6 +4,7 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import ShowtimeCard from '../moviedetails/ShowtimeCard';
 import '../../styles/showtimes/ShowtimesPage.css';
+import { API_BASE_URL } from '../../config/api';
 
 function ShowtimesPage() {
   const [showtimes, setShowtimes] = useState([]);
@@ -14,7 +15,7 @@ function ShowtimesPage() {
     async function loadShowtimes() {
       try {
         // Load movies first, then fetch showtimes visibility (from shows) by movie.
-        const moviesRes = await fetch('http://localhost:8080/api/movies');
+        const moviesRes = await fetch(`${API_BASE_URL}/api/movies`);
 
         if (!moviesRes.ok) {
           throw new Error('Failed to load movies.');
@@ -27,7 +28,7 @@ function ShowtimesPage() {
 
         const showtimesByMovie = await Promise.all(
           currentMovies.map(async (movie) => {
-            const res = await fetch(`http://localhost:8080/api/showtimes/movie/${movie.movieId}`);
+            const res = await fetch(`${API_BASE_URL}/api/showtimes/movie/${movie.movieId}`);
             if (!res.ok) return [];
 
             const slots = await res.json();

@@ -10,6 +10,8 @@ import com.cinema.booking.model.Ticket;
 
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
+  List<Ticket> findByBookingId(Integer bookingId);
+
     @Query(value = """
         SELECT COALESCE(t.seat_id, 0)
         FROM tickets t

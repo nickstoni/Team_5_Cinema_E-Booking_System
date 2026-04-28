@@ -3,7 +3,7 @@ import Footer from '../layout/Footer';
 import '../../styles/login/ForgotPasswordPage.css';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { API_BASE_URL } from '../signup/SignupConstants';
+import { API_BASE_URL } from '../../config/api';
 
 function ResetPasswordPage() {
     const [searchParams] = useSearchParams();

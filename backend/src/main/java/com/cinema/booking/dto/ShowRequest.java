@@ -1,11 +1,18 @@
 package com.cinema.booking.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShowRequest {
-    public int movieId;
-    public int showroomId;
-    public LocalDate showDate;
-    public LocalTime startTime;
+    private int movieId;
+    private int showroomId;
+    private LocalDate showDate;
+    private LocalTime startTime;
 }

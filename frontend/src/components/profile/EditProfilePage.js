@@ -7,6 +7,7 @@ import PaymentCardsSection from "../signup/PaymentCardsSection";
 import ChangePasswordSection from "./ChangePasswordSection";
 import MovieCard from "../home/MovieCard";
 import { createEmptyCard } from "../signup/SignupConstants";
+import { API_BASE_URL } from '../../config/api';
 import "../../styles/profile/EditProfilePage.css";
 
 const EMPTY_ADDRESS = {
@@ -43,7 +44,7 @@ function EditProfilePage() {
   const [addressFormOpen, setAddressFormOpen] = useState(false);
 
   const loadProfile = useCallback(() => {
-    fetch(`http://localhost:8080/api/profile/${userId}`)
+    fetch(`${API_BASE_URL}/api/profile/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setProfile({
@@ -129,7 +130,7 @@ function EditProfilePage() {
         profile.address.country
       ) ? profile.address : EMPTY_ADDRESS;
 
-      const res = await fetch(`http://localhost:8080/api/profile/${userId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/profile/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -181,7 +182,7 @@ function EditProfilePage() {
     if (card.cardId) {
       try {
         const res = await fetch(
-          `http://localhost:8080/api/profile/${userId}/cards/${card.cardId}`,
+          `${API_BASE_URL}/api/profile/${userId}/cards/${card.cardId}`,
           {
             method: "DELETE"
           }
@@ -221,7 +222,7 @@ function EditProfilePage() {
       const unsavedCards = profile.cards.filter((card) => !card.cardId);
 
       for (const card of unsavedCards) {
-        const res = await fetch(`http://localhost:8080/api/profile/${userId}/cards`, {
+        const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/cards`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(card)

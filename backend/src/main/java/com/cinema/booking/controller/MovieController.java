@@ -23,19 +23,11 @@ public class MovieController {
     // GET /api/movies?search=...
     @GetMapping
     public List<Movie> getMovies(@RequestParam(required = false) String search) {
-
-        List<Movie> all = repo.findAll();
-
         if (search == null || search.isBlank()) {
-            return all;
+            return repo.findAllWithGenres();
         }
 
-        String s = search.toLowerCase();
-
-        return all.stream()
-                .filter(m -> m.getTitle() != null &&
-                        m.getTitle().toLowerCase().contains(s))
-                .toList();
+        return repo.searchByTitleWithGenres(search.trim());
     }
 
     // GET /api/movies/by-genre?genre=Drama

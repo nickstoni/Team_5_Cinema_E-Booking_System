@@ -89,6 +89,7 @@ function Navbar({ onSearch, onGenreChange }) {
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
           <li><Link to="/showtimes">Showtimes</Link></li>
+          {loggedIn ? <li><Link to="/orders">Order History</Link></li> : null}
         </ul>
         {loggedIn ? (
           <div className="auth-buttons">

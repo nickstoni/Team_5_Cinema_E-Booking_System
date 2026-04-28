@@ -1,6 +1,7 @@
 import '../../styles/home/MovieCard.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
 function MovieCard({ movie, type, favoriteMovies = [], refreshFavorites }) {
   const navigate = useNavigate();
@@ -29,14 +30,14 @@ function MovieCard({ movie, type, favoriteMovies = [], refreshFavorites }) {
 
       if (isFavorite) {
         response = await fetch(
-          `http://localhost:8080/api/profile/${userId}/favorites/${movie.movieId}`,
+          `${API_BASE_URL}/api/profile/${userId}/favorites/${movie.movieId}`,
           {
             method: 'DELETE'
           }
         );
       } else {
         response = await fetch(
-          `http://localhost:8080/api/profile/${userId}/favorites/${movie.movieId}`,
+          `${API_BASE_URL}/api/profile/${userId}/favorites/${movie.movieId}`,
           {
             method: 'POST'
           }

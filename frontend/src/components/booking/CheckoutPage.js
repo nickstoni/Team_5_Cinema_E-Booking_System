@@ -4,6 +4,7 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import { isAuthenticated } from '../../utils/auth';
 import { formatShowtimeLabel } from '../../utils/showtime';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/booking/CheckoutPage.css';
 
 const TAX_RATE = 0.06;
@@ -61,7 +62,7 @@ function CheckoutPage() {
 
     const loadEmailFromProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/profile/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/profile/${userId}`);
         if (!response.ok) return;
         const profile = await response.json();
         const profileEmail = profile?.user?.email || '';
@@ -128,11 +129,11 @@ function CheckoutPage() {
 
   if (!checkoutData) {
     return (
-      <div className="checkout-page">
+      <div className="checkout-page page-bg">
         <Navbar />
         <main className="checkout-main">
-          <section className="checkout-card loading-card">
-            <h1>Loading checkout...</h1>
+          <section className="checkout-card glass-card loading-card">
+            <h1 className="gradient-text">Loading checkout...</h1>
             <p>Preparing your order summary.</p>
           </section>
         </main>
@@ -151,13 +152,13 @@ function CheckoutPage() {
   ].filter((ticket) => ticket.quantity > 0);
 
   return (
-    <div className="checkout-page">
+    <div className="checkout-page page-bg">
       <Navbar />
       <main className="checkout-main">
         <div className="checkout-header">
           <div>
             <p className="checkout-kicker">Final review</p>
-            <h1>Checkout Order Summary</h1>
+            <h1 className="gradient-text">Checkout Order Summary</h1>
             <p className="checkout-subtitle">
               Confirm your tickets, seats, and payment details before completing the order.
             </p>
@@ -171,7 +172,7 @@ function CheckoutPage() {
         </div>
 
         <div className="checkout-grid">
-          <section className="checkout-card movie-summary-card">
+          <section className="checkout-card movie-summary-card glass-card">
             <div className="movie-summary-top">
               {poster ? <img src={poster} alt={movieTitle} className="checkout-poster" /> : null}
               <div>
@@ -186,7 +187,7 @@ function CheckoutPage() {
               <p className="contact-line">Confirm your email address for booking confirmation.</p>
               <input
                 type="email"
-                className="email-input"
+                className="form-input email-input"
                 value={emailAddress}
                 onChange={(event) => {
                   setEmailAddress(event.target.value);
@@ -201,7 +202,7 @@ function CheckoutPage() {
             </div>
           </section>
 
-          <section className="checkout-card summary-card">
+          <section className="checkout-card summary-card glass-card">
             <h2>Order details</h2>
             <div className="summary-table">
               <div className="summary-row">
@@ -242,7 +243,7 @@ function CheckoutPage() {
               </div>
             </div>
             <button 
-              className="confirm-btn" 
+              className="btn-primary confirm-btn" 
               onClick={handleProceedToPayment}
             >
               Proceed to Payment

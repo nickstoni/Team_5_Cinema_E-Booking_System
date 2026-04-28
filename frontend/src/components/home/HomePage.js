@@ -3,6 +3,7 @@ import Navbar from '../layout/Navbar';
 import HeroSection from './HeroSection';
 import MoviesSection from './MoviesSection';
 import Footer from '../layout/Footer';
+import { API_BASE_URL } from '../../config/api';
 
 function splitMoviesByAvailability(movies = []) {
   return movies.reduce(
@@ -31,7 +32,7 @@ function HomePage() {
   const loadFavorites = useCallback(async () => {
     if (!userId) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/profile/${userId}/favorites`);
+      const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/favorites`);
       const data = await res.json();
       setFavoriteMovies(data);
     } catch (err) {
@@ -55,7 +56,7 @@ function HomePage() {
 
     const initialize = async () => {
       try {
-        await Promise.all([loadMovies("http://localhost:8080/api/movies"), loadFavorites()]);
+        await Promise.all([loadMovies(`${API_BASE_URL}/api/movies`), loadFavorites()]);
       } catch (err) {
         console.error("Failed to initialize home page:", err);
       }
@@ -70,8 +71,8 @@ function HomePage() {
       setSelectedGenre('');
 
       const url = query && query.trim()
-        ? `http://localhost:8080/api/movies?search=${encodeURIComponent(query.trim())}`
-        : "http://localhost:8080/api/movies";
+        ? `${API_BASE_URL}/api/movies?search=${encodeURIComponent(query.trim())}`
+        : `${API_BASE_URL}/api/movies`;
 
       await loadMovies(url);
     } catch (err) {
@@ -85,8 +86,8 @@ function HomePage() {
       setSearchQuery('');
 
       const url = genre && genre.trim()
-        ? `http://localhost:8080/api/movies/by-genre?genre=${encodeURIComponent(genre.trim())}`
-        : "http://localhost:8080/api/movies";
+        ? `${API_BASE_URL}/api/movies/by-genre?genre=${encodeURIComponent(genre.trim())}`
+        : `${API_BASE_URL}/api/movies`;
 
       await loadMovies(url);
     } catch (err) {

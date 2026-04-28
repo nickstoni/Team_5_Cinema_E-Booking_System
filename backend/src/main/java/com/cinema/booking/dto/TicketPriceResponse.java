@@ -1,30 +1,16 @@
 package com.cinema.booking.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TicketPriceResponse {
     private BigDecimal adult;
     private BigDecimal child;
     private BigDecimal senior;
-
-    public TicketPriceResponse() {
-    }
-
-    public TicketPriceResponse(BigDecimal adult, BigDecimal child, BigDecimal senior) {
-        this.adult = adult;
-        this.child = child;
-        this.senior = senior;
-    }
-
-    public BigDecimal getAdult() {
-        return adult;
-    }
-
-    public BigDecimal getChild() {
-        return child;
-    }
-
-    public BigDecimal getSenior() {
-        return senior;
-    }
 }

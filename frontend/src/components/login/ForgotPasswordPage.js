@@ -2,7 +2,7 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import '../../styles/login/ForgotPasswordPage.css';
 import { useState } from 'react';
-import { API_BASE_URL } from '../signup/SignupConstants';
+import { API_BASE_URL } from '../../config/api';
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState('');

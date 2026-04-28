@@ -2,7 +2,8 @@ import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import LoginSection from './LoginSection';
 import '../../styles/login/LoginPage.css';
-import { API_BASE_URL, EMPTY_FORM_DATA } from '../signup/SignupConstants';
+import { EMPTY_FORM_DATA } from '../signup/SignupConstants';
+import { API_BASE_URL } from '../../config/api';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 

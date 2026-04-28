@@ -6,8 +6,8 @@ import Footer from '../layout/Footer';
 import RequiredInfoSection from './RequiredInfoSection';
 import AddressSection from './AddressSection';
 import PaymentCardsSection from './PaymentCardsSection';
+import { API_BASE_URL } from '../../config/api';
 import {
-  API_BASE_URL,
   MAX_PAYMENT_CARDS,
   EMPTY_FORM_DATA,
   ADDRESS_FIELDS,

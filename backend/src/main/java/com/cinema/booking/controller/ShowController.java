@@ -1,6 +1,5 @@
 package com.cinema.booking.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cinema.booking.dto.ShowRequest;
+import com.cinema.booking.exception.ConflictException;
+import com.cinema.booking.exception.ResourceNotFoundException;
 import com.cinema.booking.model.Showtime;
 import com.cinema.booking.service.ShowService;
 
@@ -20,8 +21,11 @@ import com.cinema.booking.service.ShowService;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ShowController {
 
-    @Autowired
-    private ShowService showService;
+    private final ShowService showService;
+
+    public ShowController(ShowService showService) {
+        this.showService = showService;
+    }
 
     @PostMapping
     public Showtime createShow(@RequestBody ShowRequest req) {
@@ -33,13 +37,11 @@ public class ShowController {
         try {
             showService.deleteShow(showtimeId);
             return ResponseEntity.ok().body("Showtime deleted successfully");
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (ConflictException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         } catch (RuntimeException ex) {
-            if ("Showtime not found".equals(ex.getMessage())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-            }
-            if ("Cannot delete showtime with existing bookings".equals(ex.getMessage())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }

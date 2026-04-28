@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 
-const API = 'http://localhost:8080/api/admin';
+const API = `${API_BASE_URL}/api/admin`;
 
 const blankShowtime = {
   movieId: '',

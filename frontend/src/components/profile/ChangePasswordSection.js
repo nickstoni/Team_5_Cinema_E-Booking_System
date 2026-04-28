@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import '../../styles/profile/ChangePasswordSection.css';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+import { API_BASE_URL } from '../../config/api';
 
 function ChangePasswordSection({ userId, onSuccess }) {
   const [formOpen, setFormOpen] = useState(false);

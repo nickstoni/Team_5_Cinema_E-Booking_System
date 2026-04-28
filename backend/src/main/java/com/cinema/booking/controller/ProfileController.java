@@ -1,9 +1,10 @@
 package com.cinema.booking.controller;
 
-import com.cinema.booking.util.EncryptionUtil;
+import com.cinema.booking.dto.ProfileResponse;
 import com.cinema.booking.model.*;
 import com.cinema.booking.repository.*;
 import com.cinema.booking.service.EmailService;
+import com.cinema.booking.service.EncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,19 +24,22 @@ public class ProfileController {
     private final FavoriteMovieRepository favoriteMovieRepository;
     private final MovieRepository movieRepository;
     private final EmailService emailService;
+    private final EncryptionService encryptionService;
 
     public ProfileController(UserRepository userRepository,
                              AddressRepository addressRepository,
                              PaymentCardRepository paymentCardRepository,
                              FavoriteMovieRepository favoriteMovieRepository,
                              MovieRepository movieRepository,
-                             EmailService emailService) {
+                             EmailService emailService,
+                             EncryptionService encryptionService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.paymentCardRepository = paymentCardRepository;
         this.favoriteMovieRepository = favoriteMovieRepository;
         this.movieRepository = movieRepository;
         this.emailService = emailService;
+        this.encryptionService = encryptionService;
     }
 
     @GetMapping("/{userId}")
@@ -140,20 +144,14 @@ public class ProfileController {
                 card.setLastFour("");
             }
 
-            System.out.println("RAW CARD NUMBER: " + rawCardNumber);
-            System.out.println("ENCRYPTED CARD NUMBER: " + EncryptionUtil.encrypt(rawCardNumber));
-
-            card.setCardNumber(EncryptionUtil.encrypt(rawCardNumber));
+            card.setCardNumber(encryptionService.encrypt(rawCardNumber));
         } else {
             card.setCardNumber("");
             card.setLastFour("");
         }
 
         if (rawCvv != null && !rawCvv.isBlank()) {
-            System.out.println("RAW CVV: " + rawCvv);
-            System.out.println("ENCRYPTED CVV: " + EncryptionUtil.encrypt(rawCvv));
-
-            card.setCvv(EncryptionUtil.encrypt(rawCvv));
+            card.setCvv(encryptionService.encrypt(rawCvv));
         } else {
             card.setCvv("");
         }
@@ -185,10 +183,7 @@ public class ProfileController {
         String rawCvv = updatedCard.getCvv();
 
         if (rawCardNumber != null && !rawCardNumber.isBlank()) {
-            System.out.println("UPDATING RAW CARD NUMBER: " + rawCardNumber);
-            System.out.println("UPDATING ENCRYPTED CARD NUMBER: " + EncryptionUtil.encrypt(rawCardNumber));
-
-            existingCard.setCardNumber(EncryptionUtil.encrypt(rawCardNumber));
+            existingCard.setCardNumber(encryptionService.encrypt(rawCardNumber));
 
             if (rawCardNumber.length() >= 4) {
                 existingCard.setLastFour(rawCardNumber.substring(rawCardNumber.length() - 4));
@@ -198,10 +193,7 @@ public class ProfileController {
         }
 
         if (rawCvv != null && !rawCvv.isBlank()) {
-            System.out.println("UPDATING RAW CVV: " + rawCvv);
-            System.out.println("UPDATING ENCRYPTED CVV: " + EncryptionUtil.encrypt(rawCvv));
-
-            existingCard.setCvv(EncryptionUtil.encrypt(rawCvv));
+            existingCard.setCvv(encryptionService.encrypt(rawCvv));
         }
 
         return ResponseEntity.ok(paymentCardRepository.save(existingCard));
