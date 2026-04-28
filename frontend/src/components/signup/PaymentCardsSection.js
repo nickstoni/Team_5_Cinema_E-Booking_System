@@ -57,9 +57,9 @@ function PaymentCardsSection({
                     value={card.cardType || ""}
                     onChange={(event) => onCardChange(index, "cardType", event.target.value)}
                   >
-                    <option value="">Select Card Type</option>
+                    <option value="" disabled>Select Card Type</option>
                     <option value="Visa">Visa</option>
-                    <option value="MasterCard">Mastercard</option>
+                    <option value="MasterCard">MasterCard</option>
                     <option value="Amex">American Express</option>
                     <option value="Discover">Discover</option>
                   </select>
@@ -81,7 +81,7 @@ function PaymentCardsSection({
                     type="text"
                     className="form-input"
                     value={card.cardNumber || ""}
-                    onChange={(event) => onCardChange(index, "cardNumber", event.target.value)}
+                    onChange={(event) => onCardChange(index, "cardNumber", event.target.value.replace(/\D/g, '').slice(0, 19))}
                     inputMode="numeric"
                     placeholder="1234123412341234"
                   />
@@ -112,25 +112,15 @@ function PaymentCardsSection({
                     readOnly={true}
                   />
                 ) : (
-                  <select
+                  <input
+                    type="text"
+                    inputMode="numeric"
                     className="form-input"
                     value={card.expiryMonth || ""}
-                    onChange={(event) => onCardChange(index, "expiryMonth", event.target.value)}
-                  >
-                    <option value="">MM</option>
-                    <option value="01">01</option>
-                    <option value="02">02</option>
-                    <option value="03">03</option>
-                    <option value="04">04</option>
-                    <option value="05">05</option>
-                    <option value="06">06</option>
-                    <option value="07">07</option>
-                    <option value="08">08</option>
-                    <option value="09">09</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select>
+                    maxLength={2}
+                    placeholder="MM"
+                    onChange={(event) => onCardChange(index, "expiryMonth", event.target.value.replace(/\D/g, '').slice(0, 2))}
+                  />
                 )}
               </label>
 
@@ -145,18 +135,15 @@ function PaymentCardsSection({
                     readOnly={true}
                   />
                 ) : (
-                  <select
+                  <input
+                    type="text"
+                    inputMode="numeric"
                     className="form-input"
                     value={card.expiryYear || ""}
-                    onChange={(event) => onCardChange(index, "expiryYear", event.target.value)}
-                  >
-                    <option value="">YYYY</option>
-                    {expiryYears.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                    maxLength={4}
+                    placeholder="YYYY"
+                    onChange={(event) => onCardChange(index, "expiryYear", event.target.value.replace(/\D/g, '').slice(0, 4))}
+                  />
                 )}
               </label>
 
@@ -166,7 +153,7 @@ function PaymentCardsSection({
                   type="password"
                   className="form-input"
                   value={card.cvv || ""}
-                  onChange={(event) => onCardChange(index, "cvv", event.target.value)}
+                  onChange={(event) => onCardChange(index, "cvv", event.target.value.replace(/\D/g, '').slice(0, 4))}
                   inputMode="numeric"
                   maxLength={4}
                   placeholder="123"

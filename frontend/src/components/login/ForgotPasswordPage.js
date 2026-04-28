@@ -3,6 +3,7 @@ import Footer from '../layout/Footer';
 import '../../styles/login/ForgotPasswordPage.css';
 import { useState } from 'react';
 import { API_BASE_URL } from '../../config/api';
+import { validateEmail } from '../../utils/emailValidation';
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -14,6 +15,13 @@ function ForgotPasswordPage() {
         event.preventDefault();
         setMessage('');
         setError('');
+
+        const emailError = validateEmail(email);
+        if (emailError) {
+            setError(emailError);
+            return;
+        }
+
         setIsLoading(true);
 
         try {

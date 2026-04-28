@@ -4,6 +4,7 @@ import LoginSection from './LoginSection';
 import '../../styles/login/LoginPage.css';
 import { EMPTY_FORM_DATA } from '../signup/SignupConstants';
 import { API_BASE_URL } from '../../config/api';
+import { validateLoginForm } from '../../utils/authValidation';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -25,6 +26,13 @@ function LoginPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
+
+        const validationError = validateLoginForm(formData);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+
         try {
             setIsLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/auth/login`, {

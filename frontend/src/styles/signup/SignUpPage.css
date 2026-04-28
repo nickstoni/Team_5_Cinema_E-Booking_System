@@ -167,6 +167,11 @@ select.form-input {
   margin-top: 0.8rem;
 }
 
+.card-box .form-input {
+  height: 48px;
+  line-height: 1.2;
+}
+
 .danger-link {
   border: none;
   background: transparent;

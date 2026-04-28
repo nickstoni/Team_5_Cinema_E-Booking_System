@@ -61,6 +61,11 @@
   flex: 0 0 auto;
 }
 
+.payment-card .form-input {
+  min-height: 48px;
+  line-height: 1.2;
+}
+
 @media (max-width: 700px) {
   .payment-actions {
     flex-direction: column;

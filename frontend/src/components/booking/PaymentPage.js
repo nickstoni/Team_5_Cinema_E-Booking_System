@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
 import { formatShowtimeLabel } from '../../utils/showtime';
+import { validatePaymentCard } from '../../utils/paymentCardValidation';
 import { API_BASE_URL } from '../../config/api';
 import '../../styles/booking/PaymentPage.css';
 
@@ -30,8 +31,9 @@ function PaymentPage() {
   const [bookingResult, setBookingResult] = useState(null);
   const [savedCards, setSavedCards] = useState([]);
   const [selectedSavedCardId, setSelectedSavedCardId] = useState(null);
+  const [useManualCardEntry, setUseManualCardEntry] = useState(false);
   const [manualCard, setManualCard] = useState({
-    cardType: 'Visa',
+    cardType: '',
     cardNumber: '',
     cardHolderName: '',
     expiryMonth: '',
@@ -54,6 +56,7 @@ function PaymentPage() {
     const userId = localStorage.getItem('userId');
     if (!userId) {
       setSavedCards([]);
+      setUseManualCardEntry(true);
       return;
     }
 
@@ -70,9 +73,13 @@ function PaymentPage() {
         setSavedCards(cards);
         if (cards.length > 0) {
           setSelectedSavedCardId(cards[0].cardId);
+          setUseManualCardEntry(false);
+        } else {
+          setUseManualCardEntry(true);
         }
       } catch {
         setSavedCards([]);
+        setUseManualCardEntry(true);
       }
     };
 
@@ -96,22 +103,92 @@ function PaymentPage() {
 
   const showtimeLabel = formatShowtimeLabel(checkoutData?.showtime);
   const confirmationEmail = (checkoutData?.confirmationEmail || localStorage.getItem('userEmail') || '').trim().toLowerCase();
-  const useSavedCard = savedCards.length > 0;
+  const hasSavedCards = savedCards.length > 0;
+  const useSavedCard = hasSavedCards && !useManualCardEntry;
+  const showManualCardForm = !hasSavedCards || useManualCardEntry;
   const selectedSavedCard = useSavedCard
     ? savedCards.find((card) => card.cardId === selectedSavedCardId) || savedCards[0]
     : null;
 
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const validateManualCard = () => {
-    if (!manualCard.cardHolderName.trim()) return 'Card holder name is required.';
-    if (!/^\d{12,19}$/.test(manualCard.cardNumber.trim())) return 'Enter a valid card number (12-19 digits).';
-    if (!/^\d{2}$/.test(manualCard.expiryMonth) || Number(manualCard.expiryMonth) < 1 || Number(manualCard.expiryMonth) > 12) {
-      return 'Enter a valid expiry month (MM).';
-    }
-    if (!/^\d{4}$/.test(manualCard.expiryYear)) return 'Enter a valid expiry year (YYYY).';
-    if (!/^\d{3,4}$/.test(manualCard.cvv.trim())) return 'Enter a valid CVV (3 or 4 digits).';
-    return '';
+  const validateManualCard = () => validatePaymentCard(manualCard, { requireCardType: true });
+
+  const updateManualCardField = (field, sanitizer = (value) => value) => (event) => {
+    setManualCard((prev) => ({
+      ...prev,
+      [field]: sanitizer(event.target.value)
+    }));
+  };
+
+  const renderManualCardForm = () => (
+    <>
+      <p style={{ marginBottom: '8px' }}><strong>Enter payment card</strong></p>
+      <div style={{ display: 'grid', gap: '8px' }}>
+        <select
+          className="form-input"
+          value={manualCard.cardType}
+          onChange={updateManualCardField('cardType')}
+          disabled={isProcessing}
+        >
+          <option value="" disabled>Select Card Type</option>
+          <option value="Visa">Visa</option>
+          <option value="MasterCard">MasterCard</option>
+          <option value="Amex">American Express</option>
+          <option value="Discover">Discover</option>
+        </select>
+        <input
+          className="form-input"
+          type="text"
+          placeholder="Card holder name"
+          value={manualCard.cardHolderName}
+          onChange={updateManualCardField('cardHolderName')}
+          disabled={isProcessing}
+        />
+        <input
+          className="form-input"
+          type="text"
+          inputMode="numeric"
+          placeholder="Card number"
+          value={manualCard.cardNumber}
+          onChange={updateManualCardField('cardNumber', (value) => value.replace(/\D/g, '').slice(0, 19))}
+          disabled={isProcessing}
+        />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+          <input
+            className="form-input"
+            type="text"
+            inputMode="numeric"
+            placeholder="MM"
+            value={manualCard.expiryMonth}
+            onChange={updateManualCardField('expiryMonth', (value) => value.replace(/\D/g, '').slice(0, 2))}
+            disabled={isProcessing}
+          />
+          <input
+            className="form-input"
+            type="text"
+            inputMode="numeric"
+            placeholder="YYYY"
+            value={manualCard.expiryYear}
+            onChange={updateManualCardField('expiryYear', (value) => value.replace(/\D/g, '').slice(0, 4))}
+            disabled={isProcessing}
+          />
+          <input
+            className="form-input"
+            type="password"
+            inputMode="numeric"
+            placeholder="CVV"
+            value={manualCard.cvv}
+            onChange={updateManualCardField('cvv', (value) => value.replace(/\D/g, '').slice(0, 4))}
+            disabled={isProcessing}
+          />
+        </div>
+      </div>
+    </>
+  );
+
+  const handleUseDifferentCard = () => {
+    setUseManualCardEntry(true);
   };
 
   const handleCompletePayment = async () => {
@@ -132,7 +209,7 @@ function PaymentPage() {
       return;
     }
 
-    if (!useSavedCard) {
+    if (showManualCardForm) {
       const manualCardError = validateManualCard();
       if (manualCardError) {
         setPaymentError(manualCardError);
@@ -259,8 +336,10 @@ function PaymentPage() {
           <p>
             Showtime: <strong>{showtimeLabel}</strong>
           </p>
-          {useSavedCard ? (
+          {hasSavedCards ? (
             <div className="payment-meta" style={{ marginTop: '12px' }}>
+              {useSavedCard ? (
+                <>
               <p style={{ marginBottom: '8px' }}><strong>Saved payment cards</strong></p>
               {savedCards.map((card) => (
                 <label key={card.cardId} style={{ display: 'block', marginBottom: '6px' }}>
@@ -275,69 +354,23 @@ function PaymentPage() {
                   {card.cardType} ending in {card.lastFour || '****'} ({card.expiryMonth}/{card.expiryYear})
                 </label>
               ))}
+              <button
+                type="button"
+                className="payment-link"
+                onClick={handleUseDifferentCard}
+                disabled={isProcessing}
+                style={{ background: 'none', border: 'none', padding: 0, marginTop: '8px', cursor: 'pointer' }}
+              >
+                Use a different card
+              </button>
+                </>
+              ) : (
+                renderManualCardForm()
+              )}
             </div>
           ) : (
             <div className="payment-meta" style={{ marginTop: '12px' }}>
-              <p style={{ marginBottom: '8px' }}><strong>Enter payment card</strong></p>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                <select
-                  className="form-input"
-                  value={manualCard.cardType}
-                  onChange={(event) => setManualCard((prev) => ({ ...prev, cardType: event.target.value }))}
-                  disabled={isProcessing}
-                >
-                  <option value="Visa">Visa</option>
-                  <option value="MasterCard">MasterCard</option>
-                  <option value="Amex">American Express</option>
-                  <option value="Discover">Discover</option>
-                </select>
-                <input
-                  className="form-input"
-                  type="text"
-                  placeholder="Card holder name"
-                  value={manualCard.cardHolderName}
-                  onChange={(event) => setManualCard((prev) => ({ ...prev, cardHolderName: event.target.value }))}
-                  disabled={isProcessing}
-                />
-                <input
-                  className="form-input"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Card number"
-                  value={manualCard.cardNumber}
-                  onChange={(event) => setManualCard((prev) => ({ ...prev, cardNumber: event.target.value.replace(/\D/g, '') }))}
-                  disabled={isProcessing}
-                />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                  <input
-                    className="form-input"
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="MM"
-                    value={manualCard.expiryMonth}
-                    onChange={(event) => setManualCard((prev) => ({ ...prev, expiryMonth: event.target.value.replace(/\D/g, '').slice(0, 2) }))}
-                    disabled={isProcessing}
-                  />
-                  <input
-                    className="form-input"
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="YYYY"
-                    value={manualCard.expiryYear}
-                    onChange={(event) => setManualCard((prev) => ({ ...prev, expiryYear: event.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                    disabled={isProcessing}
-                  />
-                  <input
-                    className="form-input"
-                    type="password"
-                    inputMode="numeric"
-                    placeholder="CVV"
-                    value={manualCard.cvv}
-                    onChange={(event) => setManualCard((prev) => ({ ...prev, cvv: event.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                    disabled={isProcessing}
-                  />
-                </div>
-              </div>
+              {renderManualCardForm()}
             </div>
           )}
           {paymentError ? <p className="payment-meta" style={{ color: '#b91c1c' }}>{paymentError}</p> : null}

@@ -14,7 +14,8 @@ import {
   createEmptyCard,
   getExpiryYears
 } from './SignupConstants';
-import { hasAnyAddressValue, validateSignupForm } from './SignupValidation';
+import { hasAnyAddressValue } from '../../utils/addressValidation';
+import { validateSignupForm } from '../../utils/signupValidation';
 
 function SignUpPage() {
   const [formData, setFormData] = useState(EMPTY_FORM_DATA);

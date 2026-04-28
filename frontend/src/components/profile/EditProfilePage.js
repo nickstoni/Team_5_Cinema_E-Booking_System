@@ -8,6 +8,9 @@ import ChangePasswordSection from "./ChangePasswordSection";
 import MovieCard from "../home/MovieCard";
 import { createEmptyCard } from "../signup/SignupConstants";
 import { API_BASE_URL } from '../../config/api';
+import { validateProfileUserForm } from '../../utils/authValidation';
+import { hasAnyAddressValue } from '../../utils/addressValidation';
+import { hasAnyCardValue, normalizeCardDigits, validatePaymentCard } from '../../utils/paymentCardValidation';
 import "../../styles/profile/EditProfilePage.css";
 
 const EMPTY_ADDRESS = {
@@ -41,7 +44,18 @@ function EditProfilePage() {
   });
 
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
   const [addressFormOpen, setAddressFormOpen] = useState(false);
+
+  const showErrorMessage = (text) => {
+    setMessageType("error");
+    setMessage(text);
+  };
+
+  const showSuccessMessage = (text) => {
+    setMessageType("success");
+    setMessage(text);
+  };
 
   const loadProfile = useCallback(() => {
     fetch(`${API_BASE_URL}/api/profile/${userId}`)
@@ -60,20 +74,11 @@ function EditProfilePage() {
           favoriteMovies: data.favoriteMovies || []
         });
         // If there's an address from the server, keep the form open
-        setAddressFormOpen(Boolean(
-          data.address && (
-            data.address.addressLine1 ||
-            data.address.addressLine2 ||
-            data.address.city ||
-            data.address.state ||
-            data.address.postalCode ||
-            data.address.country
-          )
-        ));
+        setAddressFormOpen(hasAnyAddressValue(data.address || EMPTY_ADDRESS));
       })
       .catch((err) => {
         console.error("Error loading profile:", err);
-        setMessage("Failed to load profile");
+        showErrorMessage("Failed to load profile");
       });
   }, [userId]);
 
@@ -119,16 +124,15 @@ function EditProfilePage() {
   };
 
   const handleSave = async () => {
+    const validationError = validateProfileUserForm(profile.user);
+    if (validationError) {
+      showErrorMessage(validationError);
+      return;
+    }
+
     try {
       // Only include address if it has data
-      const addressToSave = (
-        profile.address.addressLine1 ||
-        profile.address.addressLine2 ||
-        profile.address.city ||
-        profile.address.state ||
-        profile.address.postalCode ||
-        profile.address.country
-      ) ? profile.address : EMPTY_ADDRESS;
+      const addressToSave = hasAnyAddressValue(profile.address) ? profile.address : EMPTY_ADDRESS;
 
       const res = await fetch(`${API_BASE_URL}/api/profile/${userId}`, {
         method: "PUT",
@@ -140,11 +144,15 @@ function EditProfilePage() {
       });
 
       const text = await res.text();
-      setMessage(text);
+      if (res.ok) {
+        showSuccessMessage(text || "Profile updated successfully");
+      } else {
+        showErrorMessage(text || "Failed to update profile");
+      }
       loadProfile();
     } catch (err) {
       console.error(err);
-      setMessage("Error updating profile");
+      showErrorMessage("Error updating profile");
     }
   };
 
@@ -166,7 +174,7 @@ function EditProfilePage() {
 
   const handleAddCard = () => {
     if (profile.cards.length >= 3) {
-      setMessage("You cannot store more than 3 payment cards.");
+      showErrorMessage("You cannot store more than 3 payment cards.");
       return;
     }
 
@@ -189,11 +197,16 @@ function EditProfilePage() {
         );
 
         const text = await res.text();
-        setMessage(text);
+        if (res.ok) {
+          showSuccessMessage(text || "Card deleted successfully");
+        } else {
+          showErrorMessage(text || "Failed to delete card");
+          return;
+        }
         loadProfile();
       } catch (err) {
         console.error(err);
-        setMessage("Failed to delete card");
+        showErrorMessage("Failed to delete card");
       }
     } else {
       setProfile((prev) => ({
@@ -220,40 +233,66 @@ function EditProfilePage() {
   const handleSaveNewCards = async () => {
     try {
       const unsavedCards = profile.cards.filter((card) => !card.cardId);
+      const cardsToSave = unsavedCards.filter((card) => hasAnyCardValue(card));
 
-      for (const card of unsavedCards) {
-        const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/cards`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(card)
-        });
+      if (unsavedCards.length === 0) {
+        showErrorMessage("There are no new cards to save.");
+        return;
+      }
 
-        if (!res.ok) {
-          const text = await res.text();
-          setMessage(text);
+      if (cardsToSave.length === 0) {
+        showErrorMessage("Please fill out the new card details or remove the empty card before saving.");
+        return;
+      }
+
+      for (let index = 0; index < cardsToSave.length; index += 1) {
+        const card = cardsToSave[index];
+        const cardDisplayIndex = profile.cards.findIndex((existingCard) => existingCard === card) + 1;
+
+        const validationError = validatePaymentCard({
+          ...card,
+          cardNumber: normalizeCardDigits(card.cardNumber),
+          cvv: normalizeCardDigits(card.cvv)
+        }, { requireCardType: true });
+
+        if (validationError) {
+          showErrorMessage(`Card ${cardDisplayIndex || index + 1}: ${validationError}`);
           return;
         }
       }
 
-      setMessage("Cards saved successfully");
+      let savedCount = 0;
+
+      for (const card of cardsToSave) {
+
+        const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/cards`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...card,
+            cardNumber: normalizeCardDigits(card.cardNumber),
+            cvv: normalizeCardDigits(card.cvv)
+          })
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          showErrorMessage(text || "Failed to save cards");
+          return;
+        }
+
+        savedCount += 1;
+      }
+
+      showSuccessMessage(savedCount === 1 ? "Card saved successfully" : `${savedCount} cards saved successfully`);
       loadProfile();
     } catch (err) {
       console.error(err);
-      setMessage("Failed to save cards");
+      showErrorMessage("Failed to save cards");
     }
   };
 
-  const hasAddress = addressFormOpen || Boolean(
-    profile.address &&
-      (
-        profile.address.addressLine1 ||
-        profile.address.addressLine2 ||
-        profile.address.city ||
-        profile.address.state ||
-        profile.address.postalCode ||
-        profile.address.country
-      )
-  );
+  const hasAddress = addressFormOpen || hasAnyAddressValue(profile.address);
 
   return (
     <div className="profile-page page-bg">
@@ -270,7 +309,7 @@ function EditProfilePage() {
           </div>
         </div>
 
-        {message && <div className="alert alert-success">{message}</div>}
+        {message && <div className={`alert ${messageType === "error" ? "alert-error" : "alert-success"}`}>{message}</div>}
 
         <RequiredInfoSection
           formData={profile.user}
@@ -299,7 +338,7 @@ function EditProfilePage() {
           <button className="btn-secondary" onClick={handleSaveNewCards}>Save Cards</button>
         </div>
 
-        <ChangePasswordSection userId={userId} onSuccess={() => setMessage("Password changed successfully!")} />
+        <ChangePasswordSection userId={userId} onSuccess={() => showSuccessMessage("Password changed successfully!")} />
 
         <section className="favorites-section">
           <h2>Favorite Movies</h2>
