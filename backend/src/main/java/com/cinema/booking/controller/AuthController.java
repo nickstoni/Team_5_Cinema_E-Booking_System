@@ -14,6 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * REST Controller for authentication operations.
+ * 
+ * Keeps controller logic thin by delegating business work to AuthService.
+ *
+ * Deliverable 7 UML/presentation alignment:
+ * controller -> service flow, with builder-based User construction handled in service logic.
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")

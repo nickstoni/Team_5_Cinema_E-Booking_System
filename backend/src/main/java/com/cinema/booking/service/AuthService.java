@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.cinema.booking.builder.UserBuilder;
 import com.cinema.booking.dto.ChangePasswordRequest;
 import com.cinema.booking.dto.ForgotPasswordRequest;
 import com.cinema.booking.dto.LoginRequest;
@@ -56,6 +57,13 @@ public class AuthService {
         this.encryptionService = encryptionService;
     }
 
+    /**
+     * Facade-style registration workflow.
+     *
+     * Deliverable 7 UML/presentation alignment:
+     * service-layer code orchestrates validation, UserBuilder construction,
+     * persistence, and email tasks.
+     */
     @Transactional
     public RegistrationResponse register(RegistrationRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -67,19 +75,20 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
 
-        User user = new User();
-        user.setFirstName(request.getFirstName().trim());
-        user.setLastName(request.getLastName().trim());
-        user.setEmail(request.getEmail().toLowerCase().trim());
-        user.setPhoneNumber(request.getPhoneNumber().trim());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole("USER");
-        user.setStatus("INACTIVE");
-        user.setEmailVerified(false);
-        user.setPromotionsEnabled(request.getPromotionsEnabled() != null && request.getPromotionsEnabled());
-
+        // Builder usage follows Deliverable 7 Builder UML intent.
         String verificationToken = UUID.randomUUID().toString();
-        user.setEmailVerificationToken(verificationToken);
+        User user = new UserBuilder()
+                .firstName(request.getFirstName().trim())
+                .lastName(request.getLastName().trim())
+                .email(request.getEmail().toLowerCase().trim())
+                .phoneNumber(request.getPhoneNumber().trim())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role("USER")
+                .status("INACTIVE")
+                .emailVerified(false)
+                .emailVerificationToken(verificationToken)
+                .promotionsEnabled(request.getPromotionsEnabled() != null && request.getPromotionsEnabled())
+                .build();
 
         if (request.getAddress() != null) {
             user.setAddressLine1(request.getAddress().getAddressLine1());
@@ -122,6 +131,9 @@ public class AuthService {
                 "Registration successful. Please check your email to verify your account.");
     }
 
+    /**
+     * Authenticates a user and returns basic login details.
+     */
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail().toLowerCase().trim());
@@ -148,6 +160,9 @@ public class AuthService {
                 user.getRole());
     }
 
+    /**
+     * Starts password recovery and sends a reset email when the user exists.
+     */
     @Transactional
     public RegistrationResponse forgotPassword(ForgotPasswordRequest request) {
         String normalizedEmail = request.getEmail().toLowerCase().trim();
@@ -167,6 +182,9 @@ public class AuthService {
                 "If that email is registered with us, a password reset link has been sent.");
     }
 
+    /**
+     * Completes password reset after token and password validation.
+     */
     @Transactional
     public RegistrationResponse resetPassword(ResetPasswordRequest request) {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -199,6 +217,9 @@ public class AuthService {
                 "Password has been reset successfully. You may now log in.");
     }
 
+    /**
+     * Verifies email token, activates the account, and sends a welcome email.
+     */
     @Transactional
     public RegistrationResponse verifyEmail(String token) {
         Optional<User> userOptional = userRepository.findByEmailVerificationToken(token);
@@ -221,6 +242,9 @@ public class AuthService {
         return new RegistrationResponse(true, "Email verified successfully. Your account is now active.");
     }
 
+    /**
+     * Changes password for an authenticated user after validation.
+     */
     @Transactional
     public RegistrationResponse changePassword(Integer userId, ChangePasswordRequest request) {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
