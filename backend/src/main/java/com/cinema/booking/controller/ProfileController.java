@@ -2,7 +2,7 @@ package com.cinema.booking.controller;
 
 import com.cinema.booking.dto.ProfileResponse;
 import com.cinema.booking.dto.PaymentCardUpsertRequest;
-import com.cinema.booking.service.ProfileService;
+import com.cinema.booking.service.ProfileFacade;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,51 +10,51 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProfileController {
 
-    private final ProfileService profileService;
+    private final ProfileFacade profileFacade;
 
-    public ProfileController(ProfileService profileService) {
-        this.profileService = profileService;
+    public ProfileController(ProfileFacade profileFacade) {
+        this.profileFacade = profileFacade;
     }
 
     @GetMapping("/{userId}")
     public ProfileResponse getProfile(@PathVariable Integer userId) {
-        return profileService.getProfile(userId);
+        return profileFacade.getProfile(userId);
     }
 
     @PutMapping("/{userId}")
     public String updateProfile(@PathVariable Integer userId, @RequestBody ProfileResponse request) {
-        return profileService.updateProfile(userId, request);
+        return profileFacade.updateProfile(userId, request);
     }
 
     @PostMapping("/{userId}/cards")
     public Object addCard(@PathVariable Integer userId, @RequestBody PaymentCardUpsertRequest card) {
-        return profileService.addCard(userId, card);
+        return profileFacade.addCard(userId, card);
     }
 
     @PutMapping("/{userId}/cards/{cardId}")
     public Object updateCard(@PathVariable Integer userId,
                              @PathVariable Integer cardId,
                              @RequestBody PaymentCardUpsertRequest updatedCard) {
-        return profileService.updateCard(userId, cardId, updatedCard);
+        return profileFacade.updateCard(userId, cardId, updatedCard);
     }
 
     @DeleteMapping("/{userId}/cards/{cardId}")
     public String deleteCard(@PathVariable Integer userId, @PathVariable Integer cardId) {
-        return profileService.deleteCard(userId, cardId);
+        return profileFacade.deleteCard(userId, cardId);
     }
 
     @GetMapping("/{userId}/favorites")
     public Object getFavorites(@PathVariable Integer userId) {
-        return profileService.getFavorites(userId);
+        return profileFacade.getFavorites(userId);
     }
 
     @PostMapping("/{userId}/favorites/{movieId}")
     public Object addFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
-        return profileService.addFavorite(userId, movieId);
+        return profileFacade.addFavorite(userId, movieId);
     }
 
     @DeleteMapping("/{userId}/favorites/{movieId}")
     public String deleteFavorite(@PathVariable Integer userId, @PathVariable Integer movieId) {
-        return profileService.deleteFavorite(userId, movieId);
+        return profileFacade.deleteFavorite(userId, movieId);
     }
 }

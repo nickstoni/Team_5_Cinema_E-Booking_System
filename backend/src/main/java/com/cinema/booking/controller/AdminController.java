@@ -3,7 +3,7 @@ package com.cinema.booking.controller;
 import com.cinema.booking.dto.AddMovieRequest;
 import com.cinema.booking.dto.AddPromotionRequest;
 import com.cinema.booking.dto.AddShowtimeRequest;
-import com.cinema.booking.service.AdminService;
+import com.cinema.booking.service.AdminFacade;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "http://localhost:3000")
 public class AdminController {
 
-    private final AdminService adminService;
+    private final AdminFacade adminFacade;
 
-    public AdminController(AdminService adminService) {
-        this.adminService = adminService;
+    public AdminController(AdminFacade adminFacade) {
+        this.adminFacade = adminFacade;
     }
 
     // ────────────────────────────── USERS ──────────────────────────────
@@ -26,7 +26,7 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         try {
-            return ResponseEntity.ok(adminService.getAllUsers());
+            return ResponseEntity.ok(adminFacade.getAllUsers());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving users: " + e.getMessage());
@@ -36,7 +36,7 @@ public class AdminController {
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Integer userId) {
         try {
-            return ResponseEntity.ok(adminService.getUserById(userId));
+            return ResponseEntity.ok(adminFacade.getUserById(userId));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -48,7 +48,7 @@ public class AdminController {
     @PutMapping("/users/{userId}/status")
     public ResponseEntity<?> updateUserStatus(@PathVariable Integer userId, @RequestParam String status) {
         try {
-            return ResponseEntity.ok(adminService.updateUserStatus(userId, status));
+            return ResponseEntity.ok(adminFacade.updateUserStatus(userId, status));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class AdminController {
     @GetMapping("/movies")
     public ResponseEntity<?> getAllMovies() {
         try {
-            return ResponseEntity.ok(adminService.getAllMovies());
+            return ResponseEntity.ok(adminFacade.getAllMovies());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving movies: " + e.getMessage());
@@ -72,7 +72,7 @@ public class AdminController {
     @PostMapping("/movies")
     public ResponseEntity<?> addMovie(@Valid @RequestBody AddMovieRequest request) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(adminService.addMovie(request));
+            return ResponseEntity.status(HttpStatus.CREATED).body(adminFacade.addMovie(request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class AdminController {
     @DeleteMapping("/movies/{movieId}")
     public ResponseEntity<?> deleteMovie(@PathVariable Integer movieId) {
         try {
-            return ResponseEntity.ok(adminService.deleteMovie(movieId));
+            return ResponseEntity.ok(adminFacade.deleteMovie(movieId));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -98,7 +98,7 @@ public class AdminController {
     @GetMapping("/showrooms")
     public ResponseEntity<?> getAllShowrooms() {
         try {
-            return ResponseEntity.ok(adminService.getAllShowrooms());
+            return ResponseEntity.ok(adminFacade.getAllShowrooms());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving showrooms: " + e.getMessage());
@@ -110,7 +110,7 @@ public class AdminController {
     @GetMapping("/showtimes")
     public ResponseEntity<?> getAllShowtimes() {
         try {
-            return ResponseEntity.ok(adminService.getAllShowtimes());
+            return ResponseEntity.ok(adminFacade.getAllShowtimes());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving showtimes: " + e.getMessage());
@@ -120,7 +120,7 @@ public class AdminController {
     @PostMapping("/showtimes")
     public ResponseEntity<?> addShowtime(@Valid @RequestBody AddShowtimeRequest request) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(adminService.addShowtime(request));
+            return ResponseEntity.status(HttpStatus.CREATED).body(adminFacade.addShowtime(request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -132,7 +132,7 @@ public class AdminController {
     @DeleteMapping("/showtimes/{showtimeId}")
     public ResponseEntity<?> deleteShowtime(@PathVariable Integer showtimeId) {
         try {
-            return ResponseEntity.ok(adminService.deleteShowtime(showtimeId));
+            return ResponseEntity.ok(adminFacade.deleteShowtime(showtimeId));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -146,7 +146,7 @@ public class AdminController {
     @GetMapping("/promotions")
     public ResponseEntity<?> getAllPromotions() {
         try {
-            return ResponseEntity.ok(adminService.getAllPromotions());
+            return ResponseEntity.ok(adminFacade.getAllPromotions());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving promotions: " + e.getMessage());
@@ -156,7 +156,7 @@ public class AdminController {
     @PostMapping("/promotions")
     public ResponseEntity<?> addPromotion(@Valid @RequestBody AddPromotionRequest request) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(adminService.addPromotion(request));
+            return ResponseEntity.status(HttpStatus.CREATED).body(adminFacade.addPromotion(request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -168,7 +168,7 @@ public class AdminController {
     @DeleteMapping("/promotions/{promoId}")
     public ResponseEntity<?> deletePromotion(@PathVariable Integer promoId) {
         try {
-            return ResponseEntity.ok(adminService.deletePromotion(promoId));
+            return ResponseEntity.ok(adminFacade.deletePromotion(promoId));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -180,7 +180,7 @@ public class AdminController {
     @PostMapping("/promotions/{promoId}/send")
     public ResponseEntity<?> sendPromotionEmail(@PathVariable Integer promoId) {
         try {
-            return ResponseEntity.ok(adminService.sendPromotionEmail(promoId));
+            return ResponseEntity.ok(adminFacade.sendPromotionEmail(promoId));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         } catch (Exception e) {
@@ -194,7 +194,7 @@ public class AdminController {
     @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboardSummary() {
         try {
-            return ResponseEntity.ok(adminService.getDashboardSummary());
+            return ResponseEntity.ok(adminFacade.getDashboardSummary());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error retrieving dashboard summary: " + e.getMessage());

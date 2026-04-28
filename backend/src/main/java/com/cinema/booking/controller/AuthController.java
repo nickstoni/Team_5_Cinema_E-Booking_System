@@ -7,7 +7,7 @@ import com.cinema.booking.dto.LoginResponse;
 import com.cinema.booking.dto.RegistrationRequest;
 import com.cinema.booking.dto.RegistrationResponse;
 import com.cinema.booking.dto.ResetPasswordRequest;
-import com.cinema.booking.service.AuthService;
+import com.cinema.booking.service.AuthFacade;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,16 +27,16 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthFacade authFacade;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(AuthFacade authFacade) {
+        this.authFacade = authFacade;
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest request) {
         try {
-            RegistrationResponse response = authService.register(request);
+            RegistrationResponse response = authFacade.register(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode())
@@ -50,7 +50,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         try {
-            return ResponseEntity.ok(authService.login(request));
+            return ResponseEntity.ok(authFacade.login(request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(new LoginResponse(false, ex.getReason(), null, null, null, null));
@@ -63,7 +63,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<RegistrationResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         try {
-            return ResponseEntity.ok(authService.forgotPassword(request));
+            return ResponseEntity.ok(authFacade.forgotPassword(request));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new RegistrationResponse(false, "Password recovery failed: " + e.getMessage()));
@@ -73,7 +73,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<RegistrationResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         try {
-            return ResponseEntity.ok(authService.resetPassword(request));
+            return ResponseEntity.ok(authFacade.resetPassword(request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(new RegistrationResponse(false, ex.getReason()));
@@ -86,7 +86,7 @@ public class AuthController {
     @PostMapping("/verify-email")
     public ResponseEntity<RegistrationResponse> verifyEmail(@RequestParam String token) {
         try {
-            return ResponseEntity.ok(authService.verifyEmail(token));
+            return ResponseEntity.ok(authFacade.verifyEmail(token));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(new RegistrationResponse(false, ex.getReason()));
@@ -101,7 +101,7 @@ public class AuthController {
             @PathVariable Integer userId,
             @Valid @RequestBody ChangePasswordRequest request) {
         try {
-            return ResponseEntity.ok(authService.changePassword(userId, request));
+            return ResponseEntity.ok(authFacade.changePassword(userId, request));
         } catch (ResponseStatusException ex) {
             return ResponseEntity.status(ex.getStatusCode())
                     .body(new RegistrationResponse(false, ex.getReason()));

@@ -13,26 +13,26 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cinema.booking.dto.CheckoutBookingRequest;
 import com.cinema.booking.dto.CheckoutBookingResponse;
 import com.cinema.booking.dto.OrderHistoryItemResponse;
-import com.cinema.booking.service.BookingService;
+import com.cinema.booking.service.BookingFacade;
 
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "http://localhost:3000")
 public class BookingController {
 
-    private final BookingService bookingService;
+    private final BookingFacade bookingFacade;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
+    public BookingController(BookingFacade bookingFacade) {
+        this.bookingFacade = bookingFacade;
     }
 
     @PostMapping("/checkout")
     public CheckoutBookingResponse checkout(@RequestBody CheckoutBookingRequest request) {
-        return bookingService.finalizeCheckout(request);
+        return bookingFacade.checkout(request);
     }
 
     @GetMapping("/history/{userId}")
     public List<OrderHistoryItemResponse> getOrderHistory(@PathVariable Integer userId) {
-        return bookingService.getOrderHistory(userId);
+        return bookingFacade.getOrderHistory(userId);
     }
 }

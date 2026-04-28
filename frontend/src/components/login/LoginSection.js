@@ -25,7 +25,7 @@ function LoginSection({formData, onInputChange}) {
             value={formData.password}
             onChange={onInputChange}
             autoComplete="new-password"
-            placeholder="password1234"
+            placeholder="Password1234"
             required
           />
         </label>
