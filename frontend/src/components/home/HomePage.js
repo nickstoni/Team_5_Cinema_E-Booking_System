@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Navbar from '../layout/Navbar';
 import HeroSection from './HeroSection';
 import MoviesSection from './MoviesSection';
+import RecommendedMoviesSection from './RecommendedMoviesSection';
 import Footer from '../layout/Footer';
 import { API_BASE_URL } from '../../config/api';
 
@@ -25,6 +26,8 @@ function HomePage() {
   const [upcoming, setUpcoming] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
+  const [recommendedMovies, setRecommendedMovies] = useState([]);
+  const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
 
   const userId = localStorage.getItem("userId");
   const [favoriteMovies, setFavoriteMovies] = useState([]);
@@ -48,6 +51,25 @@ function HomePage() {
     setUpcoming(coming);
   }, []);
 
+  const loadRecommendations = useCallback(async () => {
+    if (!userId) {
+      setRecommendedMovies([]);
+      setRecommendationsLoaded(true);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/recommendations/${userId}?limit=8`);
+      const data = await res.json();
+      setRecommendedMovies(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to load recommendations:', err);
+      setRecommendedMovies([]);
+    } finally {
+      setRecommendationsLoaded(true);
+    }
+  }, [userId]);
+
   useEffect(() => {
     // Clear favorites if user is logged out
     if (!userId) {
@@ -56,14 +78,19 @@ function HomePage() {
 
     const initialize = async () => {
       try {
-        await Promise.all([loadMovies(`${API_BASE_URL}/api/movies`), loadFavorites()]);
+        setRecommendationsLoaded(false);
+        await Promise.all([
+          loadMovies(`${API_BASE_URL}/api/movies`),
+          loadFavorites(),
+          loadRecommendations()
+        ]);
       } catch (err) {
         console.error("Failed to initialize home page:", err);
       }
     };
 
     initialize();
-  }, [userId, loadFavorites, loadMovies]);
+  }, [userId, loadFavorites, loadMovies, loadRecommendations]);
 
   const handleSearch = async (query) => {
     try {
@@ -97,11 +124,22 @@ function HomePage() {
 
   const hasNoResults = nowPlaying.length === 0 && upcoming.length === 0 && (searchQuery || selectedGenre);
   const filterText = searchQuery ? `"${searchQuery}"` : selectedGenre ? `genre "${selectedGenre}"` : '';
+  const shouldShowRecommendations = Boolean(userId) && recommendationsLoaded;
+  const showRecommendationPlaceholder = shouldShowRecommendations && recommendedMovies.length === 0;
 
   return (
     <div>
       <Navbar onSearch={handleSearch} onGenreChange={handleGenreChange} />
       <HeroSection movies={nowPlaying} />
+
+      {shouldShowRecommendations && (
+        <RecommendedMoviesSection
+          movies={recommendedMovies}
+          favoriteMovies={favoriteMovies}
+          refreshFavorites={loadFavorites}
+          showPlaceholder={showRecommendationPlaceholder}
+        />
+      )}
 
       {hasNoResults ? (
         <div className="no-results">
