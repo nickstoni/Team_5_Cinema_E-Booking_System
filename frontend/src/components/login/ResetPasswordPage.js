@@ -3,7 +3,8 @@ import Footer from '../layout/Footer';
 import '../../styles/login/ForgotPasswordPage.css';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { API_BASE_URL } from '../signup/SignupConstants';
+import { API_BASE_URL } from '../../config/api';
+import { validateResetPasswordForm } from '../../utils/authValidation';
 
 function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
@@ -30,18 +31,9 @@ function ResetPasswordPage() {
             return;
         }
 
-        if (password !== confirmPassword) {
-            setError('Passwords do not match.');
-            return;
-        }
-
-        if (password.length < 8) {
-            setError('Password must be at least 8 characters long.');
-            return;
-        }
-
-        if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
-            setError('Password must contain at least one uppercase letter, one lowercase letter, and one number.');
+        const validationError = validateResetPasswordForm(password, confirmPassword);
+        if (validationError) {
+            setError(validationError);
             return;
         }
 

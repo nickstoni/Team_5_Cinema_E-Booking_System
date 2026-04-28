@@ -1,8 +1,7 @@
 package com.cinema.booking.controller;
 
-import com.cinema.booking.model.Movie;
-import com.cinema.booking.repository.MovieRepository;
-import com.cinema.booking.repository.MovieQueryRepository;
+import com.cinema.booking.dto.MovieResponse;
+import com.cinema.booking.service.CatalogService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,35 +11,21 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class MovieController {
 
-    private final MovieRepository repo;
-    private final MovieQueryRepository movieQueryRepo;
+    private final CatalogService catalogService;
 
-    public MovieController(MovieRepository repo, MovieQueryRepository movieQueryRepo) {
-        this.repo = repo;
-        this.movieQueryRepo = movieQueryRepo;
+    public MovieController(CatalogService catalogService) {
+        this.catalogService = catalogService;
     }
 
     // GET /api/movies?search=...
     @GetMapping
-    public List<Movie> getMovies(@RequestParam(required = false) String search) {
-
-        List<Movie> all = repo.findAll();
-
-        if (search == null || search.isBlank()) {
-            return all;
-        }
-
-        String s = search.toLowerCase();
-
-        return all.stream()
-                .filter(m -> m.getTitle() != null &&
-                        m.getTitle().toLowerCase().contains(s))
-                .toList();
+    public List<MovieResponse> getMovies(@RequestParam(required = false) String search) {
+        return catalogService.getMovies(search);
     }
 
     // GET /api/movies/by-genre?genre=Drama
     @GetMapping("/by-genre")
-    public List<Movie> getMoviesByGenre(@RequestParam String genre) {
-        return movieQueryRepo.findMoviesByGenre(genre);
+    public List<MovieResponse> getMoviesByGenre(@RequestParam String genre) {
+        return catalogService.getMoviesByGenre(genre);
     }
 }

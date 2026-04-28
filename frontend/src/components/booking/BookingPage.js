@@ -7,6 +7,7 @@ import SeatSelection from './SeatSelection';
 import { isAuthenticated } from '../../utils/auth';
 import { formatTime12Hour } from '../../utils/time';
 import { formatRoomNumber } from '../../utils/showtime';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/booking/BookingPage.css';
 
 function BookingPage() {
@@ -27,7 +28,7 @@ function BookingPage() {
   });
 
   const loadSeatMap = useCallback(async (token) => {
-    const response = await fetch(`http://localhost:8080/api/showtimes/${showtimeId}/seats${token ? `?reservationToken=${encodeURIComponent(token)}` : ''}`);
+    const response = await fetch(`${API_BASE_URL}/api/showtimes/${showtimeId}/seats${token ? `?reservationToken=${encodeURIComponent(token)}` : ''}`);
     const data = await response.json();
 
     setSeatRows(data.rows || []);
@@ -52,18 +53,18 @@ function BookingPage() {
 
   useEffect(() => {
     // Retrieve information from the movie that we want to book
-    fetch(`http://localhost:8080/api/movies`)
+    fetch(`${API_BASE_URL}/api/movies`)
       .then(res => res.json())
       .then(data => setMovie(data.find(m => m.movieId === parseInt(movieId))))
       .catch(err => console.error(err));
 
     // Retrieve selected showtime from shows (includes showroom visibility fields)
-    fetch(`http://localhost:8080/api/showtimes/movie/${movieId}`)
+    fetch(`${API_BASE_URL}/api/showtimes/movie/${movieId}`)
       .then(res => res.json())
       .then(data => setShowtime(data.find(s => s.showtimeId === parseInt(showtimeId))))
       .catch(err => console.error(err));
 
-    fetch('http://localhost:8080/api/showtimes/ticket-prices')
+    fetch(`${API_BASE_URL}/api/showtimes/ticket-prices`)
       .then(res => res.json())
       .then(data => {
         setTickets(prev => ({

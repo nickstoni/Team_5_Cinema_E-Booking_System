@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import Footer from '../layout/Footer';
+import { API_BASE_URL } from '../../config/api';
 import '../../styles/signup/EmailVerification.css';
 
 function EmailVerificationPage() {
@@ -23,7 +24,7 @@ function EmailVerificationPage() {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/auth/verify-email?token=${token}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/verify-email?token=${token}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

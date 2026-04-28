@@ -1,10 +1,15 @@
 package com.cinema.booking.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChangePasswordRequest {
 
     @NotBlank(message = "Current password is required")
@@ -17,36 +22,4 @@ public class ChangePasswordRequest {
 
     @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
-
-    public ChangePasswordRequest() {}
-
-    public ChangePasswordRequest(String currentPassword, String newPassword, String confirmPassword) {
-        this.currentPassword = currentPassword;
-        this.newPassword = newPassword;
-        this.confirmPassword = confirmPassword;
-    }
-
-    public String getCurrentPassword() {
-        return currentPassword;
-    }
-
-    public void setCurrentPassword(String currentPassword) {
-        this.currentPassword = currentPassword;
-    }
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public void setNewPassword(String newPassword) {
-        this.newPassword = newPassword;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
 }

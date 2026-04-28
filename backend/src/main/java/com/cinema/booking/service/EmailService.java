@@ -213,6 +213,50 @@ public class EmailService {
         }
     }
 
+    public void sendOrderConfirmationEmail(
+            String recipientEmail,
+            String bookingNumber,
+            String movieTitle,
+            String showtimeLabel,
+            List<String> seatLabels,
+            BigDecimal totalAmount) {
+        try {
+            String seatsText = (seatLabels == null || seatLabels.isEmpty())
+                    ? "N/A"
+                    : String.join(", ", seatLabels);
+
+            String emailBody = String.format(
+                "Hello,\n\n" +
+                "Thank you for your order. Your booking is confirmed.\n\n" +
+                "Booking Number: %s\n" +
+                "Movie: %s\n" +
+                "Showtime: %s\n" +
+                "Seats: %s\n" +
+                "Total Paid: $%s\n\n" +
+                "Please keep this email for your records.\n\n" +
+                "Best regards,\n" +
+                "Absolute Cinema Team",
+                bookingNumber == null || bookingNumber.isBlank() ? "N/A" : bookingNumber,
+                movieTitle == null || movieTitle.isBlank() ? "Selected Movie" : movieTitle,
+                showtimeLabel == null || showtimeLabel.isBlank() ? "Selected Showtime" : showtimeLabel,
+                seatsText,
+                totalAmount == null ? "0.00" : totalAmount.setScale(2, java.math.RoundingMode.HALF_UP)
+            );
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(recipientEmail);
+            message.setSubject("Absolute Cinema Order Confirmation");
+            message.setText(emailBody);
+
+            mailSender.send(message);
+            logger.info("Order confirmation email sent to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send order confirmation email to: {}", recipientEmail, e);
+            throw new RuntimeException("Failed to send order confirmation email: " + e.getMessage());
+        }
+    }
+
     public void sendPromotionEmail(String recipientEmail, String fullName, String promoCode,
             BigDecimal discountPercent, LocalDate startDate, LocalDate endDate) {
         try {

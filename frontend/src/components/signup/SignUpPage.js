@@ -6,15 +6,16 @@ import Footer from '../layout/Footer';
 import RequiredInfoSection from './RequiredInfoSection';
 import AddressSection from './AddressSection';
 import PaymentCardsSection from './PaymentCardsSection';
+import { API_BASE_URL } from '../../config/api';
 import {
-  API_BASE_URL,
   MAX_PAYMENT_CARDS,
   EMPTY_FORM_DATA,
   ADDRESS_FIELDS,
   createEmptyCard,
   getExpiryYears
 } from './SignupConstants';
-import { hasAnyAddressValue, validateSignupForm } from './SignupValidation';
+import { hasAnyAddressValue } from '../../utils/addressValidation';
+import { validateSignupForm } from '../../utils/signupValidation';
 
 function SignUpPage() {
   const [formData, setFormData] = useState(EMPTY_FORM_DATA);

@@ -7,22 +7,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cinema.booking.model.Showroom;
-import com.cinema.booking.repository.ShowroomRepository;
+import com.cinema.booking.dto.ShowroomResponse;
+import com.cinema.booking.service.CatalogService;
 
 @RestController
 @RequestMapping("/api/showrooms")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ShowroomController {
     
-    private final ShowroomRepository showroomRepository;
+    private final CatalogService catalogService;
 
-    public ShowroomController(ShowroomRepository showroomRepository) {
-        this.showroomRepository = showroomRepository;
+    public ShowroomController(CatalogService catalogService) {
+        this.catalogService = catalogService;
     }
 
     @GetMapping
-    public List<Showroom> getAllShowrooms() {
-        return showroomRepository.findAll();
+    public List<ShowroomResponse> getAllShowrooms() {
+        return catalogService.getAllShowrooms();
     }
 }

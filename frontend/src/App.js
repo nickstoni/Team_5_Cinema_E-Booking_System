@@ -14,6 +14,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import ShowtimesPage from './components/showtimes/ShowtimesPage';
 import CheckoutPage from './components/booking/CheckoutPage';
 import PaymentPage from './components/booking/PaymentPage';
+import OrderHistoryPage from './components/booking/OrderHistoryPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/booking/:movieId/:showtimeId" element={<BookingPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/orders" element={<OrderHistoryPage />} />
           <Route path="/showtimes" element={<ShowtimesPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />

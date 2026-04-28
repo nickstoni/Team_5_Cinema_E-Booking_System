@@ -22,6 +22,7 @@ import com.cinema.booking.dto.SeatMapRowResponse;
 import com.cinema.booking.dto.SeatMapSeatResponse;
 import com.cinema.booking.dto.SeatMapShowtimeView;
 import com.cinema.booking.dto.SeatReservationResponse;
+import com.cinema.booking.dto.ReservationEmailRequest;
 import com.cinema.booking.model.Seat;
 import com.cinema.booking.model.SeatReservation;
 import com.cinema.booking.repository.SeatRepository;
@@ -38,16 +39,19 @@ public class SeatReservationService {
     private final SeatRepository seatRepository;
     private final TicketRepository ticketRepository;
     private final SeatReservationRepository seatReservationRepository;
+    private final EmailService emailService;
 
     public SeatReservationService(
             ShowtimeRepository showtimeRepository,
             SeatRepository seatRepository,
             TicketRepository ticketRepository,
-            SeatReservationRepository seatReservationRepository) {
+            SeatReservationRepository seatReservationRepository,
+            EmailService emailService) {
         this.showtimeRepository = showtimeRepository;
         this.seatRepository = seatRepository;
         this.ticketRepository = ticketRepository;
         this.seatReservationRepository = seatReservationRepository;
+        this.emailService = emailService;
     }
 
     @Transactional(readOnly = true)
@@ -189,6 +193,27 @@ public class SeatReservationService {
             return;
         }
         seatReservationRepository.deleteByShowtimeIdAndReservationToken(showtimeId, reservationToken);
+    }
+
+    @Transactional(readOnly = true)
+    public void sendReservationConfirmationEmail(Integer showtimeId, ReservationEmailRequest request) {
+        if (request == null || request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid email address is required");
+        }
+
+        // Ensure showtime exists before sending an email tied to this reservation context.
+        buildSeatMap(showtimeId, null);
+
+        try {
+            emailService.sendSeatReservationConfirmationEmail(
+                    request.getEmail().trim().toLowerCase(),
+                    request.getMovieTitle(),
+                    request.getShowtimeLabel(),
+                    request.getSeatLabels());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Unable to send reservation confirmation email", ex);
+        }
     }
 
     private Seat resolveSeat(Integer showroomId, String seatLabel) {

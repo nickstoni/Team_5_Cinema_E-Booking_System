@@ -3,11 +3,17 @@ package com.cinema.booking.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "shows")
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Showtime {
 
     @Id
@@ -31,46 +37,4 @@ public class Showtime {
 
     @Column(name = "duration_mins")
     private Integer durationMins;
-
-    public Showtime() {}
-
-    public Integer getShowtimeId() {
-        return showtimeId;
-    }
-    
-    public LocalTime getShowtime() {
-        return showtime;
-    }
-    public void setShowtime(LocalTime showtime) {
-        this.showtime = showtime;
-    }
-
-    public LocalDate getShowdate() {
-        return showdate;
-    }
-    public void setShowdate(LocalDate showdate) {
-        this.showdate = showdate;
-    }
-
-    public Movie getMovie() {
-        return movie;
-    }
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-    }
-
-    public Showroom getShowroom() {
-        return showroom;
-    }
-    public void setShowroom(Showroom showroom) {
-        this.showroom = showroom;
-    }
-
-    public Integer getDurationMins() {
-        return durationMins;
-    }
-    public void setDurationMins(Integer durationMins) {
-        this.durationMins = durationMins;
-    }
-
 }

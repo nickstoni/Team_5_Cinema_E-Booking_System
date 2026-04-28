@@ -8,9 +8,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "tickets")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ticket {
 
     @Id
@@ -32,48 +38,4 @@ public class Ticket {
 
     @Column(name = "booking_id")
     private Integer bookingId;
-
-    public Integer getTicketId() {
-        return ticketId;
-    }
-
-    public String getTicketNumber() {
-        return ticketNumber;
-    }
-
-    public void setTicketNumber(String ticketNumber) {
-        this.ticketNumber = ticketNumber;
-    }
-
-    public String getTicketType() {
-        return ticketType;
-    }
-
-    public void setTicketType(String ticketType) {
-        this.ticketType = ticketType;
-    }
-
-    public BigDecimal getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(BigDecimal basePrice) {
-        this.basePrice = basePrice;
-    }
-
-    public Integer getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(Integer seatId) {
-        this.seatId = seatId;
-    }
-
-    public Integer getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(Integer bookingId) {
-        this.bookingId = bookingId;
-    }
 }

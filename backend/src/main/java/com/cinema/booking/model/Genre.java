@@ -4,11 +4,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "genres")
+@Data
+@EqualsAndHashCode(exclude = "movies")
+@ToString(exclude = "movies")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Genre {
 
     @Id
@@ -21,17 +31,4 @@ public class Genre {
     private Set<Movie> movies = new HashSet<>();
 
     private String genreName;
-
-    public Genre() {}
-
-    public Integer getGenreId() {
-        return genreId;
-    }
-
-    public String getGenreName() {
-        return genreName;
-    }
-    public void setGenreName(String genreName) {
-        this.genreName = genreName;
-    }
 }

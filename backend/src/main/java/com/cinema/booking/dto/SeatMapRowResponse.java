@@ -1,21 +1,15 @@
 package com.cinema.booking.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SeatMapRowResponse {
     private String rowLabel;
     private List<SeatMapSeatResponse> seats;
-
-    public SeatMapRowResponse(String rowLabel, List<SeatMapSeatResponse> seats) {
-        this.rowLabel = rowLabel;
-        this.seats = seats;
-    }
-
-    public String getRowLabel() {
-        return rowLabel;
-    }
-
-    public List<SeatMapSeatResponse> getSeats() {
-        return seats;
-    }
 }

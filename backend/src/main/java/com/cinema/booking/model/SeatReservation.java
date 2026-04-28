@@ -9,12 +9,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
     name = "seat_reservations",
     uniqueConstraints = @UniqueConstraint(columnNames = {"show_id", "seat_id"})
 )
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SeatReservation {
 
     @Id
@@ -36,48 +42,4 @@ public class SeatReservation {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    public Integer getReservationId() {
-        return reservationId;
-    }
-
-    public Integer getShowtimeId() {
-        return showtimeId;
-    }
-
-    public void setShowtimeId(Integer showtimeId) {
-        this.showtimeId = showtimeId;
-    }
-
-    public Integer getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(Integer seatId) {
-        this.seatId = seatId;
-    }
-
-    public String getReservationToken() {
-        return reservationToken;
-    }
-
-    public void setReservationToken(String reservationToken) {
-        this.reservationToken = reservationToken;
-    }
-
-    public LocalDateTime getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }

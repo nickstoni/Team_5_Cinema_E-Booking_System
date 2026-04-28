@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import '../../styles/profile/ChangePasswordSection.css';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+import { API_BASE_URL } from '../../config/api';
+import { validateChangePasswordForm } from '../../utils/authValidation';
 
 function ChangePasswordSection({ userId, onSuccess }) {
   const [formOpen, setFormOpen] = useState(false);
@@ -24,30 +24,12 @@ function ChangePasswordSection({ userId, onSuccess }) {
   };
 
   const validatePasswords = () => {
-    if (!passwords.currentPassword.trim()) {
-      setError('Current password is required');
+    const validationError = validateChangePasswordForm(passwords);
+    if (validationError) {
+      setError(validationError);
       return false;
     }
-    if (!passwords.newPassword.trim()) {
-      setError('New password is required');
-      return false;
-    }
-    if (!passwords.confirmPassword.trim()) {
-      setError('Password confirmation is required');
-      return false;
-    }
-    if (passwords.newPassword.length < 8) {
-      setError('New password must be at least 8 characters');
-      return false;
-    }
-    if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(passwords.newPassword)) {
-      setError('New password must contain at least one uppercase letter, one lowercase letter, and one number.');
-      return false;
-    }
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      setError('New passwords do not match');
-      return false;
-    }
+
     return true;
   };
 

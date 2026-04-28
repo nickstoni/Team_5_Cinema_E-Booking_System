@@ -4,9 +4,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "promotions")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Promotion {
 
     @Id
@@ -28,23 +34,4 @@ public class Promotion {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
-
-    public Promotion() {}
-
-    public Integer getPromoId() { return promoId; }
-
-    public String getPromoCode() { return promoCode; }
-    public void setPromoCode(String promoCode) { this.promoCode = promoCode; }
-
-    public BigDecimal getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(BigDecimal discountPercent) { this.discountPercent = discountPercent; }
-
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
-
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }
