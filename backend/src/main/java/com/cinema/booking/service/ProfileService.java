@@ -122,11 +122,11 @@ public class ProfileService {
 
         PaymentCard card = new PaymentCard();
         card.setUser(user);
-        card.setCardType(request.cardType());
-        card.setCardHolderName(request.cardHolderName());
-        card.setExpiryMonth(request.expiryMonth());
-        card.setExpiryYear(request.expiryYear());
-        encryptPaymentCard(card, request.cardNumber(), request.cvv());
+        card.setCardType(request.getCardType());
+        card.setCardHolderName(request.getCardHolderName());
+        card.setExpiryMonth(request.getExpiryMonth());
+        card.setExpiryYear(request.getExpiryYear());
+        encryptPaymentCard(card, request.getCardNumber(), request.getCvv());
         return paymentCardRepository.save(card);
     }
 
@@ -139,12 +139,12 @@ public class ProfileService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This card does not belong to the user");
         }
 
-        existingCard.setCardType(request.cardType());
-        existingCard.setCardHolderName(request.cardHolderName());
-        existingCard.setExpiryMonth(request.expiryMonth());
-        existingCard.setExpiryYear(request.expiryYear());
+        existingCard.setCardType(request.getCardType());
+        existingCard.setCardHolderName(request.getCardHolderName());
+        existingCard.setExpiryMonth(request.getExpiryMonth());
+        existingCard.setExpiryYear(request.getExpiryYear());
 
-        encryptPaymentCard(existingCard, request.cardNumber(), request.cvv());
+        encryptPaymentCard(existingCard, request.getCardNumber(), request.getCvv());
         return paymentCardRepository.save(existingCard);
     }
 
