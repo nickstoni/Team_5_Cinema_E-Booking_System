@@ -8,10 +8,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cinema.booking.model.booking.Seat;
-import com.cinema.booking.model.catalog.Showroom;
-import com.cinema.booking.repository.booking.SeatRepository;
-import com.cinema.booking.repository.catalog.ShowroomRepository;
+import com.cinema.booking.model.Seat;
+import com.cinema.booking.model.Showroom;
+import com.cinema.booking.repository.SeatRepository;
+import com.cinema.booking.repository.ShowroomRepository;
 
 @Component
 public class SeatDataInitializer {

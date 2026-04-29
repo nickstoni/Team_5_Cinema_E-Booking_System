@@ -1,9 +1,9 @@
 package com.cinema.booking.shared.adapter;
 
-import com.cinema.booking.dto.show.ShowRequest;
-import com.cinema.booking.model.catalog.Movie;
-import com.cinema.booking.model.catalog.Showtime;
-import com.cinema.booking.model.catalog.Showroom;
+import com.cinema.booking.dto.ShowRequest;
+import com.cinema.booking.model.Movie;
+import com.cinema.booking.model.Showtime;
+import com.cinema.booking.model.Showroom;
 
 /**
  * Adapter for mapping ShowRequest DTOs to Showtime entities.

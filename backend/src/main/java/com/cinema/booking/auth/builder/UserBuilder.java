@@ -2,7 +2,7 @@ package com.cinema.booking.auth.builder;
 
 import java.time.LocalDateTime;
 
-import com.cinema.booking.model.auth.User;
+import com.cinema.booking.model.User;
 
 /**
  * Builder for creating User entities with required and optional fields.

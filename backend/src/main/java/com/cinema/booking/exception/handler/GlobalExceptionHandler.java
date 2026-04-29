@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.cinema.booking.dto.common.ApiErrorResponse;
+import com.cinema.booking.dto.ApiErrorResponse;
 import com.cinema.booking.exception.domain.ConflictException;
 import com.cinema.booking.exception.domain.ResourceNotFoundException;
 
