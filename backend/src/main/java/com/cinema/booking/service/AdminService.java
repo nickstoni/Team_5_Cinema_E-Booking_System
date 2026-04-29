@@ -183,6 +183,43 @@ public class AdminService {
     }
 
     @Transactional(readOnly = true)
+    public com.cinema.booking.dto.PromotionValidationResponse validatePromotionCode(String promoCode) {
+        if (promoCode == null || promoCode.isBlank()) {
+            return new com.cinema.booking.dto.PromotionValidationResponse(
+                    false, "Promotion code is required", null, null);
+        }
+
+        String normalizedCode = promoCode.toUpperCase().trim();
+        var promotion = promotionRepository.findByPromoCode(normalizedCode);
+
+        if (promotion.isEmpty()) {
+            return new com.cinema.booking.dto.PromotionValidationResponse(
+                    false, "Promotion code not found", null, null);
+        }
+
+        Promotion promo = promotion.get();
+
+        if (!Boolean.TRUE.equals(promo.getIsActive())) {
+            return new com.cinema.booking.dto.PromotionValidationResponse(
+                    false, "Promotion code is not active", null, null);
+        }
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        if (promo.getStartDate() != null && today.isBefore(promo.getStartDate())) {
+            return new com.cinema.booking.dto.PromotionValidationResponse(
+                    false, "Promotion code is not yet available", null, null);
+        }
+
+        if (promo.getEndDate() != null && today.isAfter(promo.getEndDate())) {
+            return new com.cinema.booking.dto.PromotionValidationResponse(
+                    false, "Promotion code has expired", null, null);
+        }
+
+        return new com.cinema.booking.dto.PromotionValidationResponse(
+                true, "Promotion code is valid", promo.getDiscountPercent(), normalizedCode);
+    }
+
+    @Transactional(readOnly = true)
     public String sendPromotionEmail(Integer promoId) {
         Promotion promotion = promotionRepository.findById(promoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotion not found"));

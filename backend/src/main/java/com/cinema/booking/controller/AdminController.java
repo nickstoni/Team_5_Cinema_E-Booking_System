@@ -189,6 +189,16 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/promotions/validate")
+    public ResponseEntity<?> validatePromotionCode(@RequestParam String promoCode) {
+        try {
+            return ResponseEntity.ok(adminFacade.validatePromotionCode(promoCode));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error validating promotion: " + e.getMessage());
+        }
+    }
+
     // ────────────────────────────── DASHBOARD ──────────────────────────────
 
     @GetMapping("/dashboard")

@@ -1,6 +1,7 @@
 package com.cinema.booking.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
     List<Promotion> findAllActive();
 
     boolean existsByPromoCode(String promoCode);
+
+    Optional<Promotion> findByPromoCode(String promoCode);
 }

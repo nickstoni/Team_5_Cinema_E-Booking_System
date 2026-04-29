@@ -16,6 +16,11 @@ function CheckoutPage() {
   const [checkoutData, setCheckoutData] = useState(null);
   const [emailAddress, setEmailAddress] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoError, setPromoError] = useState('');
+  const [promoSuccess, setPromoSuccess] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
 
   const readPendingCheckout = (value) => {
     if (!value) return null;
@@ -80,20 +85,80 @@ function CheckoutPage() {
 
   const pricing = useMemo(() => {
     if (!checkoutData) {
-      return { subtotal: 0, tax: 0, total: 0 };
+      return { subtotal: 0, discountAmount: 0, subtotalAfterDiscount: 0, tax: 0, total: 0 };
     }
 
-    const subtotal = Number(checkoutData.subtotal ?? 0);
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+    let subtotal = Number(checkoutData.subtotal ?? 0);
+    let discountAmount = 0;
+
+    // Apply discount if promo code is valid
+    if (appliedPromo && appliedPromo.discountPercent) {
+      discountAmount = subtotal * (Number(appliedPromo.discountPercent) / 100);
+    }
+
+    const subtotalAfterDiscount = subtotal - discountAmount;
+    const tax = subtotalAfterDiscount * TAX_RATE;
+    const total = subtotalAfterDiscount + tax;
+
     return {
       subtotal,
+      discountAmount,
+      subtotalAfterDiscount,
       tax,
       total
     };
-  }, [checkoutData]);
+  }, [checkoutData, appliedPromo]);
 
   const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const handleApplyPromo = async () => {
+    setPromoError('');
+    setPromoSuccess('');
+
+    if (!promoCode.trim()) {
+      setPromoError('Please enter a promotion code.');
+      return;
+    }
+
+    setIsValidatingPromo(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/promotions/validate?promoCode=${encodeURIComponent(promoCode)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        setPromoError('Failed to validate promotion code.');
+        setIsValidatingPromo(false);
+        return;
+      }
+
+      const result = await response.json();
+
+      if (!result.valid) {
+        setPromoError(result.message || 'Invalid promotion code.');
+        setAppliedPromo(null);
+      } else {
+        setAppliedPromo(result);
+        setPromoSuccess(`Promotion applied! ${result.discountPercent}% off`);
+      }
+    } catch (error) {
+      setPromoError('Error validating promotion code. Please try again.');
+      setAppliedPromo(null);
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCode('');
+    setPromoError('');
+    setPromoSuccess('');
+  };
 
   const handleProceedToPayment = () => {
     if (!checkoutData) return;
@@ -112,7 +177,9 @@ function CheckoutPage() {
 
     const updatedCheckout = {
       ...checkoutData,
-      confirmationEmail: normalizedEmail
+      confirmationEmail: normalizedEmail,
+      appliedPromoCode: appliedPromo?.promoCode || null,
+      discountPercent: appliedPromo?.discountPercent || null
     };
 
     setCheckoutData(updatedCheckout);
@@ -233,6 +300,18 @@ function CheckoutPage() {
                 <span>Total before tax</span>
                 <span>${pricing.subtotal.toFixed(2)}</span>
               </div>
+              {appliedPromo && pricing.discountAmount > 0 && (
+                <div className="summary-row discount-row">
+                  <span>Discount ({appliedPromo.discountPercent}%)</span>
+                  <span style={{ color: '#4ade80' }}>-${pricing.discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {appliedPromo && (
+                <div className="summary-row subtotal-after-discount-row">
+                  <span>Subtotal after discount</span>
+                  <span>${pricing.subtotalAfterDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="summary-row">
                 <span>Tax (6%)</span>
                 <span>${pricing.tax.toFixed(2)}</span>
@@ -240,6 +319,52 @@ function CheckoutPage() {
               <div className="summary-row total-row">
                 <span>Total</span>
                 <span>${pricing.total.toFixed(2)}</span>
+              </div>
+
+              <div className="promo-code-section">
+                <p className="section-label" style={{ marginTop: '16px', marginBottom: '8px' }}>
+                  Promotion code
+                </p>
+                {appliedPromo ? (
+                  <div className="promo-applied-box">
+                    <div className="promo-applied-content">
+                      <span className="promo-code-badge">{appliedPromo.promoCode}</span>
+                      <span className="promo-discount-text">{appliedPromo.discountPercent}% discount applied</span>
+                    </div>
+                    <button 
+                      className="promo-remove-btn"
+                      onClick={handleRemovePromo}
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="promo-input-group">
+                    <input
+                      type="text"
+                      className="form-input promo-input"
+                      value={promoCode}
+                      onChange={(event) => {
+                        setPromoCode(event.target.value);
+                        if (promoError) setPromoError('');
+                        if (promoSuccess) setPromoSuccess('');
+                      }}
+                      placeholder="Enter promotion code"
+                      disabled={isValidatingPromo}
+                    />
+                    <button 
+                      className="btn-secondary apply-promo-btn"
+                      onClick={handleApplyPromo}
+                      disabled={isValidatingPromo || !promoCode.trim()}
+                      type="button"
+                    >
+                      {isValidatingPromo ? 'Validating...' : 'Apply'}
+                    </button>
+                  </div>
+                )}
+                {promoError && <p className="promo-error">{promoError}</p>}
+                {promoSuccess && <p className="promo-success">{promoSuccess}</p>}
               </div>
             </div>
             <button 

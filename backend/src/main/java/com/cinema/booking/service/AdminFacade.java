@@ -9,6 +9,7 @@ import com.cinema.booking.dto.AddPromotionRequest;
 import com.cinema.booking.dto.AddShowtimeRequest;
 import com.cinema.booking.dto.AdminDashboardSummary;
 import com.cinema.booking.dto.AdminShowtimeResponse;
+import com.cinema.booking.dto.PromotionValidationResponse;
 import com.cinema.booking.model.Movie;
 import com.cinema.booking.model.Promotion;
 import com.cinema.booking.model.Showroom;
@@ -80,7 +81,12 @@ public class AdminFacade {
         return adminService.sendPromotionEmail(promoId);
     }
 
+    public PromotionValidationResponse validatePromotionCode(String promoCode) {
+        return adminService.validatePromotionCode(promoCode);
+    }
+
     public AdminDashboardSummary getDashboardSummary() {
         return adminService.getDashboardSummary();
     }
 }
+
