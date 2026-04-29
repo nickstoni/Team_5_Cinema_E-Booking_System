@@ -6,7 +6,7 @@ import '../../styles/home/MoviesSection.css';
 function MoviesSection({ title, movies, type, searchQuery, selectedGenre, favoriteMovies, refreshFavorites }) {
   const [startIndex, setStartIndex] = useState(0);
   // Number of movies to show at a time (Can be changed later).
-  const moviesPerPage = 8;
+  const moviesPerPage = 7;
 
   const nextMovies = () => {
     if (startIndex + moviesPerPage < movies.length) {

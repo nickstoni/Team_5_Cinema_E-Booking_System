@@ -4,7 +4,7 @@ import '../../styles/home/RecommendedMoviesSection.css';
 
 function RecommendedMoviesSection({ movies = [], favoriteMovies = [], refreshFavorites, showPlaceholder = false }) {
   const [startIndex, setStartIndex] = useState(0);
-  const moviesPerPage = 8;
+  const moviesPerPage = 7;
 
   useEffect(() => {
     setStartIndex(0);

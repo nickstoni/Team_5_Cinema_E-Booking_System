@@ -32,25 +32,6 @@ function HomePage() {
   const userId = localStorage.getItem("userId");
   const [favoriteMovies, setFavoriteMovies] = useState([]);
 
-  const loadFavorites = useCallback(async () => {
-    if (!userId) return;
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/favorites`);
-      const data = await res.json();
-      setFavoriteMovies(data);
-    } catch (err) {
-      console.error("Failed to load favorites:", err);
-    }
-  }, [userId]);
-
-  const loadMovies = useCallback(async (url) => {
-    const res = await fetch(url);
-    const data = await res.json();
-    const { nowPlaying: current, upcoming: coming } = splitMoviesByAvailability(Array.isArray(data) ? data : []);
-    setNowPlaying(current);
-    setUpcoming(coming);
-  }, []);
-
   const loadRecommendations = useCallback(async () => {
     if (!userId) {
       setRecommendedMovies([]);
@@ -59,7 +40,7 @@ function HomePage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/recommendations/${userId}?limit=8`);
+      const res = await fetch(`${API_BASE_URL}/api/recommendations/${userId}?limit=500`);
       const data = await res.json();
       setRecommendedMovies(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -69,6 +50,31 @@ function HomePage() {
       setRecommendationsLoaded(true);
     }
   }, [userId]);
+
+  const loadFavorites = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/profile/${userId}/favorites`);
+      const data = await res.json();
+      setFavoriteMovies(data);
+      // When favorites change, refresh recommendations so the "Recommended For You" section updates.
+      try {
+        await loadRecommendations();
+      } catch (err) {
+        console.error('Failed to reload recommendations after favorites update:', err);
+      }
+    } catch (err) {
+      console.error("Failed to load favorites:", err);
+    }
+  }, [userId, loadRecommendations]);
+
+  const loadMovies = useCallback(async (url) => {
+    const res = await fetch(url);
+    const data = await res.json();
+    const { nowPlaying: current, upcoming: coming } = splitMoviesByAvailability(Array.isArray(data) ? data : []);
+    setNowPlaying(current);
+    setUpcoming(coming);
+  }, []);
 
   useEffect(() => {
     // Clear favorites if user is logged out

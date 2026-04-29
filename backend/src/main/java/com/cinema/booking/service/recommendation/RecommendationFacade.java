@@ -13,50 +13,89 @@ import com.cinema.booking.model.booking.Booking;
 import com.cinema.booking.model.catalog.Showtime;
 import com.cinema.booking.repository.booking.BookingRepository;
 import com.cinema.booking.repository.catalog.ShowtimeRepository;
+import com.cinema.booking.model.catalog.Movie;
+import com.cinema.booking.repository.catalog.MovieRepository;
+import com.cinema.booking.service.catalog.CatalogService;
 
 @Service
 public class RecommendationFacade {
 
-    private final OrderHistoryRecommender orderHistoryRecommender;
     private final FavoriteGenreRecommender favoriteGenreRecommender;
     private final BookingRepository bookingRepository;
     private final ShowtimeRepository showtimeRepository;
+    private final CatalogService catalogService;
+    private final MovieRepository movieRepository;
 
     public RecommendationFacade(
-            OrderHistoryRecommender orderHistoryRecommender,
             FavoriteGenreRecommender favoriteGenreRecommender,
             BookingRepository bookingRepository,
-            ShowtimeRepository showtimeRepository) {
-        this.orderHistoryRecommender = orderHistoryRecommender;
+            ShowtimeRepository showtimeRepository,
+            CatalogService catalogService,
+            MovieRepository movieRepository) {
         this.favoriteGenreRecommender = favoriteGenreRecommender;
         this.bookingRepository = bookingRepository;
         this.showtimeRepository = showtimeRepository;
+        this.catalogService = catalogService;
+        this.movieRepository = movieRepository;
     }
 
     public List<MovieResponse> recommendForUser(Integer userId, int limit) {
         Set<Integer> purchasedMovieIds = loadPurchasedMovieIds(userId);
 
-        // Collect recommendations from both strategies and merge preserving order
-        List<MovieResponse> favBased = favoriteGenreRecommender.recommendByFavoriteGenres(userId, limit);
-        List<MovieResponse> historyBased = orderHistoryRecommender.recommendByOrderHistory(userId, limit);
+        // Fetch actual favorited movies directly (not recommendations)
+        List<Integer> favoriteMovieIds = favoriteGenreRecommender.getFavoriteMovieIds(userId);
 
-        // Use LinkedHashSet to preserve insertion order and dedupe by movieId
-        Set<Integer> seen = new LinkedHashSet<>();
-        List<MovieResponse> result = new ArrayList<>();
+        if (favoriteMovieIds == null || favoriteMovieIds.isEmpty()) {
+            return new ArrayList<>();
+        }
 
-        for (MovieResponse m : favBased) {
-            if (m != null && m.getMovieId() != null && !purchasedMovieIds.contains(m.getMovieId()) && !seen.contains(m.getMovieId())) {
-                seen.add(m.getMovieId());
-                result.add(m);
-                if (result.size() >= limit) return result;
+        // Load the actual favorited movies and extract their genres
+        java.util.Set<String> allowedGenres = new java.util.LinkedHashSet<>();
+        for (Integer movieId : favoriteMovieIds) {
+            Movie movie = movieRepository.findById(movieId).orElse(null);
+            if (movie != null && movie.getGenres() != null) {
+                movie.getGenres().forEach(g -> {
+                    if (g != null && g.getGenreName() != null) {
+                        allowedGenres.add(g.getGenreName());
+                    }
+                });
             }
         }
 
-        for (MovieResponse m : historyBased) {
-            if (m != null && m.getMovieId() != null && !purchasedMovieIds.contains(m.getMovieId()) && !seen.contains(m.getMovieId())) {
-                seen.add(m.getMovieId());
-                result.add(m);
-                if (result.size() >= limit) return result;
+        // Helper to check if movie matches allowed genres
+        java.util.function.Predicate<MovieResponse> matchesAllowedGenre = (movie) -> {
+            if (movie == null || movie.getGenres() == null) {
+                return false;
+            }
+            for (var g : movie.getGenres()) {
+                if (g != null && g.getGenreName() != null && allowedGenres.contains(g.getGenreName())) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        Set<Integer> seen = new LinkedHashSet<>();
+        List<MovieResponse> result = new ArrayList<>();
+
+        // Get all movies from allowed genres and filter
+        for (String genre : allowedGenres) {
+            List<MovieResponse> moviesByGenre = catalogService.getMoviesByGenre(genre);
+            
+            if (moviesByGenre != null) {
+                for (MovieResponse m : moviesByGenre) {
+                    if (m != null && m.getMovieId() != null) {
+                        boolean isFavorited = favoriteMovieIds.contains(m.getMovieId());
+                        boolean isPurchased = purchasedMovieIds.contains(m.getMovieId());
+                        boolean isSeen = seen.contains(m.getMovieId());
+                        
+                        if (!isSeen && !isPurchased && (isFavorited || matchesAllowedGenre.test(m))) {
+                            seen.add(m.getMovieId());
+                            result.add(m);
+                            if (result.size() >= limit) return result;
+                        }
+                    }
+                }
             }
         }
 

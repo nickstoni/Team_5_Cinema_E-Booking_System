@@ -26,7 +26,7 @@ public class RecommendationController {
     @GetMapping("/{userId}")
     public List<MovieResponse> getRecommendations(
             @PathVariable Integer userId,
-            @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit) {
-        return recommendationFacade.recommendForUser(userId, Math.max(1, Math.min(50, limit)));
+            @RequestParam(name = "limit", required = false, defaultValue = "50") Integer limit) {
+        return recommendationFacade.recommendForUser(userId, Math.max(1, Math.min(500, limit)));
     }
 }

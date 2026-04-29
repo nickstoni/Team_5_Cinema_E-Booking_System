@@ -243,6 +243,9 @@ public class EmailService {
                 totalAmount == null ? "0.00" : totalAmount.setScale(2, java.math.RoundingMode.HALF_UP)
             );
 
+            // Fix duplicate "Room Room" text that can occur from formatting
+            emailBody = emailBody.replace("(Room Room", "(Room");
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(recipientEmail);

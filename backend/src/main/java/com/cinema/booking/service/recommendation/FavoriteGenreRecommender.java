@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.cinema.booking.dto.catalog.MovieResponse;
-import com.cinema.booking.model.catalog.Movie;
 import com.cinema.booking.repository.profile.FavoriteMovieRepository;
 import com.cinema.booking.repository.catalog.MovieRepository;
 import com.cinema.booking.service.catalog.CatalogService;
@@ -38,7 +37,12 @@ public class FavoriteGenreRecommender {
         for (var fav : favs) {
             movieRepository.findById(fav.getMovieId()).ifPresent(movie -> {
                 if (movie.getGenres() != null) {
-                    movie.getGenres().forEach(g -> genreCounts.merge(g.getGenreName(), 2, Integer::sum));
+                    movie.getGenres().forEach(g -> {
+                        String name = g == null ? null : g.getGenreName();
+                        if (name != null) {
+                            genreCounts.put(name, genreCounts.getOrDefault(name, 0) + 2);
+                        }
+                    });
                 }
             });
         }
@@ -53,13 +57,20 @@ public class FavoriteGenreRecommender {
         List<MovieResponse> recommendations = new ArrayList<>();
         for (String genre : sortedGenres) {
             var movies = catalogService.getMoviesByGenre(genre);
+            if (movies == null || movies.isEmpty()) continue;
             for (MovieResponse m : movies) {
                 if (recommendations.size() >= limit) break;
-                recommendations.add(m);
+                if (m != null) recommendations.add(m);
             }
             if (recommendations.size() >= limit) break;
         }
 
         return recommendations.stream().distinct().limit(limit).collect(Collectors.toList());
+    }
+
+    public List<Integer> getFavoriteMovieIds(Integer userId) {
+        var favs = favoriteMovieRepository.findByUserId(userId);
+        if (favs == null || favs.isEmpty()) return List.of();
+        return favs.stream().map(f -> f.getMovieId()).collect(Collectors.toList());
     }
 }
